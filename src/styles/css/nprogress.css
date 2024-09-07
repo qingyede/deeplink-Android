@@ -1,0 +1,54 @@
+:root {
+  --nprogress-height: 2.5px; /* 进度条高度 */
+  --nprogress-color-start: #6a11cb; /* 渐变起始颜色 */
+  --nprogress-color-end: #2575fc; /* 渐变结束颜色 */
+  --nprogress-shadow-blur-1: 10px; /* 外阴影1模糊值 */
+  --nprogress-shadow-blur-2: 5px; /* 外阴影2模糊值 */
+  --nprogress-peg-opacity: 1; /* 进度尾巴透明度 */
+  --nprogress-peg-rotate: 3deg; /* 进度尾巴旋转角度 */
+  --nprogress-peg-translate-y: -4px; /* 进度尾巴Y轴位移 */
+  --nprogress-peg-width: 100px; /* 进度尾巴宽度 */
+  --nprogress-bar-transition: 0.3s ease-out; /* 进度条过渡时间 */
+  --nprogress-peg-transition-opacity: 0.6s ease-out; /* 进度尾巴透明度过渡时间 */
+}
+
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: linear-gradient(90deg, var(--nprogress-color-start), var(--nprogress-color-end));
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--nprogress-height);
+  box-shadow: 0 0 var(--nprogress-shadow-blur-1) var(--nprogress-color-start),
+    0 0 var(--nprogress-shadow-blur-2) var(--nprogress-color-end);
+}
+
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: var(--nprogress-peg-width);
+  height: 100%;
+  opacity: var(--nprogress-peg-opacity);
+  transform: rotate(var(--nprogress-peg-rotate)) translate(0px, var(--nprogress-peg-translate-y));
+  border-radius: 50%;
+  box-shadow: 0 0 var(--nprogress-shadow-blur-1) var(--nprogress-color-start),
+    0 0 var(--nprogress-shadow-blur-2) var(--nprogress-color-end);
+}
+
+#nprogress .spinner {
+  display: none;
+}
+
+#nprogress .bar {
+  transition: all var(--nprogress-bar-transition);
+}
+
+#nprogress .peg {
+  transition: width var(--nprogress-bar-transition), opacity var(--nprogress-peg-transition-opacity);
+}

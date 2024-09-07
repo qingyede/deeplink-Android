@@ -1,0 +1,24 @@
+@import './reset.css';
+@import './nprogress.css';
+@import './transition.css';
+
+/* 黑夜模式 */
+html[data-theme='dark'] {
+  --text: #d8e6fb;
+  --bgc1: #1a1a1a;
+  --bgc2: #e1a475;
+}
+/* 白天模式 */
+:root {
+  --text: rgba(58, 58, 58, 0.7);
+  --bgc1: #ffffff;
+  --bgc2: #01f8df;
+}
+body {
+  max-width: 100vw;
+  min-height: 100vh;
+  background-color: var(--bgc1);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  color: var(--text);
+  /* font-size: clamp(0.5rem, 1.2vw, 2rem); */
+}
