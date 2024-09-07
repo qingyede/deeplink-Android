@@ -21,10 +21,16 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",
+    "cz-conventional-changelog": "^3.3.0",
     "typescript": "^5.5.4",
     "vite": "^5.4.1",
     "vite-plugin-progress": "^0.0.7",
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^2.0.29"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
   }
 }
