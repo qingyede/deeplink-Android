@@ -28,9 +28,14 @@
     "vite-plugin-svg-icons": "^2.0.1",
     "vue-tsc": "^2.0.29"
   },
+  "description": "```markdown # 项目配置说明",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "config": {
     "commitizen": {
-      "path": "cz-conventional-changelog"
+      "path": "./node_modules/cz-conventional-changelog"
     }
   }
 }
