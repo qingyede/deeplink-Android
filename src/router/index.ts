@@ -1,10 +1,10 @@
 // src/router/index.ts
-import { createRouter, createWebHistory, type Router } from 'vue-router'
+import { createRouter, createWebHashHistory, createWebHistory, type Router } from 'vue-router'
 import { routes } from '@/router/routes'
 import { beforeEachH, afterEachH } from './guards'
 
 const router: Router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 })
 

@@ -32,6 +32,7 @@ export function createViteBuild(): BuildOptions | undefined {
     minify: 'esbuild',
     // 手动分包
     rollupOptions: {
+      input: 'h5.html',
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
@@ -46,16 +47,8 @@ export function createViteBuild(): BuildOptions | undefined {
 export function createViteServer(): ServerOptions | undefined {
   return {
     host: '0.0.0.0',
-    port: 9527,
-    open: true,
-    proxy: {
-      // 代理所有以api开头的请求
-      '/api': {
-        target: 'https://api.example.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
+    port: 5173,
+    open: '/h5.html#/h5.html',
     fs: {
       cachedChecks: false,
     },

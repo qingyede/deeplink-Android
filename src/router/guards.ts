@@ -6,22 +6,41 @@ import {
   type NavigationFailure,
 } from 'vue-router'
 import { APP } from '@/constant/APP'
-
+import { appStore } from '@/store/Modules/app/index'
 // 前置
 export const beforeEachH: NavigationGuard = (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   next: NavigationGuardNext
 ) => {
-  window.NProgress?.start()
-  // 动态修改应用标题
+  const app = appStore()
+
+  // 动态修改页面标题
   if (to.meta?.title) {
-    // 如果有标题
     document.title = `${to.meta.title}`
   } else {
     document.title = APP.appTitle
   }
-  next()
+
+  console.log(app.isWalletRegistered, 'appapp')
+
+  if (!app.isWalletRegistered) {
+    console.log(to, '??')
+    // 未注册钱包：只有不在 IsWallet 页面时才强制跳转
+    const whiteList = ['IsWallet', 'creatWallet', 'walletSuccess', 'openWallet']
+    if (!app.isWalletRegistered) {
+      if (!whiteList.includes(to.name as string)) {
+        next({ name: 'IsWallet' })
+      } else {
+        next()
+      }
+    } else {
+      next()
+    }
+  } else {
+    // 已注册钱包：不跳转，不管去哪个页面都放行（包括 IsWallet 页面）
+    next()
+  }
 }
 
 // 后置
@@ -31,5 +50,4 @@ export const afterEachH: NavigationHookAfter = (
   failure: void | NavigationFailure | undefined
 ) => {
   console.log(to, from, failure)
-  window.NProgress?.done()
 }

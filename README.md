@@ -239,3 +239,7 @@ import MyIcon from './components/MyIcon.vue'
 ### 7. 扩展性
 
 如果将来需要为图标添加更多的自定义功能（如旋转、翻转、响应式支持等），可以很容易地扩展此组件。
+
+# 集成了 git 规范化提交
+
+git cz 代替 git commit

@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import app from '@/store/Modules/app/app' // 引入你的 store 模块
+import app from '@/store/Modules/app' // 引入你的 store 模块
 
 // 配置枚举
 enum RequestEnums {

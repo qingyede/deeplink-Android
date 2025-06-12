@@ -1,9 +1,10 @@
 import { watchEffect } from 'vue'
-import app from '@/store/Modules/app/app'
+// import { appStore } from '@/store/Modules/app/index'
+
 export function toggleTheme() {
   // 切换主题
   watchEffect(() => {
-    document.documentElement.dataset.theme = app().theme
-    console.log(app().theme)
+    // // document.documentElement.dataset.theme = appStore().theme
+    // console.log(appStore().theme)
   })
 }
