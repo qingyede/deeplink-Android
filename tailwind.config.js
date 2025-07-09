@@ -1,6 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'], // 添加这一行！
   theme: {
     screens: {
       xs: '360px', // 最小适配：小屏安卓、极端低端机

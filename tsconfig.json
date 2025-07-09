@@ -23,6 +23,6 @@
     "isolatedModules": true,
     "noImplicitAny": false
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.vue", "type/**/*.ts"],
+  "include": ["./**/*.ts", "./**/*.tsx", "./**/*.vue", "type/**/*.ts", "src/locales/lang/zh.ts"],
   "exclude": ["node_modules", "dist"]
 }

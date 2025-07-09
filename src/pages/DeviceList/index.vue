@@ -1,65 +1,101 @@
 <template>
   <div class="px-[16px]">
+    <!-- 顶部按钮 -->
     <n-button class="w-full rounded-lg min-h-[48px] mb-[50px]" type="primary" round>
-      <span class="text-lg w-full"> Devices </span>
+      <span class="text-lg w-full"> {{ $t('devices.devices') }}</span>
     </n-button>
-    <n-card :title="titleH1" class="rounded-lg mb-8">
-      <div class="flex flex-col gap-2">
+
+    <!-- 可用设备 -->
+    <n-card :title="titleH1" class="rounded-lg mb-8 dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
+      <div class="flex flex-col gap-2" v-if="loading1">
         <n-button
-          :loading="item.loading"
-          color="#E1EBE7"
-          class="rounded-lg min-h-[55px] w-full"
           v-for="(item, index) in deviceList"
           :key="index"
+          :loading="item.loading"
+          color="#E1EBE7"
+          class="rounded-lg min-h-[55px] w-full dark:bg-[#2c2c2c] transition-colors duration-300"
           @dblclick="rentDevice(item, 0)"
+          @click="showInfo(item, 0)"
         >
           <div class="flex justify-between w-full gap-8">
             <div class="flex items-center gap-2 flex-1 justify-center">
-              <div class="rounded-lg bg-white w-8 h-8 p-1">
+              <div class="rounded-lg bg-white dark:bg-[#444] w-8 h-8 p-1">
                 <Icon :icon="item.icon" class="text-[22px]" />
               </div>
-              <span class="text-sm md:text-base font-bold text-black">{{ item.name }}</span>
+              <span class="text-sm md:text-base font-bold text-black dark:text-white">
+                {{ item.name }}
+              </span>
             </div>
             <div class="flex items-center gap-1 flex-1 justify-center">
               <Icon
                 icon="mdi:circle-slice-8"
                 class="text-[28px] mr-1 animate-pulse"
-                :style="{ color: item.status == 'Online' ? 'green' : 'red' }"
+                :style="{ color: item.statusValue == 'Online' ? 'green' : 'red' }"
               />
-              <span class="text-base text-[#615F63]">{{ item.status }}</span>
+              <span class="text-base text-[#615F63] dark:text-white/70">
+                {{ item.status }}
+              </span>
             </div>
           </div>
         </n-button>
       </div>
+
+      <div v-else class="flex flex-col gap-3">
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+      </div>
     </n-card>
 
-    <n-card :title="titleH2" class="rounded-lg">
-      <div class="flex flex-col gap-2">
+    <!-- 我的设备 -->
+    <n-card :title="titleH2" class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
+      <div v-if="deviceListStore.loading" class="flex flex-col gap-3">
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+        <n-skeleton class="rounded-lg" size="large" />
+      </div>
+
+      <div v-else-if="deviceListStore.deviceList.length > 0" class="flex flex-col gap-2">
         <n-button
+          v-for="(item, index) in deviceListStore.deviceList"
+          :key="index"
           :loading="item.loading"
           color="#E1EBE7"
-          class="rounded-lg min-h-[55px] w-full"
-          v-for="(item, index) in deviceMyList"
-          :key="index"
+          class="rounded-lg min-h-[55px] w-full dark:bg-[#2c2c2c] transition-colors duration-300"
           @dblclick="rentDevice(item, 1)"
+          @click="showMyDeviceInfo(item)"
         >
           <div class="flex justify-between w-full gap-8">
-            <div class="flex items-center gap-2 flex-1 justify-center">
-              <div class="rounded-lg bg-white w-8 h-8 p-1">
+            <div class="flex items-center gap-6 flex-1 justify-start">
+              <div class="rounded-lg bg-white dark:bg-[#444] w-8 h-8 p-1">
                 <Icon :icon="item.icon" class="text-[22px]" />
               </div>
-              <span class="text-sm md:text-base font-bold text-black">{{ item.name }}</span>
+              <div class="flex flex-col gap-1 justify-start items-start">
+                <span class="text-sm md:text-base font-bold text-black dark:text-white">
+                  {{ item.name }}
+                </span>
+
+                <!-- <CountdownTimer :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" /> -->
+              </div>
             </div>
-            <div class="flex items-center gap-1 flex-1 justify-center">
+            <!-- <div class="flex items-center gap-1 flex-1 justify-center">
               <Icon
                 icon="mdi:circle-slice-8"
                 class="text-[28px] mr-1 animate-pulse"
-                :style="{ color: item.status == 'Online' ? 'green' : 'red' }"
+                :style="{ color: item.statusValue == 'Online' ? 'green' : 'red' }"
               />
-              <span class="text-base text-[#615F63]">{{ item.status }}</span>
-            </div>
+              <span class="text-base text-[#615F63] dark:text-white/70">
+                <CountdownTimer :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" />
+              </span>
+            </div> -->
           </div>
         </n-button>
+      </div>
+
+      <div class="my-6" v-else>
+        <n-empty description="暂无数据"> </n-empty>
       </div>
     </n-card>
   </div>
@@ -67,63 +103,64 @@
 
 <script lang="ts" setup>
 import { ref, h } from 'vue'
-import { NButton } from 'naive-ui'
+import { NButton, NGradientText } from 'naive-ui'
 import { Icon } from '@iconify/vue'
-// 图标映射
-const iconMap: any = {
-  windows: 'devicon:windows8', // Windows
-  macos: 'logos:apple', // macOS
-  ubuntu: 'logos:ubuntu', // Ubuntu
-  debian: 'logos:debian', // Debian
-  fedora: 'logos:fedora', // Fedora
-  redhat: 'logos:redhat', // Red Hat
-  centos: 'logos:centos-icon', // CentOS
-  arch: 'logos:archlinux', // Arch Linux
-  android: 'devicon:android', // Android
-  ios: 'logos:apple', // iOS
-  chromeos: 'simple-icons:googlechrome', // Chrome OS
-  opensuse: 'logos:opensuse', // openSUSE
-  manjaro: 'logos:manjaro', // Manjaro
-  linuxmint: 'logos:linux-mint', // Linux Mint
-  kali: 'simple-icons:kalilinux', // Kali Linux
-  alpine: 'simple-icons:alpinelinux', // Alpine Linux
-  oraclelinux: 'logos:oracle', // Oracle Linux
-  raspbian: 'logos:raspberry-pi', // Raspbian
-  solaris: 'logos:solarwinds', // Solaris (尝试使用 logos 库中的 sun 图标)
-  freebsd: 'logos:freebsd', // FreeBSD
-}
+import { useI18n } from 'vue-i18n'
+import { useAppSocket } from '@/hooks/common/useAppSocket'
+import { appStore } from '@/store/Modules/app'
+import { iconMap } from '@/constant/APP'
+import { getDeviceName } from '@/utils/common/getDeviceName'
+import deviceInfoDIalog from './dialogs/deviceInfoDIalog.vue'
+import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
+import { useDeviceListStore } from '@/store/Modules/deviceList/index'
+import CountdownTimer from '@/components/common/CountdownTimer.vue'
+import MyDeviceInfo from './dialogs/myDeviceInfo.vue'
+import { useIntervalFn } from '@vueuse/core'
+
+const app = appStore()
+const { t } = useI18n()
+const { connect, send, onMessage } = useAppSocket()
+const deviceListStore = useDeviceListStore()
 // 卡片标题组件
 const titleH1 = () => {
-  return h('div', { class: 'flex items-center gap-3 ' }, [
+  return h('div', { class: 'flex items-center gap-3' }, [
     h(Icon, {
       icon: 'mdi:devices',
-      class: ' !text-[24px]  min-w-[30px] min-h-[30px] ',
+      class: '!text-[24px] min-w-[30px] min-h-[30px] text-[#000] dark:text-white',
     }),
-    h('div', { class: 'flex flex-wrap ' }, [
-      h('div', { class: ' flex items-start' }, [
-        h('div', { class: 'text-[#000] text-[14px] font-bold' }, 'Device List '),
+    h('div', { class: 'flex flex-wrap' }, [
+      h('div', { class: 'flex items-start' }, [
         h(
           'div',
-          { class: 'text-[#737373] text-[12px] flex-[1] ml-1' },
-          '(Double-click to start remote control of the device)'
+          { class: 'text-[#000] dark:text-white text-[14px] font-bold' },
+          t('devices.deviceList') // ✅ 保留国际化
+        ),
+        h(
+          'div',
+          { class: 'text-[#737373] dark:text-white/60 text-[12px] flex-[1] ml-1' },
+          t('devices.deviceStartTip') // ✅ 保留国际化
         ),
       ]),
     ]),
   ])
 }
 const titleH2 = () => {
-  return h('div', { class: 'flex items-center gap-3 ' }, [
+  return h('div', { class: 'flex items-center gap-3' }, [
     h(Icon, {
       icon: 'mdi:devices',
-      class: ' !text-[24px]  min-w-[30px] min-h-[30px] ',
+      class: '!text-[24px] min-w-[30px] min-h-[30px] text-[#000] dark:text-white',
     }),
-    h('div', { class: 'flex flex-wrap ' }, [
-      h('div', { class: ' flex items-start' }, [
-        h('div', { class: 'text-[#000] text-[14px] font-bold' }, 'My Rental List'),
+    h('div', { class: 'flex flex-wrap' }, [
+      h('div', { class: 'flex items-start' }, [
         h(
           'div',
-          { class: 'text-[#737373] text-[12px] flex-[1] ml-1' },
-          '(Double-click to start remote control of the device)'
+          { class: 'text-[#000] dark:text-white text-[14px] font-bold' },
+          t('devices.myRentalList') // ✅ 保留国际化
+        ),
+        h(
+          'div',
+          { class: 'text-[#737373] dark:text-white/60 text-[12px] flex-[1] ml-1' },
+          t('devices.deviceStartTip') // ✅ 保留国际化
         ),
       ]),
     ]),
@@ -135,44 +172,81 @@ const deviceList = ref([
   {
     name: 'Device 1',
     icon: iconMap['windows'],
-    status: 'Online',
+    status: t('devices.Online'),
     loading: false,
+    statusValue: 'Online',
   },
   {
     name: 'Device 2',
     icon: iconMap['macos'],
-    status: 'Offline',
+    status: t('devices.Offline'),
     loading: false,
+    statusValue: 'Offline',
   },
   {
     name: 'Device 3',
     icon: iconMap['ubuntu'],
-    status: 'Online',
+    status: t('devices.Online'),
     loading: false,
+    statusValue: 'Online',
   },
 ])
 
-const deviceMyList = ref([
-  {
-    name: 'Device 1',
-    icon: iconMap['windows'],
-    status: 'Online',
-    loading: false,
-  },
-  {
-    name: 'Device 2',
-    icon: iconMap['macos'],
-    status: 'Offline',
-    loading: false,
-  },
-  {
-    name: 'Device 3',
-    icon: iconMap['ubuntu'],
-    status: 'Online',
-    loading: false,
-  },
-])
+// 设备列表loading
+let loading1 = ref(true)
 
+// 初始化用户机器列表
+const { pause, resume, isActive } = useIntervalFn(
+  async () => {
+    deviceListStore.getUserDeviceListH()
+  },
+  600000,
+  { immediateCallback: true }
+)
+
+// 展示机器信息
+const showInfo = (item: any, n: number) => {
+  if (n === 0) {
+    // 展示机器信息
+    console.log(item)
+
+    let negativeButtonPropsLoading = ref(false)
+    const d = window.$dialog?.info({
+      title: () => {
+        return h(
+          NGradientText,
+          {
+            size: 24,
+            type: 'success',
+            class: 'font-bold',
+          },
+          { default: () => t('设备信息') }
+        )
+      },
+      content: () => h(deviceInfoDIalog, { item }),
+      positiveText: '立即连接',
+      negativeText: '解除绑定',
+      positiveButtonProps: { color: '#03C188' },
+      negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value },
+      onPositiveClick: () => {},
+      onNegativeClick: async () => {
+        console.log(item, '8888888888')
+        await send({
+          id: 1,
+          method: 'unbindDevice',
+          token: app.token,
+          params: { device_id: item.deviceCode },
+        })
+        return false
+      },
+      class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+      showIcon: false,
+    })
+  } else {
+    // 展示我的机器信息
+    console.log(item)
+  }
+}
 // 租用设备
 const rentDevice = (item: any, n: number) => {
   if (n === 0) {
@@ -200,6 +274,134 @@ const rentDevice = (item: any, n: number) => {
       window.$message?.success('租用成功')
     }, 2000)
   }
+}
+
+onMounted(() => {
+  connect()
+
+  //  绑定设备
+  const device_name = getDeviceName()
+
+  send({
+    method: 'bindDevice',
+    id: 1,
+    token: app.token,
+    params: { device_id: app.deviceInfo.device_id, device_name },
+  })
+
+  // 注册消息监听处理
+  onMessage((event) => {
+    try {
+      const message = JSON.parse(event.data)
+      console.log(message, '???????')
+      if (message.method === 'getDeviceList' || message.method === 'notifyDevice') {
+        if (message.result.device_list) {
+          deviceList.value = message.result.device_list.map((item: any) => {
+            return {
+              name: item.device_name,
+              icon: getDeviceIcon(item.device_name),
+              status: t('devices.Online'),
+              loading: false,
+              statusValue: item.online ? 'Online' : 'Offline',
+              deviceCode: item.device_id,
+            }
+          })
+          loading1.value = true
+        } else {
+          deviceList.value = []
+        }
+        console.log(deviceList.value, '拿到设备列表了')
+      }
+
+      if (message.method === 'registerDevice') {
+        console.log('[WS] 设备注册成功:', message.result)
+      }
+
+      if (message.method === 'bindDevice') {
+        console.log('[WS] 设备绑定成功:', message.result)
+      }
+    } catch (err) {
+      console.error('[WS] 消息解析失败:', err)
+    }
+  })
+
+  // 延迟请求，避免连接未就绪
+  setTimeout(() => {
+    fetchDeviceList()
+  }, 10)
+})
+
+// 发送请求：获取设备列表
+const fetchDeviceList = async () => {
+  loading1.value = false
+  if (app.deviceInfo) {
+    send({
+      id: 1,
+      method: 'imOnline',
+      token: app.token,
+      params: { device_id: app.deviceInfo.device_id },
+    })
+
+    send({
+      method: 'getDeviceList',
+      id: 1,
+      token: app.token,
+      params: {},
+    })
+  }
+}
+
+// 展示我的租用机器信息
+const showMyDeviceInfo = (item) => {
+  const MyDeviceInfoDialogRef = ref()
+  const d = window.$dialog?.info({
+    title: () => {
+      return h(
+        NGradientText,
+        {
+          size: 24,
+          type: 'success',
+          class: 'font-bold',
+        },
+        { default: () => '设备详情' }
+      )
+    },
+    content: () => h(MyDeviceInfo, { ref: MyDeviceInfoDialogRef, info: item }),
+    class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+    showIcon: false,
+    negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+    positiveButtonProps: { color: '#03C188', size: 'medium' },
+    positiveText: '打开设备',
+    negativeText: '取消',
+    onPositiveClick: async () => {
+      if (d) {
+        const rs = await new Promise(async (resolve, reject) => {
+          MyDeviceInfoDialogRef.value?.formRef?.validate(async (errors) => {
+            if (!errors) {
+              resolve(true)
+            } else {
+              window.$message?.error('请检查您的密码')
+              resolve(false)
+            }
+          })
+        })
+        if (rs) {
+          d.loading = true
+          d.positiveText = 'loading...'
+          await new Promise((resolve, reject) => {
+            setTimeout(() => {
+              d.loading = false
+              d.positiveText = '确定'
+              window.$message?.success('购买成功')
+              resolve(true)
+            }, 2000)
+          })
+        } else {
+          return false
+        }
+      }
+    },
+  })
 }
 </script>
 

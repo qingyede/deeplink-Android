@@ -1,11 +1,10 @@
 <template>
   <div class="px-[16px]">
     <!-- 导入钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">Import wallet</h1>
+    <h1 class="text-black text-[24px] font-bold mb-2">{{ $t('openWallet.importWallet') }}</h1>
     <div class="flex flex-col flex-wrap gap-3">
       <span class="text-[14px] text-[#000]/60 leading-[22px]">
-        You must remember your password! You must not lose it, you need your password and your private key to open your
-        wallet
+        {{ $t('openWallet.walletPasswordReminder') }}
       </span>
     </div>
 
@@ -14,23 +13,23 @@
         <n-grid :cols="24">
           <n-form-item-gi :span="24" path="privateKey">
             <n-card :title="titleH" class="rounded-lg">
-              <n-form-item-gi :span="24" label="Private key" path="privateKey">
+              <n-form-item-gi :span="24" :label="$t('openWallet.privateKey')" path="privateKey">
                 <n-input
                   type="password"
                   show-password-on="click"
                   class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
                   v-model:value="model.privateKey"
-                  placeholder="请输入您的钱包私钥"
+                  :placeholder="$t('openWallet.enterPrivateKey')"
                   :status="privateKeyStatus"
                 />
               </n-form-item-gi>
-              <n-form-item-gi :span="24" label="Password" path="password">
+              <n-form-item-gi :span="24" :label="$t('openWallet.password')" path="password">
                 <n-input
                   type="password"
                   show-password-on="click"
                   class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
                   v-model:value="model.password"
-                  placeholder="请输入您的钱包密码"
+                  :placeholder="$t('openWallet.enterWalletPassword')"
                   :status="passwordStatus"
                 />
               </n-form-item-gi>
@@ -46,7 +45,7 @@
               :disabled="!isFormValid"
               :loading="isSubmitting"
             >
-              <span class="text-lg"> Complete </span>
+              <span class="text-lg"> {{ $t('openWallet.complete') }} </span>
             </n-button>
           </n-form-item-gi>
         </n-grid>
@@ -62,11 +61,15 @@ import { NButton } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { appStore } from '@/store/Modules/app'
+import { useI18n } from 'vue-i18n'
+import { useWallet } from '@/hooks/wallet/useWallet'
+const { importFromPrivateKey } = useWallet()
+
 const app = appStore()
 const router = useRouter()
 const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
-
+const { t } = useI18n()
 // 表单数据模型
 const model = reactive({
   privateKey: '',
@@ -76,7 +79,7 @@ const model = reactive({
 // 输入框状态（用于实时验证反馈）
 const privateKeyStatus = computed(() => {
   if (!model.privateKey) return undefined
-  return /^[0-9a-fA-F]{64}$/.test(model.privateKey) ? 'success' : 'error'
+  return /^0x[0-9a-fA-F]{64}$/.test(model.privateKey) ? 'success' : 'error'
 })
 
 const passwordStatus = computed(() => {
@@ -98,35 +101,38 @@ const isFormValid = computed(() => {
 const rules: FormRules = {
   privateKey: [
     {
-      required: true,
-      message: '私钥是必须的',
-      trigger: ['blur', 'input'],
-    },
-    {
-      validator: (_, value: string) => {
-        // 基本私钥格式校验（64位十六进制）
-        return /^[0-9a-fA-F]{64}$/.test(value)
+      async validator(_, value: string) {
+        const normalized = value?.trim()
+
+        if (!normalized) {
+          return Promise.reject(new Error(t('openWallet.privateKeyRequired')))
+        }
+
+        const isValid = /^0x[0-9a-fA-F]{64}$/.test(normalized)
+
+        if (!isValid) {
+          return Promise.reject(new Error(t('openWallet.invalidPrivateKey')))
+        }
+
+        return Promise.resolve()
       },
-      message: '请输入有效的64位十六进制私钥',
       trigger: ['blur', 'input'],
     },
   ],
   password: [
     {
-      required: true,
-      message: '密码是必须的',
-      trigger: ['blur', 'input'],
-    },
-    {
-      min: 8,
-      message: '密码长度至少为8个字符',
-      trigger: ['blur', 'input'],
-    },
-    {
-      validator: (_, value: string) => {
-        return /[a-zA-Z]/.test(value) && /[0-9]/.test(value)
+      async validator(_, value: string) {
+        if (!value) {
+          return Promise.reject(new Error(t('openWallet.passwordRequired')))
+        }
+        if (value.length < 8) {
+          return Promise.reject(new Error(t('openWallet.passwordMinLength')))
+        }
+        if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
+          return Promise.reject(new Error(t('openWallet.passwordAlphaNumeric')))
+        }
+        return Promise.resolve()
       },
-      message: '密码必须包含字母和数字',
       trigger: ['blur', 'input'],
     },
   ],
@@ -149,12 +155,30 @@ const titleH = () => {
       }
     ),
     h('div', { class: 'flex flex-col' }, [
-      h('div', { class: 'text-[#000] text-[18px] font-bold' }, 'Private key'),
-      h('div', { class: 'text-[#737373] text-[16px]' }, 'Enter your private key details'),
+      h('div', { class: 'text-[#000] text-[18px] font-bold' }, t('openWallet.privateKey')),
+      h('div', { class: 'text-[#737373] text-[16px]' }, t('openWallet.privateKeyDetails')),
     ]),
   ])
 }
 // E9873D79C6D87DC0FB6A5778633389F4453213303DA61F20BD67FC233AA33262
+// 用户输入的
+
+const importWallet = async () => {
+  const result = await importFromPrivateKey(model.privateKey, model.password)
+  if (result) {
+    console.log('地址:', result.address)
+    console.log('私钥:', result.privateKey)
+
+    console.log('keystore:', result.keystore)
+    window.$message?.success(t('openWallet.walletImportSuccess'))
+    app.isWalletRegistered = true
+    router.push({ name: 'home' })
+    app.address = result.address
+    app.keystore = result.keystore
+  } else {
+    alert('导入失败，私钥格式或密码错误')
+  }
+}
 // 表单提交
 const handleValidateButtonClick = async (e: MouseEvent) => {
   e.preventDefault()
@@ -162,11 +186,9 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
 
   try {
     await formRef.value?.validate()
-    window.$message?.success('钱包导入成功')
-    app.isWalletRegistered = true
-    router.push({ name: 'home' })
+    importWallet()
   } catch (errors) {
-    window.$message?.error('请检查表单内容')
+    window.$message?.error(t('openWallet.formInvalid'))
   } finally {
     isSubmitting.value = false
   }
@@ -177,9 +199,7 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
 :deep(.n-input__input-el) {
   height: 100% !important;
 }
-:deep(.n-input .n-input__suffix .n-base-icon, .n-input .n-input__prefix .n-base-icon) {
-  font-size: 23px;
-}
+
 // :deep(.n-form-item .n-form-item-label) {
 //   font-size: 16px;
 //   color: #615f63;

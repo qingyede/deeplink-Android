@@ -6,6 +6,7 @@ import { beforeEachH, afterEachH } from './guards'
 const router: Router = createRouter({
   history: createWebHashHistory(),
   routes,
+  scrollBehavior: () => ({ left: 0, top: 0 }),
 })
 
 // 前置守卫

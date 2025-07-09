@@ -1,5 +1,4 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
-import app from '@/store/Modules/app' // 引入你的 store 模块
 
 // 配置枚举
 enum RequestEnums {
@@ -17,7 +16,7 @@ enum StatusCodeEnum {
 
 // 创建 axios 实例
 const http: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_BASE, // 基础URL从环境变量中读取
+  baseURL: 'https://go.deeplink.cloud', // 基础URL从环境变量中读取
   method: RequestEnums.METHOD as string,
   timeout: RequestEnums.TIMEOUT as number, // 请求超时时间，单位为毫秒
 })
@@ -26,10 +25,10 @@ const http: AxiosInstance = axios.create({
 http.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     // 从 store 中获取 token 并添加到请求头中
-    const token = app().token
-    if (token) {
-      config.headers!.Authorization = `Bearer ${token}`
-    }
+    // const token = appStore().token
+    // if (token) {
+    //   config.headers!.Authorization = `Bearer ${token}`
+    // }
 
     return config // 返回修改后的配置
   },

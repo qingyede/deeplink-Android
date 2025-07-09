@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-col gap-4">
     <n-alert type="warning">
-      Tip: DLC is a digital asset and the price has been fluctuating. Please pay attention to the risks!
+      <div class="text-[12.5px] leading-6">
+        {{ $t('home.tipDBCFluctuation') }}
+      </div>
     </n-alert>
 
     <!-- 卡片 -->
@@ -14,7 +16,7 @@
         <n-gradient-text class="text-[23px] font-bold" type="info"> {{ item.number }} </n-gradient-text>
         <img :src="item.img" alt="" class="w-[70px] h-[70px] object-cover" />
         <span class="text-xs md:text-[14px]">{{ item.text }} </span>
-        <n-button class="w-[126px] h-[33px] rounded-lg" type="primary">Buy Now</n-button>
+        <n-button class="w-[126px] h-[33px] rounded-lg" type="primary">{{ $t('home.buyNow') }}</n-button>
       </div>
     </div>
   </div>

@@ -1,48 +1,99 @@
 <template>
   <div class="px-[16px]">
     <!-- 导入钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">Control Remote Device</h1>
+    <h1 class="text-black dark:text-white text-[24px] font-bold mb-2">{{ $t('remote.controlRemoteDevice') }}</h1>
 
     <div class="w-full">
       <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">
         <n-grid :cols="24">
-          <n-form-item-gi :span="24" label="Partner Device ID" path="id">
-            <n-input
-              type="password"
-              show-password-on="click"
-              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+          <n-form-item-gi :span="24" :label="$t('remote.partnerDeviceId')" path="id">
+            <n-auto-complete
               v-model:value="model.id"
-              placeholder="请输入您的设备ID"
+              :options="app.Inputoptions"
+              blur-after-select
+              :placeholder="$t('remote.enterDeviceId')"
+              :get-show="() => true"
+              style="border-radius: 8px"
+              class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
             />
           </n-form-item-gi>
-          <n-form-item-gi :span="24" label="Password" path="password">
+
+          <n-form-item-gi :span="24" :label="$t('remote.partnerDeviceCode')" path="password">
             <n-input
               type="password"
               show-password-on="click"
-              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              class="min-h-[44px] rounded-lg text-[#737373] dark:text-white/80"
               v-model:value="model.password"
-              placeholder="请输入您的钱包密码"
-              :status="passwordStatus"
+              :placeholder="$t('remote.partnerDeviceCodePlaceholder')"
             />
           </n-form-item-gi>
 
           <n-form-item-gi :span="24">
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-4 w-full">
               <n-button
                 class="w-full rounded-lg min-h-[48px]"
                 type="primary"
                 round
                 @click="handleValidateButtonClick"
-                :disabled="!isFormValid"
                 :loading="isSubmitting"
               >
-                <span class="text-lg"> Connect </span>
+                <span class="text-lg"> {{ $t('remote.Connect') }} </span>
               </n-button>
-              <div>Connect Purchase and Activate NFT. activate game controllers and other functions</div>
+              <div class="text-[#333] dark:text-white/70">
+                {{ $t('remote.connectAndActivateFlow') }}
+              </div>
             </div>
           </n-form-item-gi>
         </n-grid>
       </n-form>
+    </div>
+
+    <!-- 商店 -->
+    <div class="mt-[20px] flex flex-col gap-3">
+      <div class="flex items-center gap-4">
+        <n-button
+          @click="router.push({ name: 'Store' })"
+          class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
+        >
+          {{ $t('home.store') }}
+        </n-button>
+        <!-- <n-button
+        @click="router.push({ name: 'share' })"
+        class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
+      >
+        {{ $t('home.shareGpu') }}
+      </n-button> -->
+        <n-button
+          @click="router.push({ name: 'playWithUs' })"
+          class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
+        >
+          {{ $t('home.playWithUs') }}
+        </n-button>
+      </div>
+      <!-- <n-button
+      @click="router.push({ name: 'playWithUs' })"
+      class="w-full rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
+    >
+      {{ $t('home.playWithUs') }}
+    </n-button> -->
+    </div>
+
+    <div class="sm:mt-[10px] md:mt-[100px] text-center flex flex-col gap-3">
+      <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>
+      <div class="flex items-center w-full justify-center gap-3">
+        <n-button
+          @click="handleSocialIconClick(item)"
+          circle
+          color="#C0E9D0"
+          size="large"
+          v-for="(item, index) in socialIcons"
+          :key="index"
+        >
+          <template #icon>
+            <Icon :icon="item.icon" class="text-[#719981] dark:text-[#21593d]" />
+          </template>
+        </n-button>
+      </div>
     </div>
   </div>
 </template>
@@ -50,10 +101,17 @@
 <script lang="ts" setup>
 import { ref, reactive, computed } from 'vue'
 import type { FormInst, FormRules } from 'naive-ui'
-import { NButton } from 'naive-ui'
+import { NButton, NGradientText } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { appStore } from '@/store/Modules/app'
+import { useI18n } from 'vue-i18n'
+import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
+import LinkDialog from './modules/linkDialog.vue'
+const { t, locale } = useI18n()
+const { connectToRemoteDevice } = useRemoteStream()
+import twitter from '@/assets/img/twitter.jpg'
+import telegram from '@/assets/img/telegram.jpg'
 
 const app = appStore()
 const router = useRouter()
@@ -66,38 +124,89 @@ const model = reactive({
   password: '', // 密码
 })
 
-// 密码输入状态（实时反馈）
-const passwordStatus = computed(() => {
-  if (!model.password) return undefined
-  return model.password.length >= 8 && /[a-zA-Z]/.test(model.password) && /[0-9]/.test(model.password) ? 'success' : 'error'
-})
-
-// 表单是否有效
-const isFormValid = computed(() => {
-  return (
-    model.id.length > 0 && // 设备ID必填
-    passwordStatus.value === 'success'
-  ) // 密码符合规则
-})
-
-// 校验规则（简化版）
 // 校验规则（精简单行写法）
 const rules: FormRules = {
-  id: [{ required: true, message: '设备ID是必须的', trigger: ['blur', 'input'] }],
-  password: [
-    {
-      validator: (_, value) => {
-        if (!value) return new Error('密码是必须的')
-        if (value.length < 8) return new Error('密码长度至少为8个字符')
-        if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-          return new Error('密码必须包含字母和数字')
-        }
-        return true
-      },
-      trigger: ['blur', 'input'],
-    },
-  ],
+  id: [{ required: true, message: t('remote.deviceIdRequired'), trigger: ['blur', 'input'] }],
+  password: [{ required: true, message: t('remote.passwordRequired'), trigger: ['blur', 'input'] }],
 }
+
+// 联系方式图标
+const socialIcons = computed(() => {
+  if (locale.value === 'zh') {
+    return [
+      {
+        icon: 'mdi:qqchat',
+        color: 'blue-500',
+        hoverColor: 'blue-600',
+        url: '1049988281',
+        v: 'QQ',
+      },
+      {
+        icon: 'mdi:youtube',
+        color: 'red-600',
+        hoverColor: 'red-700',
+        url: 'https://youtube.com/@deeplinkglobal',
+        v: 'Youtube',
+      },
+
+      {
+        icon: 'mdi:telegram',
+        color: 'blue-500',
+        hoverColor: 'blue-600',
+        url: 'https://t.me/deeplinkglobal', // 可跳转指定频道：例如 https://t.me/telegram
+        v: 'Telegram',
+      },
+      {
+        icon: 'mdi:discord',
+        color: 'indigo-500',
+        hoverColor: 'indigo-600',
+        url: 'https://discord.com/invite/hCSAF3QC8U',
+        v: 'Discord',
+      },
+
+      {
+        icon: 'mdi:twitter',
+        color: 'black',
+        hoverColor: 'gray-700',
+        url: 'https://twitter.com/DeepLinkGlobal',
+        v: 'Twitter',
+      },
+    ]
+  } else {
+    return [
+      {
+        icon: 'mdi:youtube',
+        color: 'red-600',
+        hoverColor: 'red-700',
+        url: 'https://youtube.com/@deeplinkglobal',
+        v: 'Youtube',
+      },
+
+      {
+        icon: 'mdi:telegram',
+        color: 'blue-500',
+        hoverColor: 'blue-600',
+        url: 'https://t.me/deeplinkglobal', // 可跳转指定频道：例如 https://t.me/telegram
+        v: 'Telegram',
+      },
+      {
+        icon: 'mdi:discord',
+        color: 'indigo-500',
+        hoverColor: 'indigo-600',
+        url: 'https://discord.com/invite/hCSAF3QC8U',
+        v: 'Discord',
+      },
+
+      {
+        icon: 'mdi:twitter',
+        color: 'black',
+        hoverColor: 'gray-700',
+        url: 'https://twitter.com/DeepLinkGlobal',
+        v: 'Twitter',
+      },
+    ]
+  }
+})
 
 // 表单提交
 const handleValidateButtonClick = async (e: MouseEvent) => {
@@ -106,20 +215,61 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
 
   try {
     await formRef.value?.validate()
-    window.$message?.success('连接成功')
+
+    connectToRemoteDevice({ id: model.id, password: model.password })
+
+    // 添加历史记录逻辑（最多6条，去重，最新在前）
+    const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
+    if (existsIndex !== -1) {
+      // 如果已存在，则移除旧位置
+      app.Inputoptions.splice(existsIndex, 1)
+    }
+
+    // 在最前面插入新记录
+    app.Inputoptions.unshift({
+      label: model.id,
+      value: model.id,
+    })
+
+    // 保留最多6条记录
+    if (app.Inputoptions.length > 6) {
+      app.Inputoptions.pop()
+    }
   } catch (errors) {
     window.$message?.error('请检查表单内容')
   } finally {
     isSubmitting.value = false
   }
 }
+
+// 外联跳转
+const handleSocialIconClick = (item: any) => {
+  const d = window.$dialog?.info({
+    title: () => {
+      return h(
+        NGradientText,
+        {
+          size: 24,
+          type: 'success',
+          class: 'font-bold',
+        },
+        { default: () => item.v }
+      )
+    },
+    content: () => h(LinkDialog, { item }),
+    class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+    showIcon: false,
+    onPositiveClick: async () => {
+      if (d) {
+        console.log(888)
+      }
+    },
+  })
+}
 </script>
 
 <style lang="scss" scoped>
 :deep(.n-input__input-el) {
   height: 100% !important;
-}
-:deep(.n-input .n-input__suffix .n-base-icon, .n-input .n-input__prefix .n-base-icon) {
-  font-size: 23px;
 }
 </style>

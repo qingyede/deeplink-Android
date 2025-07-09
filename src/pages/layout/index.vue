@@ -2,7 +2,7 @@
   <div :style="{ position: 'fixed', top: safeAreaInsetTop, left: 0 }" class="w-full overflow-y-scroll h-full pb-[110px]">
     <!-- 顶部logo -->
     <MyHeader />
-    <div class="pb-[100px]">
+    <div class="pb-[80px]">
       <RouterView />
     </div>
     <!-- footer -->

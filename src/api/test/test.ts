@@ -12,9 +12,9 @@ export const fetchUserData = (d: string) => {
  * 请求验证码的函数，必须提供正确的 phone 属性
  * @param data 包含 phone 属性的对象
  */
-export const signUpCode = (data: SignUpCodeRequest) => {
+export const getToken = (data) => {
   return http({
-    url: '/CaptchaCode',
+    url: '/token',
     method: 'post',
     data,
   })

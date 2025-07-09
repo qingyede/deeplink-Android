@@ -32,7 +32,7 @@ export function createViteBuild(): BuildOptions | undefined {
     minify: 'esbuild',
     // 手动分包
     rollupOptions: {
-      input: 'h5.html',
+      // input: 'h5.html',
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
@@ -48,7 +48,7 @@ export function createViteServer(): ServerOptions | undefined {
   return {
     host: '0.0.0.0',
     port: 5173,
-    open: '/h5.html#/h5.html',
+    open: '/h5.html',
     fs: {
       cachedChecks: false,
     },

@@ -1,10 +1,15 @@
 <template>
-  <div class="h-full flex items-center justify-between px-[22px] py-6 bg-white rounded-t-lg shadow-top text-[#000000]/50">
+  <div
+    class="h-full flex items-center justify-between px-[22px] py-6 rounded-t-lg shadow-top transition-colors duration-300"
+    :class="['bg-[var(--bgc1)] text-[var(--text-color1)]']"
+  >
     <div
       v-for="(item, index) in tabs"
       :key="index"
       class="item flex flex-col justify-center items-center gap-1 cursor-pointer relative pb-2 group"
-      :class="{ 'text-[#03C188]': activeTab === index }"
+      :class="{
+        'text-[#03C188]': activeTab === index,
+      }"
       @click="tabClick(index)"
     >
       <Icon
@@ -12,35 +17,67 @@
         class="text-[30px] transition-all duration-300 mt-1"
         :class="{ 'scale-110': activeTab === index }"
       />
-      <span class="text-xs transition-colors duration-300">{{ item.name }}</span>
+      <span class="text-xs transition-colors duration-300">
+        {{ $t(item.name) }}
+      </span>
       <!-- 选中时的底部横线 -->
       <div
         class="absolute top-[-10px] left-1/2 transform -translate-x-1/2 w-9 h-1 bg-[#03C188] rounded-full transition-all duration-300"
-        :class="{ 'scale-0 opacity-0': activeTab !== index, 'scale-100 opacity-100': activeTab === index }"
+        :class="{
+          'scale-0 opacity-0': activeTab !== index,
+          'scale-100 opacity-100': activeTab === index,
+        }"
       ></div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { appStore } from '@/store/Modules/app/index'
 const app = appStore()
 const router = useRouter()
 const route = useRoute()
-const activeTab = ref(0)
-
-const tabs = ref([
-  { name: 'Wallet', icon: 'mdi:wallet', path: 'home' },
-  { name: 'Remote', icon: 'mdi:remote-desktop', path: 'Remote' },
-  { name: 'Rent GPU', icon: 'mdi:gpu', path: 'GPU' },
-  { name: 'Device list', icon: 'mdi:devices', path: 'DeviceList' },
-])
+const activeTab = computed(() => {
+  if (route.name === 'home') {
+    return 0
+  } else if (route.name === 'Remote') {
+    return 1
+  } else if (
+    route.name === 'CloudComputers' ||
+    route.name === 'CloudCafe' ||
+    route.name === 'CloudComputersList' ||
+    route.name === 'CloudCafeList'
+  ) {
+    return 2
+  } else if (route.name === 'DeviceList') {
+    return 3
+  } else if (route.name === 'Settings') {
+    return 4
+  } else {
+    return 0
+  }
+})
+const tabs = computed(() => {
+  return [
+    { name: 'app.wallet', icon: 'mdi:wallet', path: 'home' },
+    { name: 'app.remote', icon: 'mdi:remote-desktop', path: 'Remote' },
+    { name: 'app.gpu', icon: 'bxs-joystick', path: 'GPU' },
+    { name: 'app.deviceList', icon: 'mdi:devices', path: 'DeviceList' },
+    { name: 'app.settings', icon: 'mdi:cog', path: 'Settings' }, // ← 新增设置项
+  ]
+})
 // 点击tab
 const tabClick = (index: number) => {
-  activeTab.value = index
-  if (app.isWalletRegistered) {
+  // activeTab.value = index
+  // if (app.isWalletRegistered) {
+  //   router.push({ name: tabs.value[index].path })
+  // }
+  if (index === 0 || index === 3) {
+    window.$message?.warning('请先创建您的钱包')
+    router.push({ name: 'openWallet' })
+  } else {
     router.push({ name: tabs.value[index].path })
   }
 }

@@ -12,6 +12,7 @@ declare global {
     $message?: import('naive-ui').MessageProviderInst
     /** Notification instance */
     $notification?: import('naive-ui').NotificationProviderInst
+    dlc?: any
   }
 
   interface ViewTransition {

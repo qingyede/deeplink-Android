@@ -22,21 +22,19 @@ export const beforeEachH: NavigationGuard = (
     document.title = APP.appTitle
   }
 
-  console.log(app.isWalletRegistered, 'appapp')
-
   if (!app.isWalletRegistered) {
-    console.log(to, '??')
     // 未注册钱包：只有不在 IsWallet 页面时才强制跳转
-    const whiteList = ['IsWallet', 'creatWallet', 'walletSuccess', 'openWallet']
-    if (!app.isWalletRegistered) {
-      if (!whiteList.includes(to.name as string)) {
-        next({ name: 'IsWallet' })
-      } else {
-        next()
-      }
-    } else {
-      next()
-    }
+    // const whiteList = ['IsWallet', 'creatWallet', 'walletSuccess', 'openWallet']
+    // if (!app.isWalletRegistered) {
+    //   if (!whiteList.includes(to.name as string)) {
+    //     next({ name: 'IsWallet' })
+    //   } else {
+    //     next()
+    //   }
+    // } else {
+    //   next()
+    // }
+    next()
   } else {
     // 已注册钱包：不跳转，不管去哪个页面都放行（包括 IsWallet 页面）
     next()
@@ -48,6 +46,4 @@ export const afterEachH: NavigationHookAfter = (
   to: RouteLocationNormalized,
   from: RouteLocationNormalized,
   failure: void | NavigationFailure | undefined
-) => {
-  console.log(to, from, failure)
-}
+) => {}

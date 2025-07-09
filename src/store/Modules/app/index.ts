@@ -1,13 +1,32 @@
+// store/Modules/app/index.ts
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
 
-export const appStore = defineStore(
-  'app',
-  () => {
+export const appStore = defineStore('app', {
+  state: () => ({
     // 判断是否注册了钱包
-    let isWalletRegistered = ref(false)
-
-    return { isWalletRegistered }
-  },
-  { persist: true }
-)
+    isWalletRegistered: false,
+    // 当前语言
+    lang: 'en',
+    // 当前主题
+    theme: 'light' as 'light' | 'dark',
+    // 用户钱包地址
+    address: '',
+    // keystore
+    keystore: '',
+    // 用户密码
+    password: '',
+    // 设备 id
+    deviceId: '',
+    // 用户 token
+    token: '',
+    // 真实设备信息
+    deviceInfo: null as any,
+    // 用户填写的记录（设备识别）
+    Inputoptions: [] as { label: any; value: any }[],
+    // 使用自动虚拟摇杆
+    useAutoVirtualJoystick: true,
+    // 使用虚拟摇杆时禁用鼠标
+    disableMouseWhenJoystick: true,
+  }),
+  persist: true,
+})
