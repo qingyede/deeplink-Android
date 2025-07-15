@@ -1,11 +1,11 @@
 <template>
   <div class="flex flex-col gap-4">
     <n-alert type="warning">
-      <div class="text-[12.5px] leading-6">{{ $t('home.tipDLCFluctuation') }}</div>
+      <div class="text-[12px] leading-4">{{ $t('home.tipDLCFluctuation') }}</div>
     </n-alert>
 
     <!-- 卡片 -->
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-2 gap-3">
       <div
         v-for="(item, index) in bugData"
         :key="index"
@@ -13,9 +13,11 @@
         class="flex flex-col gap-[4px] items-center justify-center border border-[#DFDFDF] rounded-lg shadow-sm py-2 px-2"
       >
         <n-gradient-text class="text-[23px] font-bold" type="info"> {{ item.number }} </n-gradient-text>
-        <img :src="item.img" alt="" class="w-[50px] h-[50px] object-cover" />
-        <span class="text-xs md:text-[14px]">{{ item.text }} </span>
-        <n-button class="w-[126px] h-[33px] rounded-lg" type="primary">{{ $t('home.buyNow') }}</n-button>
+        <img :src="item.img" alt="" class="w-[36px] h-[36px] object-fill scale-125" />
+        <span class="text-xs md:text-[13px]">{{ item.text }} </span>
+        <n-button class="w-[80px] h-[25px] rounded-lg text-xs md:text-[14px]" type="primary">{{
+          $t('home.buyNow')
+        }}</n-button>
       </div>
     </div>
   </div>
@@ -38,13 +40,6 @@ const app = appStore()
 
 // bug的数据
 const bugData = ref([
-  // {
-  //   number: '01',
-  //   text: `PayPal`,
-  //   img: PayPal,
-  //   key: 0,
-  //   url: `https://www.deeplink.cloud/paypal?wallet=${app.address}`,
-  // },
   {
     number: '01',
     text: `Gate.io`,
@@ -86,6 +81,13 @@ const bugData = ref([
     img: xai,
     key: 6,
     url: `https://app.xaiagent.io/zh`,
+  },
+  {
+    number: '07',
+    text: `PayPal`,
+    img: PayPal,
+    key: 7,
+    url: `https://www.deeplink.cloud/paypal?wallet=${app.address}`,
   },
 ])
 

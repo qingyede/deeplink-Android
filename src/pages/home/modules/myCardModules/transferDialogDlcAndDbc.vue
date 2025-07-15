@@ -4,24 +4,34 @@
     <n-tab-pane name="DLC" tab="DLC">
       <n-form ref="dlcFormRef" :model="model.DLC" :rules="rules.DLC" label-placement="top">
         <n-grid :cols="24" :y-gap="8">
-          <n-form-item-gi :span="24" label="目标地址" path="address">
-            <n-input v-model:value="model.DLC.address" placeholder="请输入目标地址" class="min-h-[44px] rounded-lg" />
+          <n-form-item-gi :span="24" :label="$t('home.targetAddress')" path="address">
+            <n-input
+              v-model:value="model.DLC.address"
+              :placeholder="$t('home.enterTargetAddress')"
+              class="min-h-[44px] rounded-lg"
+            />
           </n-form-item-gi>
 
-          <n-form-item-gi :span="24" label="数量" path="amount">
-            <n-input v-model:value="model.DLC.amount" placeholder="请输入转账数量" class="min-h-[44px] rounded-lg">
+          <n-form-item-gi :span="24" :label="$t('home.amount')" path="amount">
+            <n-input
+              v-model:value="model.DLC.amount"
+              :placeholder="$t('home.enterTransferAmount')"
+              class="min-h-[44px] rounded-lg"
+            >
               <template #suffix>
-                <n-button text type="primary" class="text-xs font-medium" @click="setMaxAmount('DLC')">最大</n-button>
+                <n-button text type="primary" class="text-xs font-medium" @click="setMaxAmount('DLC')">{{
+                  $t('home.max')
+                }}</n-button>
               </template>
             </n-input>
           </n-form-item-gi>
 
-          <n-form-item-gi :span="24" label="密码" path="password">
+          <n-form-item-gi :span="24" :label="$t('home.password')" path="password">
             <n-input
               type="password"
               show-password-on="click"
               v-model:value="model.DLC.password"
-              placeholder="请输入密码"
+              :placeholder="$t('home.enterPassword')"
               class="min-h-[44px] rounded-lg"
             />
           </n-form-item-gi>
@@ -33,24 +43,34 @@
     <n-tab-pane name="DBC" tab="DBC">
       <n-form ref="dbcFormRef" :model="model.DBC" :rules="rules.DBC" label-placement="top">
         <n-grid :cols="24" :y-gap="8">
-          <n-form-item-gi :span="24" label="目标地址" path="address">
-            <n-input v-model:value="model.DBC.address" placeholder="请输入目标地址" class="min-h-[44px] rounded-lg" />
+          <n-form-item-gi :span="24" :label="$t('home.targetAddress')" path="address">
+            <n-input
+              v-model:value="model.DBC.address"
+              :placeholder="$t('home.enterTargetAddress')"
+              class="min-h-[44px] rounded-lg"
+            />
           </n-form-item-gi>
 
-          <n-form-item-gi :span="24" label="数量" path="amount">
-            <n-input v-model:value="model.DBC.amount" placeholder="请输入转账数量" class="min-h-[44px] rounded-lg">
+          <n-form-item-gi :span="24" :label="$t('home.amount')" path="amount">
+            <n-input
+              v-model:value="model.DBC.amount"
+              :placeholder="$t('home.enterTransferAmount')"
+              class="min-h-[44px] rounded-lg"
+            >
               <template #suffix>
-                <n-button text type="primary" class="text-xs font-medium" @click="setMaxAmount('DBC')">最大</n-button>
+                <n-button text type="primary" class="text-xs font-medium" @click="setMaxAmount('DBC')">{{
+                  $t('home.max')
+                }}</n-button>
               </template>
             </n-input>
           </n-form-item-gi>
 
-          <n-form-item-gi :span="24" label="密码" path="password">
+          <n-form-item-gi :span="24" :label="$t('home.password')" path="password">
             <n-input
               type="password"
               show-password-on="click"
               v-model:value="model.DBC.password"
-              placeholder="请输入密码"
+              :placeholder="$t('home.enterPassword')"
               class="min-h-[44px] rounded-lg"
             />
           </n-form-item-gi>
@@ -65,6 +85,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import type { FormInst, FormRules } from 'naive-ui'
 import { getAvailableDbcBalance, getAvailableDlcBalance } from '@/utils/wallet/dbcProvider'
 import { appStore } from '@/store/Modules/app'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const app = appStore()
 const activeTab = ref<'DLC' | 'DBC'>('DLC')
@@ -93,42 +115,42 @@ onMounted(async () => {
 // 表单校验规则
 const rules: Record<'DLC' | 'DBC', FormRules> = {
   DLC: {
-    address: [{ required: true, message: '请输入目标地址', trigger: ['blur', 'input'] }],
+    address: [{ required: true, message: t('home.enterTargetAddress'), trigger: ['blur', 'input'] }],
     amount: [
-      { required: true, message: '请输入转账数量', trigger: ['blur', 'input'] },
+      { required: true, message: t('home.enterTransferAmount'), trigger: ['blur', 'input'] },
       {
         validator: (_, value) => {
           const input = parseFloat(value)
-          if (isNaN(input)) return new Error('请输入合法数字')
-          if (input <= 0) return new Error('数量必须大于 0')
+          if (isNaN(input)) return new Error(t('home.invalidNumber'))
+          if (input <= 0) return new Error(t('home.amountMustBePositive'))
           if (input > realDlcBalance.value) {
-            return new Error(`转账数量不能超过可用余额 ${realDlcBalance.value}`)
+            return new Error(`${t('home.exceedBalance')} ${realDlcBalance.value}`)
           }
           return true
         },
         trigger: ['blur', 'input'],
       },
     ],
-    password: [{ required: true, message: '请输入密码', trigger: ['blur', 'input'] }],
+    password: [{ required: true, message: t('home.enterPassword'), trigger: ['blur', 'input'] }],
   },
   DBC: {
-    address: [{ required: true, message: '请输入目标地址', trigger: ['blur', 'input'] }],
+    address: [{ required: true, message: t('home.enterTargetAddress'), trigger: ['blur', 'input'] }],
     amount: [
-      { required: true, message: '请输入转账数量', trigger: ['blur', 'input'] },
+      { required: true, message: t('home.enterTransferAmount'), trigger: ['blur', 'input'] },
       {
         validator: (_, value) => {
           const input = parseFloat(value)
-          if (isNaN(input)) return new Error('请输入合法数字')
-          if (input <= 0) return new Error('数量必须大于 0')
+          if (isNaN(input)) return new Error(t('home.invalidNumber'))
+          if (input <= 0) return new Error(t('home.amountMustBePositive'))
           if (input > realDbcBalance.value) {
-            return new Error(`转账数量不能超过可用余额 ${realDbcBalance.value}`)
+            return new Error(`${t('home.exceedBalance')} ${realDbcBalance.value}`)
           }
           return true
         },
         trigger: ['blur', 'input'],
       },
     ],
-    password: [{ required: true, message: '请输入密码', trigger: ['blur', 'input'] }],
+    password: [{ required: true, message: t('home.enterPassword'), trigger: ['blur', 'input'] }],
   },
 }
 

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode prod",
+    "build": "vite build --mode prod ",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -44,10 +44,12 @@
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@vitejs/plugin-legacy": "^7.0.0",
     "@vitejs/plugin-vue": "^5.1.2",
     "amfe-flexible": "^2.2.1",
     "autoprefixer": "^10.4.20",
     "cz-conventional-changelog": "^3.3.0",
+    "fast-glob": "^3.3.3",
     "naive-ui": "^2.40.1",
     "postcss": "^8.4.47",
     "postcss-pxtorem": "^6.1.0",
@@ -71,5 +73,9 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog-zh"
     }
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not IE 11"
+  ]
 }

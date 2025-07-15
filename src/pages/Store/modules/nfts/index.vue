@@ -98,9 +98,21 @@ import { NGradientText } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import NftsDialog from './modules/nftsDialog.vue'
 import { useOpenExternalLink } from '@/hooks/common/useExternalLinkOptions'
-const { openExternalLink } = useOpenExternalLink()
 import { useBuyNftStore } from '@/store/Modules/buyNft/index'
+import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
+import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
+import { appStore } from '@/store/Modules/app'
+import { useHomeStore } from '@/store/Modules/home/index'
+import { useRouter, useRoute } from 'vue-router'
+
+const { openExternalLink } = useOpenExternalLink()
 const buyNft = useBuyNftStore()
+const { dlc_price } = useGetDlcPrice()
+const router = useRouter()
+const route = useRoute()
+const home = useHomeStore()
+const app = appStore()
+
 // import { useSwipeBackBasic } from '@/hooks/common/useBackInterceptor'
 
 // // 页面顶部调用
@@ -109,6 +121,8 @@ const buyNft = useBuyNftStore()
 buyNft.getNftListH()
 const { t, locale } = useI18n()
 let active = ref(0)
+
+// const dlcUsdValue = price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value))
 
 const actionButtons = computed(() => [
   {
@@ -136,43 +150,49 @@ const actionButtons = computed(() => [
               type: 'success',
               class: 'font-bold',
             },
-            { default: () => '购买NFT' }
+            { default: () => t('Store.buyNft') }
           )
         },
         content: () => h(NftsDialog, { ref: NftsDialogRef, data: buyNft.nftList[active.value] }),
         class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
         showIcon: false,
         negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-        positiveButtonProps: { color: '#03C188', size: 'medium' },
-        positiveText: '确认购买',
-        negativeText: '取消',
+        positiveButtonProps: { color: '#03C188', size: 'medium', disabled: NftsDialogRef.value?.showBalanceIsOk },
+        positiveText: t('app.confirm'),
+        negativeText: t('app.cancel'),
         onPositiveClick: async () => {
           if (d) {
-            console.log(buyNft.nftList[active.value], 'btnbtnbtnbtnbtn')
-            const rs = await new Promise(async (resolve, reject) => {
-              NftsDialogRef.value?.formRef?.validate(async (errors) => {
-                if (!errors) {
-                  resolve(true)
-                } else {
-                  window.$message?.error('请检查您的密码')
-                  resolve(false)
-                }
-              })
+            d.loading = true
+            d.positiveText = 'loading...'
+            console.log(convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value))
+            const rs: any = await buyNft.purchaseNFTFlow({
+              dlcAmount: NftsDialogRef.value?.number,
+              saveData: {
+                price: convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value),
+                purchaser: app.address,
+                version_type: 0,
+                expire_type: NftsDialogRef.value?.endTime,
+                collection: 0,
+                purchase_path: 'Android',
+                mintNFT: false,
+              },
             })
+            d.loading = false
+            d.positiveText = t('app.confirm')
             if (rs) {
-              d.loading = true
-              d.positiveText = 'loading...'
-              await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                  d.loading = false
-                  d.positiveText = '确定'
-                  window.$message?.success('购买成功')
-                  resolve(true)
-                }, 2000)
-              })
-            } else {
-              return false
+              router.push({ name: 'home' })
+              home.activeTab = 'NFTs'
             }
+            // await buyNft.purchaseNFTFlow({ dlcAmount: 1000 })
+
+            // await new Promise((resolve, reject) => {
+            //   setTimeout(() => {
+            //     d.loading = false
+            //     d.positiveText = '确定'
+            //     window.$message?.success('购买成功')
+            //     resolve(true)
+            //   }, 2000)
+            // })
           }
         },
       })

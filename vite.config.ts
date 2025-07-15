@@ -6,6 +6,10 @@ import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
+  // base: './',
+  esbuild: {
+    target: 'es2015',
+  },
   resolve: {
     alias: {
       '~': fileURLToPath(new URL('./', import.meta.url)),

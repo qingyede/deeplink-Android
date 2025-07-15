@@ -15,16 +15,15 @@ import { APP } from '@/constant/APP'
 import { appStore } from '@/store/Modules/app/index'
 import { useI18n } from 'vue-i18n'
 import { priceStore } from '@/store/Modules/price/index'
+
 const price = priceStore()
+const app = appStore()
+const { locale, t } = useI18n()
+const store = appStore()
+const { theme } = storeToRefs(store)
 
 // 初始化汇率
 price.getExchangeRateH()
-const { locale, t } = useI18n()
-
-const app = appStore()
-
-const store = appStore()
-const { theme } = storeToRefs(store)
 const isDark = computed({
   get: () => theme.value === 'dark',
   set: (val: boolean) => {
@@ -42,10 +41,8 @@ watch(
 )
 
 watchEffect(() => {
-  if (app.lang) {
-    // 更新 i18n 语言
-    locale.value = app.lang
-  }
+  locale.value = localStorage.getItem('lang') || 'en'
+  app.lang = localStorage.getItem('lang') || 'en'
 })
 </script>
 

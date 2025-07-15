@@ -1,7 +1,7 @@
 import { ref, onMounted } from 'vue'
 
 // 自定义hook用于获取应用版本
-export function useAppVersion() {
+export function useAppVersion(t) {
   // 定义响应式版本状态
   const version = ref('')
 
@@ -16,13 +16,13 @@ export function useAppVersion() {
           })
         )
         // 更新版本状态
-        version.value = ver || '未知版本'
+        version.value = ver || t('app.unknownVersion')
       } else {
-        version.value = '无法获取版本'
+        version.value = t('app.cannotFetchVersion')
       }
     } catch (error) {
       console.error('获取应用版本失败:', error)
-      version.value = '获取版本失败'
+      version.value = t('app.fetchVersionFailed')
     }
   })
 

@@ -78,7 +78,7 @@
     </n-button> -->
     </div>
 
-    <div class="sm:mt-[10px] md:mt-[100px] text-center flex flex-col gap-3">
+    <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3">
       <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>
       <div class="flex items-center w-full justify-center gap-3">
         <n-button
@@ -110,8 +110,6 @@ import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
 import LinkDialog from './modules/linkDialog.vue'
 const { t, locale } = useI18n()
 const { connectToRemoteDevice } = useRemoteStream()
-import twitter from '@/assets/img/twitter.jpg'
-import telegram from '@/assets/img/telegram.jpg'
 
 const app = appStore()
 const router = useRouter()
@@ -236,7 +234,7 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
       app.Inputoptions.pop()
     }
   } catch (errors) {
-    window.$message?.error('请检查表单内容')
+    window.$message?.error(t('app.formInvalid'))
   } finally {
     isSubmitting.value = false
   }

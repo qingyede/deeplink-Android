@@ -69,7 +69,7 @@
       :key="index"
     >
       <div class="flex items-center gap-3 bg-[#D7EDEB] dark:bg-[#2c2c2c] rounded-[9px] px-[12px] py-[13px]">
-        <Icon icon="bxs:gas-pump" class="w-[54px] h-[54px] text-primary-500" />
+        <Icon icon="mdi:gas-station" class="w-[54px] h-[54px] text-primary-500" />
         <span class="text-[16px] font-semibold">{{
           `${removeGeForceRTX(item.machineInfo.gpu_type)} (${item.device_id})`
         }}</span>
@@ -80,10 +80,10 @@
           <span class="font-bold text-base">{{ $t('gpu.machineStatus') }}:</span>
           <span class="font-bold text-sm text-primary-500">{{ $t(`gpu.${item.rsStatus()}`) }}</span>
         </div>
-        <div class="flex justify-between items-center">
+        <!-- <div class="flex justify-between items-center">
           <span class="font-bold text-base min-w-[80px]">{{ $t('gpu.cpu') }}:</span>
           <span class="font-semibold text-sm text-[#717171]">{{ item.machineInfo.cpu_type }}</span>
-        </div>
+        </div> -->
         <div class="flex justify-between items-center">
           <span class="font-bold text-base">{{ $t('gpu.memory') }}:</span>
           <span class="font-semibold text-sm text-[#717171]">{{ item.machineInfo.total_mem }}G</span>
@@ -107,17 +107,17 @@
         </div> -->
 
         <div class="flex items-center gap-4 mt-3">
-          <n-button @click="testNet(item)" type="primary" secondary class="flex-1 rounded-lg min-h-[46px]">
+          <!-- <n-button @click="testNet(item)" type="primary" secondary class="flex-1 rounded-lg min-h-[46px]">
             {{ $t('gpu.testNetworkLatency') }}
-          </n-button>
+          </n-button> -->
           <n-button
-            @click="rentH(item)"
-            :loading="cloudComputersStore.rentMachineDialogBeforeForm.loading"
+            @click="rentH(item, index)"
+            :loading="item.loading"
             :disabled="item.rsStatus() !== 'vacant'"
             type="primary"
             class="flex-1 rounded-lg min-h-[46px]"
           >
-            {{ $t('gpu.rent') }}
+            {{ item.rsStatus() === 'notRentable' ? $t(`gpu.${item.rsStatus()}`) : $t('gpu.rent') }}
           </n-button>
         </div>
       </div>
@@ -174,13 +174,16 @@ onUnmounted(() => {
 })
 
 // 租用
-const rentH = async (item: any) => {
+const rentH = async (item: any, index: number) => {
   if (app.isWalletRegistered) {
     console.log(item, '租用信息')
     // 先判断机器状态是否在线
-    cloudComputersStore.getMachineStatusH(item.machine_id)
-    cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = item
-    cloudComputersStore.rentMachineDialogBefore()
+    item.loading = true
+    const rs = await cloudComputersStore.getMachineStatusH(item.machine_id, item)
+    if (rs) {
+      cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = item
+      cloudComputersStore.rentMachineDialogBefore(item)
+    }
   } else {
     window.$message?.warning('请先创建您的钱包')
     router.push({ name: 'openWallet' })

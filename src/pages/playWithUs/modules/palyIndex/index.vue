@@ -12,7 +12,7 @@
     <!-- 数据为空 -->
     <template v-else-if="!remote.cardList.card1 || remote.cardList.card1.length === 0">
       <div class="col-span-2">
-        <n-empty description="暂无数据" />
+        <n-empty :description="$t('app.noData')" />
       </div>
     </template>
 

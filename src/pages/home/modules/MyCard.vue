@@ -120,7 +120,7 @@ const { dbc_price } = useGetDbcPrice()
 const { dlc_price } = useGetDlcPrice()
 const { t, locale } = useI18n()
 const price = priceStore()
-const { dbcNumber, dlcNumber, homeCardLoading } = useGetDbcAndDlcNumber()
+const { dbcNumber, dlcNumber } = useGetDbcAndDlcNumber()
 // 缓存美元价值
 const dlcUsdValue = price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value))
 const dbcUsdValue = price.useLocalizedCurrency(convertDbcToUsd(Number(dbcNumber.value), dbc_price.value))
@@ -138,17 +138,17 @@ const toggleBalance = () => {
 const copyH = () => {
   copy(app.address)
 
-  window.$message?.success('复制成功')
+  window.$message?.success(t('home.copySuccess'))
 }
 
 // 导出钱包
 const exportKeystoreToFile = () => {
   let exportWalletRef: any = ref()
   const d = window.$dialog?.warning({
-    title: '导出钱包',
+    title: t('home.title'),
     content: () => h(exportWallet, { ref: exportWalletRef }),
-    positiveText: '导出',
-    negativeText: '取消',
+    positiveText: t('home.export'),
+    negativeText: t('app.cancel'),
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
     class: 'rounded-2xl',
@@ -161,24 +161,24 @@ const exportKeystoreToFile = () => {
             if (!errors) {
               resolve(true)
             } else {
-              window.$message?.error('请检查您的密码')
+              window.$message?.error(t('home.checkPassword'))
               resolve(false)
             }
           })
         })
         if (rs) {
           d.loading = true
-          d.positiveText = '导出中...'
+          d.positiveText = t('home.exporting')
           const { address, privateKey, mnemonic } = await decryptKeystore(app.keystore, exportWalletRef.value.model.password)
           if (privateKey !== '') {
-            console.log('导出成功')
+            console.log(t('home.success'))
             copy(privateKey)
-            window.$message?.success('私钥导出成功,已复制到剪贴板')
+            window.$message?.success(t('home.privateKeyCopied'))
             d.loading = false
-            d.positiveText = '导出'
+            d.positiveText = t('app.export')
           } else {
             d.loading = false
-            d.positiveText = '导出'
+            d.positiveText = t('app.export')
             return false
           }
         } else {
@@ -246,7 +246,7 @@ const transferH = () => {
           type: 'success',
           class: 'font-bold',
         },
-        { default: () => '转账' }
+        { default: () => t('home.transfer') }
       )
     },
     content: () => h(transferDialogDlcAndDbc, { ref: transferDialogDlcAndDbcDialogRef }),
@@ -254,8 +254,8 @@ const transferH = () => {
     showIcon: false,
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
-    positiveText: '确认',
-    negativeText: '取消',
+    positiveText: t('app.confirm'),
+    negativeText: t('app.cancel'),
     onPositiveClick: async () => {
       if (d) {
         console.log(transferDialogDlcAndDbcDialogRef.value.activeTab)
@@ -264,7 +264,7 @@ const transferH = () => {
 
         const valid = await comp.validateForm().catch(() => false)
         if (!valid) {
-          window.$message?.error('请检查表单输入')
+          window.$message?.error(t('home.formInvalid'))
           return false
         }
 
@@ -283,10 +283,10 @@ const transferH = () => {
           )
           const tx = await transfer(coinType, to, amount, privateKey)
 
-          window.$message?.success(`转账成功,请注意查收`)
+          window.$message?.success(t('home.transferSuccess'))
         } catch (error) {
           d.loading = false
-          d.positiveText = '确认'
+          d.positiveText = t('app.confirm')
           return false
         }
         // await new Promise((resolve, reject) => {
@@ -313,16 +313,16 @@ const disconnectWallet = () => {
           type: 'success',
           class: 'font-bold',
         },
-        { default: () => '断开钱包' }
+        { default: () => t('home.disconnectWallet') }
       )
     },
-    content: () => '请确定要断开您的钱包吗？',
+    content: () => t('home.disconnectConfirm'),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
     showIcon: false,
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
-    positiveText: '确定',
-    negativeText: '取消',
+    positiveText: t('app.confirm'),
+    negativeText: t('app.cancel'),
     onPositiveClick: async () => {
       if (d) {
         d.loading = true
@@ -330,10 +330,10 @@ const disconnectWallet = () => {
         await new Promise((resolve, reject) => {
           setTimeout(() => {
             d.loading = false
-            d.positiveText = '确定'
+            d.positiveText = t('app.confirm')
             app.$reset()
             router.push({ name: 'IsWallet' })
-            window.$message?.success('成功断开钱包')
+            window.$message?.success(t('home.disconnectSuccess'))
             resolve(true)
           }, 1000)
         })

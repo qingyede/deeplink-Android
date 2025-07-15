@@ -32,7 +32,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import img from '@/assets/img/p1.png'
-import img2 from '@/assets/img/nfts.png'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

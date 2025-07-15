@@ -1,6 +1,7 @@
 <template>
   <div
-    class="h-full flex items-center justify-between px-[22px] py-6 rounded-t-lg shadow-top transition-colors duration-300"
+    :style="{ paddingBottom: safeAreaBottom }"
+    class="w-full !h-full flex items-center justify-between px-[22px] pt-5 rounded-t-lg shadow-top transition-colors duration-300"
     :class="['bg-[var(--bgc1)] text-[var(--text-color1)]']"
   >
     <div
@@ -36,6 +37,9 @@
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { appStore } from '@/store/Modules/app/index'
+import { useSafeAreaFooter } from '@/hooks/common/useSafeAreaFooter'
+
+const { safeAreaBottom } = useSafeAreaFooter()
 const app = appStore()
 const router = useRouter()
 const route = useRoute()
@@ -74,9 +78,13 @@ const tabClick = (index: number) => {
   // if (app.isWalletRegistered) {
   //   router.push({ name: tabs.value[index].path })
   // }
-  if (index === 0 || index === 3) {
-    window.$message?.warning('请先创建您的钱包')
-    router.push({ name: 'openWallet' })
+  if (!app.isWalletRegistered) {
+    if (index === 0 || index === 3) {
+      window.$message?.warning('请先创建您的钱包')
+      router.push({ name: 'IsWallet' })
+    } else {
+      router.push({ name: tabs.value[index].path })
+    }
   } else {
     router.push({ name: tabs.value[index].path })
   }
@@ -85,7 +93,7 @@ const tabClick = (index: number) => {
 
 <style lang="scss" scoped>
 .shadow-top {
-  box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* 可选：添加悬停效果 */

@@ -2,18 +2,11 @@
   <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">
     <n-grid :cols="24">
       <!-- 目标地址 -->
-      <n-form-item-gi :span="24" label="目标地址" path="address">
-        <n-input class="min-h-[44px] rounded-lg" v-model:value="model.address" placeholder="请输入目标地址" />
-      </n-form-item-gi>
-
-      <!-- 密码 -->
-      <n-form-item-gi :span="24" label="密码" path="password">
+      <n-form-item-gi :span="24" :label="$t('home.targetAddress')" path="address">
         <n-input
-          type="password"
-          show-password-on="click"
           class="min-h-[44px] rounded-lg"
-          v-model:value="model.password"
-          placeholder="请输入密码"
+          v-model:value="model.address"
+          :placeholder="$t('home.enterTargetAddress')"
         />
       </n-form-item-gi>
     </n-grid>
@@ -23,6 +16,15 @@
 <script lang="ts" setup>
 import { ref, reactive } from 'vue'
 import type { FormInst, FormRules } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+const props = defineProps({
+  nft: {
+    type: Object,
+    default: null,
+  },
+})
 
 const formRef = ref<FormInst | null>(null)
 
@@ -36,14 +38,14 @@ const rules: FormRules = {
   address: [
     {
       required: true,
-      message: '目标地址是必填项',
+      message: t('home.targetAddressRequired'),
       trigger: ['blur', 'input'],
     },
   ],
   password: [
     {
       required: true,
-      message: '密码是必填项',
+      message: t('home.passwordRequired'),
       trigger: ['blur', 'input'],
     },
   ],
@@ -51,6 +53,7 @@ const rules: FormRules = {
 defineExpose({
   model,
   formRef,
+  nft: props.nft,
 })
 </script>
 

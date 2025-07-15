@@ -6,10 +6,12 @@ import ThemeSwitcher from '@/components/common/ThemeSwitcher.vue'
 import { LANG_MAP } from '@/constant/APP'
 import { appStore } from '@/store/Modules/app/index'
 import { useAppVersion } from '@/hooks/common/useAppVersion'
-
-const { version } = useAppVersion()
+import { useStreamConfig } from '@/hooks/setting/useStreamConfig'
+import { useI18n } from 'vue-i18n'
 
 const app = appStore()
+const { t } = useI18n()
+const { version } = useAppVersion(t)
 
 // ✅ 切换方法（模拟业务逻辑）
 const toggleDisableMouse = (val: boolean) => {
@@ -21,8 +23,6 @@ const toggleAutoVirtualJoystick = (val: boolean) => {
   console.log('使用自动的虚拟摇杆:', val)
   app.useAutoVirtualJoystick = val
 }
-
-import { useStreamConfig } from '@/hooks/setting/useStreamConfig'
 
 const { sendStreamConfig } = useStreamConfig()
 
@@ -51,7 +51,7 @@ sendCurrentConfig()
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <Icon icon="mdi:theme-light-dark" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white">暗色模式</span>
+            <span class="font-medium text-base text-black dark:text-white">{{ $t('setting.darkMode') }}</span>
           </div>
           <ThemeSwitcher />
         </div>
@@ -72,27 +72,33 @@ sendCurrentConfig()
         </div>
       </n-card>
 
-      <!-- ✅ 新增：当使用虚拟摇杆时禁用鼠标 -->
-      <n-card
-        class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
-      >
+      <!-- ✅ 禁用鼠标操作（虚拟摇杆） -->
+      <n-card class="rounded-xl border ...">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <Icon icon="mdi:mouse-off" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white"> 当使用虚拟摇杆时禁用鼠标 </span>
+            <n-tooltip trigger="hover">
+              <template #trigger>
+                <span class="font-medium text-base text-black dark:text-white"> {{ $t('setting.disableMouse') }} </span>
+              </template>
+              {{ $t('setting.disableMouseTip') }}
+            </n-tooltip>
           </div>
           <n-switch v-model:value="app.disableMouseWhenJoystick" @update:value="toggleDisableMouse" />
         </div>
       </n-card>
 
-      <!-- ✅ 新增：使用自动的虚拟摇杆 -->
-      <n-card
-        class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
-      >
+      <!-- ✅ 自动启用虚拟摇杆 -->
+      <n-card class="rounded-xl border ...">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <Icon icon="mdi:gamepad-variant" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white"> 使用自动的虚拟摇杆 </span>
+            <n-tooltip trigger="hover">
+              <template #trigger>
+                <span class="font-medium text-base text-black dark:text-white"> {{ $t('setting.autoJoystick') }} </span>
+              </template>
+              {{ $t('setting.autoJoystickTip') }}
+            </n-tooltip>
           </div>
           <n-switch v-model:value="app.useAutoVirtualJoystick" @update:value="toggleAutoVirtualJoystick" />
         </div>
@@ -105,7 +111,7 @@ sendCurrentConfig()
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <Icon icon="mdi:information-outline" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white">当前版本</span>
+            <span class="font-medium text-base text-black dark:text-white">{{ $t('setting.currentVersion') }}</span>
           </div>
           <span class="text-sm text-gray-500 dark:text-gray-400 font-mono">
             {{ version }}

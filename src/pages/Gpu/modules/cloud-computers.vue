@@ -52,7 +52,7 @@
     <!-- ✅ 空数据 -->
     <n-empty
       v-else-if="cloudComputersStore.gpuTypeList.length === 0"
-      description="暂无 GPU 类型数据"
+      :description="$t('gpu.noGpuMachinesHere')"
       class="my-10 dark:text-white"
     />
 
@@ -205,5 +205,8 @@ const toDetail = (item: any) => {
 }
 :deep(.n-card > .n-card-header .n-card-header__main) {
   font-weight: 600 !important;
+}
+:deep(.n-base-selection-label) {
+  width: 100% !important;
 }
 </style>

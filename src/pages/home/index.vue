@@ -59,7 +59,7 @@ const buyDBC = () => {
     </div> -->
 
     <!-- 主体内容 -->
-    <MyContent />
+    <!-- <MyContent /> -->
   </div>
 </template>
 

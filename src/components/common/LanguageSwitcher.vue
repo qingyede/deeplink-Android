@@ -19,8 +19,6 @@ import { LANG_MAP } from '@/constant/APP'
 const app = appStore()
 const { locale } = useI18n()
 
-const currentLocale = computed(() => locale.value)
-
 // dropdown 数据
 const dropdownOptions = Object.entries(LANG_MAP).map(([key, { label, icon }]) => ({
   label: `${icon}  ${label}`,
@@ -31,7 +29,7 @@ const dropdownOptions = Object.entries(LANG_MAP).map(([key, { label, icon }]) =>
 const changeLanguage = (lang: string) => {
   locale.value = lang
   app.lang = lang
-  localStorage.setItem('app', JSON.stringify({ ...JSON.parse(localStorage.getItem('app') || '{}'), lang }))
+  localStorage.setItem('lang', lang)
 }
 </script>
 

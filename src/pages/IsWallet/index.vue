@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-[calc(100vh-100px)] px-[16px]">
+  <div class="px-[16px]">
     <!-- 创建钱包 -->
     <h1 class="text-black text-[24px] font-bold mb-2">{{ $t('IsWallet.walletUserManual') }}</h1>
     <div class="flex flex-col flex-wrap gap-3">

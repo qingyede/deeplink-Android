@@ -8,3 +8,12 @@ export const getNftList = () => {
     url: `${baseUrl}/api/cyc/getCrownInfo`,
   })
 }
+
+// 购买nft之后存储数据到数据库
+export const buyNftSuccess = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/cyc/saveBuyDLCOrder`,
+    data,
+  })
+}

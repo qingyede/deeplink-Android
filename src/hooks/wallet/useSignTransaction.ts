@@ -6,75 +6,45 @@ import { appStore } from '@/store/Modules/app'
 import { createSignerFromPrivateKey } from '@/utils/wallet/creatSiger'
 import { ethers } from 'ethers'
 
-const signerRef = ref<ethers.Wallet | null>(null)
-const addressRef = ref<string>('')
-
-export function useWalletSigner() {
+export function useWalletSigner(t) {
   const ensureWallet = async (): Promise<{ signer: ethers.Wallet; address: string; dialog: any } | null> => {
-    if (signerRef.value && addressRef.value) {
-      return {
-        signer: signerRef.value as any,
-        address: addressRef.value,
-      } as any
-    }
-
-    const dialogComponentRef = ref<any>(null) // ✅ 用 ref 正确引用组件
+    const dialogComponentRef = ref<any>(null)
 
     return new Promise((resolve) => {
       const dialog: any = window.$dialog?.warning({
-        title: '钱包解锁',
-        content: () => h(exportWalletDialog, { ref: dialogComponentRef }), // ✅ 绑定 ref
-        positiveText: '确认',
-        negativeText: '取消',
+        title: t('app.walletUnlock'),
+        content: () => h(exportWalletDialog, { ref: dialogComponentRef }),
+        positiveText: t('app.confirm'),
+        negativeText: t('app.cancel'),
         class: 'rounded-2xl',
         onPositiveClick: async () => {
           dialog.loading = true
-          dialog.positiveText = '处理中...'
+          dialog.positiveText = t('app.processing')
 
           try {
             const component = dialogComponentRef.value
             const formRef = component?.formRef
             const model = component?.model
 
-            if (!formRef || !model) {
-              window.$message?.error('组件未正确加载')
-              dialog.loading = false
-              dialog.positiveText = '确认'
-              resolve(null)
-              return
-            }
+            if (!formRef || !model) throw new Error('组件加载失败')
 
             const isValid = await new Promise<boolean>((res) => {
               formRef.validate((err: any) => res(!err))
             })
-
-            if (!isValid) {
-              window.$message?.error('密码错误，请重试')
-              dialog.loading = false
-              dialog.positiveText = '确认'
-              resolve(null)
-              return
-            }
+            if (!isValid) throw new Error(t('app.passwordError'))
 
             const { privateKey, address } = await decryptKeystore(appStore().keystore, model.password)
             const signer = createSignerFromPrivateKey(privateKey)
 
-            signerRef.value = signer
-            addressRef.value = address
-
-            window.$message?.success('钱包签名成功')
-            resolve({
-              signer,
-              address,
-              dialog,
-            })
+            resolve({ signer, address, dialog })
           } catch (err) {
+            window.$message?.error((err as any).message || '钱包解锁失败')
             dialog.loading = false
-            dialog.positiveText = '确认'
+            dialog.positiveText = t('app.confirm')
             resolve(null)
-          } finally {
-            return false
           }
+
+          return false // ❗❗ 阻止 Naive UI 自动关闭 Dialog
         },
         onNegativeClick: () => resolve(null),
       })

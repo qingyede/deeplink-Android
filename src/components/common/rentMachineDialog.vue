@@ -3,25 +3,25 @@
   <n-form
     label-placement="left"
     label-width="auto"
-    require-mark-placement="right-hanging"
+    require-mark-placement="left"
     size="medium"
     :model="cloudComputersStore.rentMachineDialogBeforeForm"
     ref="formRef"
   >
-    <n-form-item label="租用时长" path="duration">
+    <n-form-item :label="$t('gpu.rentalDuration')" path="duration">
       <n-select
         v-model:value="cloudComputersStore.rentMachineDialogBeforeForm.duration"
         :options="durationOptions"
-        placeholder="请选择租用时长"
+        :placeholder="$t('gpu.selectRentalDuration')"
         @update:value="cloudComputersStore.getRentPrice"
       />
     </n-form-item>
 
-    <n-form-item label="约等值（CNY）">
+    <n-form-item :label="$t('gpu.approxEquivalent')">
       <n-button type="primary" text>{{ cloudComputersStore.rentMachineDialogBeforeForm.price }}</n-button>
     </n-form-item>
 
-    <n-form-item label="约等值（DLC）">
+    <n-form-item :label="$t('gpu.dlcAmount')">
       <n-button type="primary" text>{{ cloudComputersStore.rentMachineDialogBeforeForm.dLCNumber }} DLC</n-button>
     </n-form-item>
   </n-form>

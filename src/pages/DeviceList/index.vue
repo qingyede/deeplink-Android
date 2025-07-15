@@ -80,22 +80,12 @@
                 <!-- <CountdownTimer :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" /> -->
               </div>
             </div>
-            <!-- <div class="flex items-center gap-1 flex-1 justify-center">
-              <Icon
-                icon="mdi:circle-slice-8"
-                class="text-[28px] mr-1 animate-pulse"
-                :style="{ color: item.statusValue == 'Online' ? 'green' : 'red' }"
-              />
-              <span class="text-base text-[#615F63] dark:text-white/70">
-                <CountdownTimer :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" />
-              </span>
-            </div> -->
           </div>
         </n-button>
       </div>
 
       <div class="my-6" v-else>
-        <n-empty description="暂无数据"> </n-empty>
+        <n-empty :description="$t('app.noData')"> </n-empty>
       </div>
     </n-card>
   </div>
@@ -116,7 +106,12 @@ import { useDeviceListStore } from '@/store/Modules/deviceList/index'
 import CountdownTimer from '@/components/common/CountdownTimer.vue'
 import MyDeviceInfo from './dialogs/myDeviceInfo.vue'
 import { useIntervalFn } from '@vueuse/core'
+import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
+import { useGetEvmSignature } from '@/hooks/wallet/useGetEvmSignature'
 
+const { getEvmSignature } = useGetEvmSignature()
+
+const { connectToRemoteDevice } = useRemoteStream()
 const app = appStore()
 const { t } = useI18n()
 const { connect, send, onMessage } = useAppSocket()
@@ -276,60 +271,60 @@ const rentDevice = (item: any, n: number) => {
   }
 }
 
-onMounted(() => {
-  connect()
+// onMounted(() => {
+//   connect()
 
-  //  绑定设备
-  const device_name = getDeviceName()
+//   //  绑定设备
+//   const device_name = getDeviceName()
 
-  send({
-    method: 'bindDevice',
-    id: 1,
-    token: app.token,
-    params: { device_id: app.deviceInfo.device_id, device_name },
-  })
+//   send({
+//     method: 'bindDevice',
+//     id: 1,
+//     token: app.token,
+//     params: { device_id: app.deviceInfo.device_id, device_name },
+//   })
 
-  // 注册消息监听处理
-  onMessage((event) => {
-    try {
-      const message = JSON.parse(event.data)
-      console.log(message, '???????')
-      if (message.method === 'getDeviceList' || message.method === 'notifyDevice') {
-        if (message.result.device_list) {
-          deviceList.value = message.result.device_list.map((item: any) => {
-            return {
-              name: item.device_name,
-              icon: getDeviceIcon(item.device_name),
-              status: t('devices.Online'),
-              loading: false,
-              statusValue: item.online ? 'Online' : 'Offline',
-              deviceCode: item.device_id,
-            }
-          })
-          loading1.value = true
-        } else {
-          deviceList.value = []
-        }
-        console.log(deviceList.value, '拿到设备列表了')
-      }
+//   // 注册消息监听处理
+//   onMessage((event) => {
+//     try {
+//       const message = JSON.parse(event.data)
+//       console.log(message, '???????')
+//       if (message.method === 'getDeviceList' || message.method === 'notifyDevice') {
+//         if (message.result.device_list) {
+//           deviceList.value = message.result.device_list.map((item: any) => {
+//             return {
+//               name: item.device_name,
+//               icon: getDeviceIcon(item.device_name),
+//               status: t('devices.Online'),
+//               loading: false,
+//               statusValue: item.online ? 'Online' : 'Offline',
+//               deviceCode: item.device_id,
+//             }
+//           })
+//           loading1.value = true
+//         } else {
+//           deviceList.value = []
+//         }
+//         console.log(deviceList.value, '拿到设备列表了')
+//       }
 
-      if (message.method === 'registerDevice') {
-        console.log('[WS] 设备注册成功:', message.result)
-      }
+//       if (message.method === 'registerDevice') {
+//         console.log('[WS] 设备注册成功:', message.result)
+//       }
 
-      if (message.method === 'bindDevice') {
-        console.log('[WS] 设备绑定成功:', message.result)
-      }
-    } catch (err) {
-      console.error('[WS] 消息解析失败:', err)
-    }
-  })
+//       if (message.method === 'bindDevice') {
+//         console.log('[WS] 设备绑定成功:', message.result)
+//       }
+//     } catch (err) {
+//       console.error('[WS] 消息解析失败:', err)
+//     }
+//   })
 
-  // 延迟请求，避免连接未就绪
-  setTimeout(() => {
-    fetchDeviceList()
-  }, 10)
-})
+//   // 延迟请求，避免连接未就绪
+//   setTimeout(() => {
+//     fetchDeviceList()
+//   }, 10)
+// })
 
 // 发送请求：获取设备列表
 const fetchDeviceList = async () => {
@@ -363,7 +358,7 @@ const showMyDeviceInfo = (item) => {
           type: 'success',
           class: 'font-bold',
         },
-        { default: () => '设备详情' }
+        { default: () => t('devices.deviceDetails') }
       )
     },
     content: () => h(MyDeviceInfo, { ref: MyDeviceInfoDialogRef, info: item }),
@@ -371,31 +366,25 @@ const showMyDeviceInfo = (item) => {
     showIcon: false,
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
-    positiveText: '打开设备',
-    negativeText: '取消',
+    positiveText: t('devices.connectDevice'),
+    negativeText: t('app.cancel'),
     onPositiveClick: async () => {
       if (d) {
-        const rs = await new Promise(async (resolve, reject) => {
-          MyDeviceInfoDialogRef.value?.formRef?.validate(async (errors) => {
-            if (!errors) {
-              resolve(true)
-            } else {
-              window.$message?.error('请检查您的密码')
-              resolve(false)
-            }
-          })
-        })
+        d.loading = true
+        d.positiveText = 'loading...'
+
+        const rs: any = await getEvmSignature()
+        console.log(rs, '签名签名签名签名')
+        d.loading = false
+        d.positiveText = t('devices.connectDevice')
         if (rs) {
-          d.loading = true
-          d.positiveText = 'loading...'
-          await new Promise((resolve, reject) => {
-            setTimeout(() => {
-              d.loading = false
-              d.positiveText = '确定'
-              window.$message?.success('购买成功')
-              resolve(true)
-            }, 2000)
-          })
+          console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
+          try {
+            connectToRemoteDevice({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` })
+            d.destroy?.()
+          } catch (error) {
+            return false
+          }
         } else {
           return false
         }

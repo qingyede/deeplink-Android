@@ -6,6 +6,7 @@ interface WalletTransferData {
   privateKey: string
   mnemonic: string
   keystore: string
+  pwd?: string
 }
 
 const walletData = ref<WalletTransferData | null>(null)

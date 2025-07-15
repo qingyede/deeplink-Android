@@ -8,34 +8,27 @@
       </span>
     </div>
 
-    <div class="mt-[50px] w-full">
+    <div class="mt-[36px] w-full">
       <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">
         <n-grid :cols="24">
-          <n-form-item-gi :span="24" path="privateKey">
-            <n-card :title="titleH" class="rounded-lg">
-              <n-form-item-gi :span="24" :label="$t('openWallet.privateKey')" path="privateKey">
-                <n-input
-                  type="password"
-                  show-password-on="click"
-                  class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
-                  v-model:value="model.privateKey"
-                  :placeholder="$t('openWallet.enterPrivateKey')"
-                  :status="privateKeyStatus"
-                />
-              </n-form-item-gi>
-              <n-form-item-gi :span="24" :label="$t('openWallet.password')" path="password">
-                <n-input
-                  type="password"
-                  show-password-on="click"
-                  class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
-                  v-model:value="model.password"
-                  :placeholder="$t('openWallet.enterWalletPassword')"
-                  :status="passwordStatus"
-                />
-              </n-form-item-gi>
-            </n-card>
+          <n-form-item-gi :span="24" :label="$t('openWallet.privateKey')" path="privateKey">
+            <n-input
+              type="password"
+              show-password-on="click"
+              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              v-model:value="model.privateKey"
+              :placeholder="$t('openWallet.enterPrivateKey')"
+            />
           </n-form-item-gi>
-
+          <n-form-item-gi :span="24" :label="$t('openWallet.password')" path="password">
+            <n-input
+              type="password"
+              show-password-on="click"
+              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              v-model:value="model.password"
+              :placeholder="$t('openWallet.enterWalletPassword')"
+            />
+          </n-form-item-gi>
           <n-form-item-gi :span="24">
             <n-button
               class="w-full rounded-lg min-h-[48px]"
@@ -83,8 +76,8 @@ const privateKeyStatus = computed(() => {
 })
 
 const passwordStatus = computed(() => {
-  if (!model.password) return undefined
-  return model.password.length >= 8 && /[a-zA-Z]/.test(model.password) && /[0-9]/.test(model.password) ? 'success' : 'error'
+  if (!model.password) return 'error'
+  return 'success'
 })
 
 // 表单是否有效（用于禁用按钮）
@@ -125,12 +118,12 @@ const rules: FormRules = {
         if (!value) {
           return Promise.reject(new Error(t('openWallet.passwordRequired')))
         }
-        if (value.length < 8) {
-          return Promise.reject(new Error(t('openWallet.passwordMinLength')))
-        }
-        if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-          return Promise.reject(new Error(t('openWallet.passwordAlphaNumeric')))
-        }
+        // if (value.length < 8) {
+        //   return Promise.reject(new Error(t('openWallet.passwordMinLength')))
+        // }
+        // if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
+        //   return Promise.reject(new Error(t('openWallet.passwordAlphaNumeric')))
+        // }
         return Promise.resolve()
       },
       trigger: ['blur', 'input'],
@@ -138,28 +131,6 @@ const rules: FormRules = {
   ],
 }
 
-// 卡片标题组件
-const titleH = () => {
-  return h('div', { class: 'flex items-center gap-4' }, [
-    h(
-      NButton,
-      {
-        color: '#DBEFE7',
-        class: 'rounded-lg min-w-[32px] min-h-[45px]',
-      },
-      () => {
-        return h(Icon, {
-          icon: 'mdi:lock',
-          class: 'text-primary-500 text-[24px]',
-        })
-      }
-    ),
-    h('div', { class: 'flex flex-col' }, [
-      h('div', { class: 'text-[#000] text-[18px] font-bold' }, t('openWallet.privateKey')),
-      h('div', { class: 'text-[#737373] text-[16px]' }, t('openWallet.privateKeyDetails')),
-    ]),
-  ])
-}
 // E9873D79C6D87DC0FB6A5778633389F4453213303DA61F20BD67FC233AA33262
 // 用户输入的
 
@@ -173,10 +144,10 @@ const importWallet = async () => {
     window.$message?.success(t('openWallet.walletImportSuccess'))
     app.isWalletRegistered = true
     router.push({ name: 'home' })
-    app.address = result.address
+    app.address = result.address.toLowerCase()
     app.keystore = result.keystore
   } else {
-    alert('导入失败，私钥格式或密码错误')
+    window.$message?.error('导入失败，私钥格式或密码错误')
   }
 }
 // 表单提交

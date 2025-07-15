@@ -85,17 +85,6 @@ function handleTxError(error: any) {
     // 通用错误提示
     window.$message?.error(`转账失败：${message}`, { duration: 8000 })
   }
-
-  // 开发环境：详细日志
-  if (import.meta.env.DEV) {
-    console.error('❌ [转账异常 - handleTxError]')
-    console.log('➡️ code:', code)
-    console.log('➡️ message:', message)
-    console.log('➡️ reason:', reason)
-    console.log('➡️ tx:', tx)
-    console.log('➡️ data:', data)
-    console.error('[原始错误对象]', error)
-  }
 }
 
 // ✅ DBC 原生币转账
@@ -155,13 +144,17 @@ export function useTransfer() {
     transfer,
   }
 }
-
+/**
+ * 获取可转账 DBC 余额（free - feeFrozen）
+ */
 export const getAvailableDbcBalance = async (wallet: string) => {
   const provider = getDbcProvider()
   const raw = await provider.getBalance(wallet)
   return parseFloat(ethers.formatEther(raw)) - 2 // ✅ 可转余额，减 2 保留 gas
 }
-
+/**
+ * 获取 DLC 可用余额（ERC20 合约）
+ */
 export const getAvailableDlcBalance = async (wallet: string) => {
   const contract = getErc20Contract(DLC_TOKEN_ADDRESS, getDbcProvider())
   const decimals = await contract.decimals()
@@ -205,3 +198,10 @@ export const getAvailableDlcBalance = async (wallet: string) => {
 //   const [rawBalance, decimals] = await Promise.all([contract.balanceOf(wallet), contract.decimals()])
 //   return parseFloat(ethers.formatUnits(rawBalance, decimals))
 // }
+
+// 生成签名
+export const CreateSignatureEVM = async (nonce, privateKey) => {
+  const wallet = new ethers.Wallet(privateKey)
+  const signature = await wallet.signMessage(String(nonce))
+  return { nonce, signature }
+}

@@ -123,6 +123,7 @@ const handleValidateButtonClick = (e: MouseEvent) => {
             privateKey: privateKey.value,
             mnemonic: mnemonic.value,
             keystore: keystore.value,
+            pwd: model.password,
           })
 
           // 这里可以添加创建钱包的实际逻辑

@@ -46,10 +46,10 @@ export function useRemoteStream() {
    * @param password 密码
    */
   function connectToRemoteDevice({ id, password }: RemoteDevicePayload) {
-    if (!window.dlc?.toNative) {
-      console.error('❌ 未检测到 Native 桥接对象 window.dlc')
-      return
-    }
+    // if (!window.dlc?.toNative) {
+    //   window.$message?.warning('未检测到 Native 桥接对象 window.dlc')
+    //   throw new Error('未检测到 Native 桥接对象 window.dlc')
+    // }
 
     const payload = {
       action: 1001,
@@ -59,7 +59,7 @@ export function useRemoteStream() {
         clientID: clientID.value,
       },
     }
-
+    console.log(payload, 'payloadpayloadpayload')
     window.dlc.toNative(JSON.stringify(payload))
     isConnected.value = true
     startHeartbeat()

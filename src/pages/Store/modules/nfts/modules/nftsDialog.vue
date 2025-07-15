@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col">
     <h1 class="flex flex-col gap-2 justify-between mb-2">
-      <span>你选择购买的NFT:</span>
+      <span>{{ $t('Store.selectedNft') }}:</span>
       <span class="text-primary-500"
-        >钱包DLC余额： {{ formatNumber(dlcNumber) }}
-        <span class="text-error-500" v-show="showBalanceIsOk">（余额不足）</span>
+        >{{ $t('Store.walletBalance') }}： {{ formatNumber(dlcNumber) }}
+        <span class="text-error-500" v-show="showBalanceIsOk">（{{ $t('Store.insufficientBalance') }}）</span>
       </span>
     </h1>
     <n-card class="rounded-lg mb-8 !bg-[#efefef] dark:bg-[#1e1e1e] transition-colors duration-300">
@@ -18,13 +18,13 @@
         </n-button>
         <span class="font-bold text-[20px]">{{ map0[props.data.type] }}</span>
         <span class="text-xs flex items-center flex-wrap">
-          <span>等值 {{ map3[props.data.type] }} DLC (当前DLC的价格：</span>
+          <span>{{ $t('Store.equivalent') }} {{ map3[props.data.type] }} DLC ({{ $t('Store.currentDlcPrice') }}：</span>
           <span class="text-primary-300">{{ price.useLocalizedCurrency(dlc_price) || '0.00' }}</span> )</span
         >
       </div>
     </n-card>
-    <h5 class="-mt-5 text-xs text-gray-400 leading-5">购买后十分钟内未收到NFT，请联系管理：service@deeplink.cloud</h5>
-    <h5 class="mt-3">
+    <h5 class="-mt-5 text-xs text-gray-400 leading-5">{{ $t('Store.nftDelayTip') }}：service@deeplink.cloud</h5>
+    <!-- <h5 class="mt-3">
       <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">
         <n-grid :cols="24">
           <n-form-item-gi :span="24" :label="$t('createWallet.walletPasswordLabel')" path="password">
@@ -38,7 +38,7 @@
           </n-form-item-gi>
         </n-grid>
       </n-form>
-    </h5>
+    </h5> -->
   </div>
 </template>
 
@@ -50,7 +50,9 @@ import { priceStore } from '@/store/Modules/price/index'
 import { useGetDbcAndDlcNumber } from '@/hooks/wallet/useGetDbcAndDlcNumber'
 const { dbcNumber, dlcNumber, homeCardLoading } = useGetDbcAndDlcNumber()
 import { formatNumber } from '@/utils/common/formatNumber'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const price = priceStore()
 const { dlc_price } = useGetDlcPrice()
 const props = defineProps({
@@ -61,16 +63,16 @@ const props = defineProps({
 })
 // 定义map
 const map0 = {
-  0: '专业版皇冠NFT 1个月',
-  1: '专业版皇冠NFT 3个月',
-  2: '专业版皇冠NFT 6个月',
-  3: '专业版皇冠NFT 12个月',
+  0: t('Store.proCrown1M'),
+  1: t('Store.proCrown3M'),
+  2: t('Store.proCrown6M'),
+  3: t('Store.proCrown12M'),
 }
 const map1 = {
-  0: '1个月',
-  1: '3个月',
-  2: '6个月',
-  3: '12个月',
+  0: t('Store.duration1M'),
+  1: t('Store.duration3M'),
+  2: t('Store.duration6M'),
+  3: t('Store.duration12M'),
 }
 const map3 = {
   0: '66666.67',
@@ -79,10 +81,23 @@ const map3 = {
   3: '500000',
 }
 
+const map4 = {
+  0: 0,
+  1: 1,
+  2: 2,
+  3: 3,
+}
+
 // 是否显示余额不足
 const showBalanceIsOk = computed(() => {
-  if (Number(dlcNumber.value < map3[props.data.type])) return true
-  return false
+  if (dlcNumber.value) {
+    console.log(dlcNumber.value, map3[props.data.type], dlcNumber.value < map3[props.data.type], '????????')
+    if (Number(dlcNumber.value < map3[props.data.type])) {
+      return true
+    } else {
+      return false
+    }
+  }
 })
 
 const formRef = ref<FormInst | null>(null)
@@ -95,7 +110,7 @@ const rules: FormRules = {
   password: [
     {
       validator: (_, value) => {
-        if (!value) return new Error('密码是必须的')
+        if (!value) return new Error(t('Store.passwordRequired'))
         // if (value.length < 8) return new Error('密码长度至少为8个字符')
         // if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
         //   return new Error('密码必须包含字母和数字')
@@ -110,6 +125,9 @@ const rules: FormRules = {
 defineExpose({
   model,
   formRef,
+  number: map3[props.data.type],
+  endTime: map4[props.data.type],
+  showBalanceIsOk,
 })
 </script>
 

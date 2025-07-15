@@ -12,7 +12,7 @@
     <!-- 无数据 -->
     <template v-else-if="!remote.cardList.card3 || remote.cardList.card3.length === 0">
       <div class="col-span-2">
-        <n-empty description="暂无数据" />
+        <n-empty :description="$t('app.noData')" />
       </div>
     </template>
 
@@ -23,7 +23,7 @@
         :key="index"
         class="flex flex-col gap-3 py-3 min-h-[250px] justify-between"
       >
-        <img :src="item.imgurl || defaultImg" class="w-full h-[144px] object-cover rounded-[8.74px]" alt="图片" />
+        <img :src="item.imgurl" class="w-full h-[144px] object-cover rounded-[8.74px]" alt="图片" />
         <div class="text-base text-gray-600 line-clamp-2 break-words">
           {{ item.name }}
         </div>
@@ -38,7 +38,6 @@
 <script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 import { useRemoteStore } from '@/store/Modules/remote/index'
-import defaultImg from '@/assets/img/playwith.png'
 import { useOpenExternalLink } from '@/hooks/common/useExternalLinkOptions'
 
 const { openExternalLink } = useOpenExternalLink()

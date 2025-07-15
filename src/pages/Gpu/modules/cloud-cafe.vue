@@ -66,7 +66,11 @@
     </div>
 
     <!-- ✅ 空数据 -->
-    <n-empty v-else-if="cafe.gpuTypeList.length === 0" description="暂无 GPU 类型数据" class="my-10 dark:text-white" />
+    <n-empty
+      v-else-if="cafe.gpuTypeList.length === 0"
+      :description="$t('gpu.noGpuMachinesHere')"
+      class="my-10 dark:text-white"
+    />
 
     <!-- ✅ 正常数据 -->
     <n-card
@@ -108,10 +112,10 @@ const route = useRoute()
 
 const selectValue = ref(500)
 const options = ref([
-  // {
-  //   label: 'All',
-  //   value: 'all',
-  // },
+  {
+    label: 'All',
+    value: 'all',
+  },
   {
     label: '50 km',
     value: 50,
@@ -217,5 +221,8 @@ const toDetail = (item: any) => {
 }
 :deep(.n-card > .n-card-header .n-card-header__main) {
   font-weight: 600 !important;
+}
+:deep(.n-base-selection-label) {
+  width: 100% !important;
 }
 </style>

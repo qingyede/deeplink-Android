@@ -12,10 +12,7 @@
       <n-form ref="formRef" :model="model" label-placement="top">
         <n-grid :cols="24">
           <n-form-item-gi :span="24" :label="$t('walletSuccess.privateKey')">
-            <n-input class="min-h-[44px] rounded-lg" v-model:value="model.privateKey">
-              <template #prefix>
-                <span class="font-bold text-[14px]">{{ $t('walletSuccess.yourPrivateKey') }}:</span>
-              </template>
+            <n-input type="textarea" readonly class="min-h-[44px] rounded-lg" v-model:value="model.privateKey">
               <template #suffix> <Icon @click="copyH" icon="mdi:content-copy" class="text-[16px]" /> </template>
             </n-input>
           </n-form-item-gi>
@@ -26,12 +23,12 @@
               {{ $t('walletSuccess.doNotLoseIt') }} <br />
               <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span>
               {{ $t('walletSuccess.doNotShareIt') }}
-              <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span
+              <!-- <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span -->
               >{{ $t('walletSuccess.doNotSendIt') }}
               <span class="font-bold text-[#000]">{{ $t('walletSuccess.willBeStolen') }}</span> <br />
 
               {{ $t('walletSuccess.backupReminder') }}
-              <span class="font-bold text-[#000]"> USD</span>
+              <!-- <span class="font-bold text-[#000]"> USD</span> -->
             </div>
           </n-form-item-gi>
 
@@ -53,7 +50,11 @@ import { useClipboard } from '@vueuse/core'
 import { appStore } from '@/store/Modules/app/index'
 import { useRouter, useRoute } from 'vue-router'
 import { useWalletTransfer } from '@/hooks/wallet/useWalletTransfer'
+import { useWallet } from '@/hooks/wallet/useWallet'
+const { importFromPrivateKey } = useWallet()
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { walletData, clearWalletData } = useWalletTransfer()
 // 离开页面时清除敏感数据
 onUnmounted(() => {
@@ -79,8 +80,23 @@ const copyH = () => {
   window.$message?.success('复制成功')
 }
 
-const handleValidateButtonClick = () => {
-  router.push({ name: 'openWallet' })
+const handleValidateButtonClick = async () => {
+  // router.push({ name: 'openWallet' })
+  console.log(model.privateKey, walletData.value?.pwd)
+  const result = await importFromPrivateKey(model.privateKey, walletData.value?.pwd as string)
+  if (result) {
+    console.log('地址:', result.address)
+    console.log('私钥:', result.privateKey)
+
+    console.log('keystore:', result.keystore)
+    window.$message?.success(t('openWallet.walletImportSuccess'))
+    app.isWalletRegistered = true
+    router.push({ name: 'home' })
+    app.address = result.address.toLowerCase()
+    app.keystore = result.keystore
+  } else {
+    window.$message?.error('导入失败，私钥格式或密码错误')
+  }
 }
 </script>
 
@@ -89,8 +105,7 @@ const handleValidateButtonClick = () => {
   height: 100% !important;
 }
 
-// :deep(.n-form-item .n-form-item-label) {
-//   font-size: 16px;
-//   color: #615f63;
-// }
+:deep(.n-input .n-input__textarea-el) {
+  padding-right: 6px;
+}
 </style>

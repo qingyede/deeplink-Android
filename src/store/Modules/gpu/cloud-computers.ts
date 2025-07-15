@@ -14,12 +14,14 @@ import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { appStore } from '@/store/Modules/app/index'
 
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const price = priceStore()
   const app = appStore()
   const router = useRouter()
   const route = useRoute()
+  const { t } = useI18n()
   // 强制重新加载组件
   let RouterViewKey = ref(0)
   const forceUpdate = () => {
@@ -111,6 +113,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
           ...item,
           canUseTime,
           rsStatus,
+          loading: false,
         }
       })
     } else {
@@ -130,20 +133,24 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
   })
 
   // 获取机器在线状态
-  const getMachineStatusH = async (machine_id) => {
+  const getMachineStatusH = async (machine_id, item) => {
     const { data: res } = await getGpuStatus({
       machine_id,
     })
     if (res.success) {
       console.log(res, '机器在线状态')
       if (!res.content) {
-        window.$message?.warning('机器不在线')
+        window.$message?.warning(t('gpu.offline'))
+        item.loading = false
+        return false
+      } else {
+        return true
       }
     }
   }
   // 在合约上查询租用dlc数量
-  async function getRentPrice() {
-    rentMachineDialogBeforeForm.loading = true
+  async function getRentPrice(item) {
+    item.loading = true
     // 2. 查询价格与余额
     const provider = getDbcProvider()
 
@@ -160,13 +167,12 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     rentMachineDialogBeforeForm.dlcprice = dlc_price.value
     const resPrice = price.useLocalizedCurrency(convertDlcToUsd(priceNumber, dlc_price.value))
     console.log(resPrice, '价格', dlc_price.value, priceNumber)
-    rentMachineDialogBeforeForm.loading = false
+    item.loading = false
     rentMachineDialogBeforeForm.dLCNumber = Number(priceNumber.toFixed(5))
     rentMachineDialogBeforeForm.price = resPrice
   }
-  const rentMachineDialogBefore = async () => {
-    console.log(rentMachineDialogBeforeForm.rentinfo.machine_id, '租用前置弹窗', rentMachineDialogBeforeForm.duration)
-    await getRentPrice()
+  const rentMachineDialogBefore = async (item) => {
+    await getRentPrice(item)
     const NftsDialogRef = ref()
     const d = window.$dialog?.info({
       title: () => {
@@ -177,7 +183,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             type: 'success',
             class: 'font-bold',
           },
-          { default: () => '租用详情' }
+          { default: () => t('gpu.rentalDetails') }
         )
       },
       content: () => h(rentMachineDialog, { ref: NftsDialogRef }),
@@ -185,8 +191,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       showIcon: false,
       negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
       positiveButtonProps: { color: '#03C188', size: 'medium' },
-      positiveText: '确认租用',
-      negativeText: '取消',
+      positiveText: t('gpu.confirm'),
+      negativeText: t('app.cancel'),
       onPositiveClick: async () => {
         rentMachineFlow({
           machineId: rentMachineDialogBeforeForm.rentinfo.machine_id,
@@ -195,11 +201,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       },
     })
   }
-  //   {
-  //     "userAddress": "0x1103bE8c92F8710366c9179235e3e726282FA4cf",
-  //     "machineId": "3a0fdb177bbd174e9111d0cbaa00eb6b6589e525df92220f1a9ae939443ec7b9",
-  //     "rentSeconds": 600
-  // }
 
   // 租用后存储数据到数据库
   const rentSuccessH = async () => {
@@ -226,7 +227,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       //   distance: route.query.distance,
       // })
       forceUpdate()
-      window.$message?.success('租用成功')
+      window.$message?.success(t('gpu.rentalSuccess'))
       router.push({ name: 'DeviceList' })
     }
   }
@@ -247,10 +248,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     machineId: string
     rentSeconds: number
   }): Promise<string | void> {
-    console.log('[参数]', { machineId, rentSeconds })
-
     const provider = getDbcProvider()
-    const { ensureWallet } = useWalletSigner()
+    const { ensureWallet } = useWalletSigner(t)
 
     // 解锁钱包
     const result = await ensureWallet()
@@ -259,7 +258,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
 
     const { signer, address: userAddress, dialog } = result
-    console.log('[关键信息]', { userAddress, machineId, rentSeconds })
 
     try {
       const rentContract = getContract('RENT', provider)
@@ -269,7 +267,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       const canRent = await rentContract.canRent(machineId)
       console.log('[canRent]', canRent)
       if (!canRent) {
-        throw new Error('该机器当前不可租用')
+        throw new Error(t('gpu.deviceUnavailable'))
       }
 
       // 2. 查询价格与余额
@@ -283,7 +281,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       console.log('[余额]', { balanceWei: balanceWei.toString(), balance })
 
       if (balance < price) {
-        throw new Error('余额不足，请先充值')
+        throw new Error(t('gpu.insufficientBalance'))
       }
 
       // 3. 授权 approve
@@ -313,7 +311,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         throw new Error('租用交易失败，请稍后重试')
       }
 
-      console.log('✅ 租用成功:', txReceipt)
       await rentSuccessH()
       dialog.destroy()
 
