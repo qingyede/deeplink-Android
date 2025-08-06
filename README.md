@@ -1,40 +1,42 @@
-```markdown
-# DeepLink 安卓端
+# DeepLink Android App
 
-**DeepLink 安卓端** 是 DBC（DeepBrain Chain）生态下的一款 Web3 移动应用，旨在通过区块链技术打通个人计算资源与游戏娱乐之间的边界。该应用支持 DBC 原生代币 **DLC**，为用户提供以下核心功能：
+**DeepLink Android** is a Web3 mobile application built within the DBC (DeepBrain Chain) ecosystem. It bridges the gap between decentralized computing power and gaming by leveraging the native token **DLC**. The app provides a seamless user experience for managing assets and accessing high-performance computing resources.
 
-- **DLC 快捷转账与交易**：内置便捷的 Web3 钱包功能，用户可直接通过手机完成 DLC 资产的管理与转账操作。
-- **远程租用算力设备**：通过 DLC 支付，用户可远程租用网吧或个人电脑资源，实现高性能算力接入，轻松在手机端运行大型 3A 游戏和高负载应用。
-- **共享闲置设备获取收益**：设备拥有者可将闲置主机接入平台，通过出租资源赚取 DLC，实现资源变现。
+## Core Features
 
-DeepLink 致力于打造一个高效、安全、去中心化的算力资源共享平台，重构传统云计算和游戏体验方式，为用户带来真正的 Web3 游戏与算力服务体验。
+- **DLC Transfers & Trading**: Integrated Web3 wallet functionality allows users to manage and transfer their DLC tokens directly from their phone.
+- **Remote Hardware Rental**: Users can rent powerful PCs or internet café machines using DLC, enabling them to play high-end AAA games or run heavy workloads on mobile.
+- **Earn by Sharing Idle Devices**: PC owners can share unused computing resources and earn DLC tokens in return.
 
-# 项目配置说明
+DeepLink aims to create a secure, efficient, and decentralized platform for computing power exchange, redefining traditional cloud gaming and remote desktop usage.
 
-本项目采用了 Vite 作为构建工具，并对 Vite 配置进行了模块化管理。此文档将介绍如何使用和扩展这些配置。
+---
 
-## 目录结构
+# Project Configuration Overview
 
-项目的 Vite 配置被拆分为以下几个部分：
+This project uses **Vite** as its build tool, with a modular configuration structure for maintainability and scalability. This documentation outlines how to use and extend the Vite configurations.
 
-- **`vite.config.ts`**: 主要的 Vite 配置文件，负责加载其他配置模块。
-- **`build/plugins/index.ts`**: 包含了插件、构建和服务相关的配置模块。
+## Directory Structure
+
+Vite-related configuration files are organized as follows:
+
+- **`vite.config.ts`**: Main Vite configuration entry point.
+- **`build/plugins/index.ts`**: Central module for build, plugin, and dev server settings.
+
 ```
-
 ├── build/
-│ └── plugins/
-│ ├── index.ts # 插件、构建和服务的配置入口
-├── src/ # 项目源代码
-├── vite.config.ts # Vite 主配置文件
-└── README.md # 项目文档
-
-````
+│   └── plugins/
+│       └── index.ts          # Entry point for plugins and server/build config
+├── src/                      # Source code
+├── vite.config.ts            # Main Vite configuration
+└── README.md                 # Project documentation
+```
 
 ## `vite.config.ts`
 
-此文件是 Vite 的主配置文件，通过 `defineConfig` 函数加载并组合了其他模块的配置：
+This is the primary Vite config file. It uses `defineConfig` to load and merge other configuration modules:
 
-```typescript
+```ts
 import { defineConfig } from 'vite'
 import { URL, fileURLToPath } from 'node:url'
 import { createVitePlugins, createViteBuild, createViteServer } from './build/plugins/index'
@@ -57,24 +59,22 @@ export default defineConfig({
   server: createViteServer(),
   build: createViteBuild(),
 })
-````
+```
 
 ## `build/plugins/index.ts`
 
-该文件包含了以下三个配置模块：
+This file exports three configuration methods:
 
 ### 1. `createVitePlugins`
 
-定义了项目中使用的 Vite 插件。当前使用的插件包括：
+Defines the list of Vite plugins used in the project:
 
 - `@vitejs/plugin-vue`
 - `vite-plugin-progress`
 - `vite-plugin-vue-devtools`
 - `vite-plugin-svg-icons`
 
-可以根据需要在此处添加或删除插件。
-
-```typescript
+```ts
 import vue from '@vitejs/plugin-vue'
 import type { PluginOption } from 'vite'
 import progress from 'vite-plugin-progress'
@@ -97,9 +97,9 @@ export function createVitePlugins(): PluginOption[] {
 
 ### 2. `createViteBuild`
 
-配置了 Vite 的构建选项，包括打包优化和手动分包设置。
+Build options for Vite, including manual chunking and optimization:
 
-```typescript
+```ts
 import type { BuildOptions } from 'vite'
 
 export function createViteBuild(): BuildOptions | undefined {
@@ -125,9 +125,9 @@ export function createViteBuild(): BuildOptions | undefined {
 
 ### 3. `createViteServer`
 
-配置了开发服务器选项，包括代理设置、端口、自动打开浏览器等。
+Dev server configuration, including proxy rules and port settings:
 
-```typescript
+```ts
 import type { ServerOptions } from 'vite'
 
 export function createViteServer(): ServerOptions | undefined {
@@ -149,57 +149,57 @@ export function createViteServer(): ServerOptions | undefined {
 }
 ```
 
-## 如何扩展
+## How to Extend
 
-### 添加新的插件
+### Add New Plugins
 
-1. 在 `build/plugins/index.ts` 中的 `createVitePlugins` 函数中引入并添加新的插件。
-2. 在项目的 `vite.config.ts` 中，插件将自动加载，无需额外操作。
+1. Import the plugin in `build/plugins/index.ts`.
+2. Add it to the `createVitePlugins()` return array — no need to modify `vite.config.ts`.
 
-### 修改构建配置
+### Modify Build Config
 
-在 `build/plugins/index.ts` 中的 `createViteBuild` 函数内进行修改，可以调整构建行为，比如手动分包、压缩方式等。
+Update the `createViteBuild()` method to customize optimization, chunk splitting, etc.
 
-### 修改开发服务器配置
+### Modify Dev Server Settings
 
-在 `build/plugins/index.ts` 中的 `createViteServer` 函数内进行修改，可以调整开发服务器的行为，比如代理设置、端口等。
+Update the `createViteServer()` method to change ports, proxies, CORS settings, and more.
 
-## 总结
+## Summary
 
-这种模块化的配置方式有助于项目的维护和扩展。通过将不同的配置拆分到独立的文件中，使得配置项更加直观和易于管理。如果需要对项目进行配置更新，只需在相关模块中进行修改即可，主配置文件依旧保持简洁和清晰。
+This modular configuration approach improves project maintainability. By isolating Vite plugins, build logic, and dev server settings, changes are easier to manage and understand. The main config remains clean and minimal.
 
-# MyIcon 组件文档
+---
 
-`MyIcon` 组件是一个灵活的图标组件，支持从远程图标库（如 Iconify）和本地图标（SVG 文件）中加载图标。它提供了简洁的接口来控制图标的大小、颜色和其他样式属性，使得在 Vue 项目中使用图标变得非常简单。
+# MyIcon Component Documentation
 
-## 功能特性
+The `MyIcon` component is a flexible icon wrapper that supports both remote (Iconify) and local SVG icons. It provides an easy interface to control icon size, color, and more.
 
-- **远程图标支持**：通过 Iconify 库加载远程图标，支持多种图标库。
-- **本地图标支持**：通过本地 SVG 文件加载图标，便于使用自定义图标。
-- **样式控制**：支持自定义图标的宽度、高度、字体大小和颜色。
-- **简洁设计**：去除了复杂的功能，专注于核心的图标渲染需求。
+## Features
 
-## 使用方法
+- **Remote Icon Support**: Uses Iconify to load icons from remote collections.
+- **Local Icon Support**: Loads local SVG icons from the project directory.
+- **Style Customization**: Customize width, height, font size, and color.
+- **Minimal API**: Focused on clean rendering and style flexibility.
 
-### 1. 安装依赖
+## Usage
 
-确保项目中已经安装了 `@iconify/vue` 库。
+### 1. Install Dependencies
+
+Make sure `@iconify/vue` is installed:
 
 ```bash
 pnpm install @iconify/vue
 ```
 
-### 2. 引入组件
-
-在需要使用图标的地方，引入并注册 `MyIcon` 组件。
+### 2. Import the Component
 
 ```vue
 <template>
   <div>
-    <!-- 使用远程图标 -->
+    <!-- Remote icon -->
     <MyIcon name="mdi:home" size="48px" c="blue" />
 
-    <!-- 使用本地图标 -->
+    <!-- Local SVG icon -->
     <MyIcon name="custom-icon" size="48px" c="green" local />
   </div>
 </template>
@@ -209,47 +209,62 @@ import MyIcon from './components/MyIcon.vue'
 </script>
 ```
 
-### 3. 属性（Props）
+### 3. Props
 
-| 属性名  | 类型      | 默认值    | 说明                                                     |
-| ------- | --------- | --------- | -------------------------------------------------------- |
-| `name`  | `String`  | 必填      | 图标的名称（远程图标使用 Iconify 名称，或本地 SVG 名称） |
-| `size`  | `String`  | `inherit` | 图标的字体大小，可以是任何合法的 CSS 尺寸单位            |
-| `c`     | `String`  | `inherit` | 图标的颜色                                               |
-| `w`     | `String`  | `100%`    | 图标的宽度                                               |
-| `h`     | `String`  | `100%`    | 图标的高度                                               |
-| `local` | `Boolean` | `false`   | 是否使用本地图标（SVG 文件）                             |
+| Prop    | Type      | Default   | Description                                                    |
+| ------- | --------- | --------- | -------------------------------------------------------------- |
+| `name`  | `String`  | Required  | Icon name. For remote: Iconify name. For local: SVG file name. |
+| `size`  | `String`  | `inherit` | Font size or dimension of the icon (any valid CSS unit).       |
+| `c`     | `String`  | `inherit` | Color of the icon.                                             |
+| `w`     | `String`  | `100%`    | Width of the icon.                                             |
+| `h`     | `String`  | `100%`    | Height of the icon.                                            |
+| `local` | `Boolean` | `false`   | Whether to load the icon from local SVG assets.                |
 
-### 4. 使用示例
+### 4. Examples
 
-#### 远程图标示例
+#### Remote Icon Example
 
 ```vue
 <MyIcon name="mdi:home" size="24px" c="blue" />
 ```
 
-#### 本地图标示例
+#### Local Icon Example
 
 ```vue
 <MyIcon name="custom-icon" size="24px" c="green" local />
 ```
 
-### 5. 组件实现细节
+### 5. How It Works
 
-`MyIcon` 组件根据 `local` 属性的值来决定是渲染远程图标还是本地图标：
+- If `local` is `false`, it renders a remote icon using `@iconify/vue`.
+- If `local` is `true`, it uses the `<use>` tag to reference a local SVG from the `/assets/icons` directory.
 
-- 当 `local` 为 `false` 时，使用 `Iconify` 库渲染远程图标。
-- 当 `local` 为 `true` 时，使用 SVG 的 `<use>` 元素来引用本地 SVG 图标。
+### 6. Notes
 
-### 6. 注意事项
+- **Local SVGs** must be placed under `src/assets/icons/` and their filenames must match the `name` prop.
+- Make sure `vite-plugin-svg-icons` is properly configured for local SVGs to work.
 
-- **本地图标路径**：本地 SVG 图标应放置在项目的 `assets/icons/` 目录中，并且名称需要与传递给 `name` 属性的值相匹配。
-- **远程图标库支持**：确保项目中已经安装并配置了 `@iconify/vue` 以便加载远程图标。
+### 7. Extendability
 
-### 7. 扩展性
+You can easily extend this component to support animations, rotations, responsive sizing, etc.
 
-如果将来需要为图标添加更多的自定义功能（如旋转、翻转、响应式支持等），可以很容易地扩展此组件。
+---
 
-# 集成了 git 规范化提交
+# Git Conventional Commits
 
-git cz 代替 git commit
+The project supports **Conventional Commit** standards using `git cz` for structured commit messages.
+
+## Usage
+
+```bash
+pnpm install -g commitizen
+git cz
+```
+
+### Example Commit
+
+```bash
+feat: prepare for production deployment
+```
+
+Use this format to improve clarity in commit history and ensure compatibility with automated changelogs and CI/CD pipelines.
