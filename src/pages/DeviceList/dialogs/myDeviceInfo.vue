@@ -6,7 +6,8 @@
       :column="1"
       label-placement="left"
       class="text-sm"
-      label-class="text-xs md:text-sm"
+      label-class="text-xs md:text-sm dark:!bg-[#1a1a1a] dark:!text-white"
+      content-class="dark:bg-[#1a1a1a] text-gray-500 dark:!text-white"
     >
       <n-descriptions-item :label="$t('devices.deviceId')" :span="2">
         {{ props.info?.device_id }}
@@ -14,7 +15,7 @@
 
       <n-descriptions-item :label="$t('devices.gpuType')">
         <n-tag type="success" size="small" round>
-          {{ props.info?.machine_info.gpu_type }}
+          {{ props.info?.machine_info.gpuType || props.info?.machine_info.gpu_type }}
         </n-tag>
       </n-descriptions-item>
 
@@ -37,6 +38,24 @@
       <n-descriptions-item :label="$t('devices.totalDuration')">
         <span>{{ formatSeconds(props.info.rent_time) }}</span>
       </n-descriptions-item>
+
+      <n-descriptions-item :label="$t('devices.rent_end')">
+        <n-button @click="endRentFlowH(props.info)" class="w-full rounded-lg" secondary type="primary">
+          {{ $t('devices.rent_end') }}
+        </n-button>
+      </n-descriptions-item>
+
+      <n-descriptions-item :label="$t('devices.rent_renew')">
+        <n-button
+          :loading="cloudComputersStore.renewRentLoading"
+          class="w-full rounded-lg"
+          secondary
+          type="primary"
+          @click="reRent(props.info)"
+        >
+          {{ $t('devices.rent_renew') }}
+        </n-button>
+      </n-descriptions-item>
     </n-descriptions>
   </div>
 </template>
@@ -45,9 +64,13 @@
 import { ref } from 'vue'
 import { useNow } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
+import { useCloudComputersStore } from '@/store/Modules/gpu/cloud-computers'
+const cloudComputersStore = useCloudComputersStore()
 const { t } = useI18n()
-const props = defineProps(['info'])
+const props = defineProps(['info', 'd'])
+
 function formatSeconds(seconds) {
+  console.log(seconds, 'secondssecondssecondssecondssecondsseconds')
   const hours = Math.floor(seconds / 3600)
   const minutes = Math.floor((seconds % 3600) / 60)
   const remainingSeconds = seconds % 60
@@ -58,6 +81,25 @@ function formatSeconds(seconds) {
   if (remainingSeconds > 0 || seconds === 0) result.push(`${remainingSeconds}${t('devices.second')}`)
 
   return result.join('') || '0秒'
+}
+onMounted(() => {
+  console.log(props, 'propspropsprops')
+})
+// 开始续租
+const reRent = async (info) => {
+  console.log(info, '>>>>>>>>>>>>', props.d)
+  // if(info.rent_time)
+  cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = info
+  await cloudComputersStore.renewRentFlow(info)
+  props.d?.destroy?.()
+}
+
+// 退租
+const endRentFlowH = async (info) => {
+  console.log(info)
+  cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = info
+  await cloudComputersStore.endRentFlow(info?.machine_id)
+  props.d?.destroy?.()
 }
 </script>
 

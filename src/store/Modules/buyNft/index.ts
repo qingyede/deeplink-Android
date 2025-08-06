@@ -73,8 +73,11 @@ export const useBuyNftStore = defineStore('buyNft', () => {
 
   // 购买nft
   async function purchaseNFTFlow({ dlcAmount, saveData }: { dlcAmount: number; saveData: any }) {
+    console.log('购买nft购买nft购买nft购买nft')
     const { ensureWallet } = useWalletSigner(t)
     const result = await ensureWallet()
+
+    console.log(result, 'resultresultresultresult')
     if (!result) return
 
     const { signer, address: purchaser, dialog } = result
@@ -111,20 +114,39 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       })
       if (!res.success) throw new Error(res.message || '购买失败')
       // 🎉 购买成功
-      window.$message?.success('购买成功')
+      window.$message?.success(t('app.purchaseSuccess'))
       dialog.destroy?.()
     } catch (err: any) {
       console.log(err, 'errerr')
-      window.$message?.error(err.message || '购买失败')
+      window.$message?.error(err.message || t('app.purchaseFailed'))
       dialog.loading = false
-      dialog.positiveText = '确认'
+      dialog.positiveText = t('app.confirm')
       console.error('[NFT 购买出错]', err)
+      dialog.destroy?.()
     }
   }
 
   // 获取我的nft列表
   const myNftList = ref<any[]>([])
+  // 判断是否有nft
+  const hasNft = computed(() => myNftList.value.length > 0)
   const nftLoading = ref(false)
+
+  // 工具函数：格式化剩余时间
+  function formatRemainingTime(ms: number): string {
+    if (ms <= 0) return '已过期'
+
+    const days: any = Math.floor(ms / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+    const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60))
+
+    let parts: any = []
+    if (days > 0) parts.push(`${days}${t('home.day')}`)
+    if (hours > 0 || days > 0) parts.push(`${hours}${t('home.hour')}`)
+    parts.push(`${minutes}${t('home.minute')}`)
+
+    return parts.join('')
+  }
   const getMyNftListH = async () => {
     console.log('📥 正在从链上获取我的 NFT 列表...')
     nftLoading.value = true
@@ -137,7 +159,7 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       if (tokenIds.length === 0) {
         myNftList.value = []
         console.log('✅ 当前钱包未持有任何 NFT')
-        window.$message?.warning(`当前钱包未持有任何 NFT`)
+        window.$message?.warning(t('app.noNftHeld'))
 
         return
       }
@@ -156,13 +178,20 @@ export const useBuyNftStore = defineStore('buyNft', () => {
           metadata = await res.json()
         } catch (e) {
           console.warn(`⚠️ TokenId ${id} 元数据加载失败`)
-          window.$message?.warning(`⚠️ TokenId ${id} 元数据加载失败`)
+          window.$message?.warning(`⚠️ TokenId ${id} 元${t('app.metadataLoadFailed')}`)
         }
 
         // 2. 获取链上状态信息
         const [versionType, expireType, expireTime] = await NFTContract.tokenId2NFTInfo(id)
         const expireTimestamp = Number(expireTime) * 1000
         const status = expireTime > 0 ? (expireTimestamp > now ? 'activated' : 'expired') : 'notActivated'
+        // ⛔ 过滤掉已过期超过 3 天的 NFT
+        if (status === 'expired' && now - expireTimestamp > 3 * 24 * 60 * 60 * 1000) {
+          console.log(`💥 TokenId ${id} 已过期超3天，跳过`)
+          continue
+        }
+
+        const remainingMs = expireTimestamp - now
 
         // 3. 合并并推入数组
         nftList.push({
@@ -174,6 +203,7 @@ export const useBuyNftStore = defineStore('buyNft', () => {
           expire_type: Number(expireType),
           expire_time: expireTimestamp,
           NFTStatus: status,
+          timeLeftText: status === 'activated' ? formatRemainingTime(remainingMs) : '—',
         })
       }
       nftLoading.value = false
@@ -209,14 +239,14 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       const receipt = await tx.wait()
       if (receipt.status !== 1) throw new Error('NFT 购买失败')
 
-      window.$message?.success('NFT 购买成功')
+      window.$message?.success(t('app.nftTransferSuccess'))
       dialog.destroy?.()
       return true
     } catch (err: any) {
       console.error('[NFT 转账失败]', err)
-      window.$message?.error(err.message || 'NFT 购买失败')
+      window.$message?.error(t('app.nftPurchaseFailed'))
       dialog.loading = false
-      dialog.positiveText = '确认'
+      dialog.positiveText = t('app.confirm')
     }
   }
 
@@ -242,14 +272,14 @@ export const useBuyNftStore = defineStore('buyNft', () => {
 
       if (receipt.status !== 1) throw new Error('激活失败')
 
-      window.$message?.success('NFT 激活成功')
+      window.$message?.success(t('app.nftActivationSuccess'))
       dialog.destroy?.()
       getMyNftListH()
     } catch (err: any) {
       console.error('[激活 NFT 失败]', err)
-      window.$message?.error(err.message || '激活失败')
+      window.$message?.error(t('app.nftActivationFailed'))
       dialog.loading = false
-      dialog.positiveText = '确认'
+      dialog.positiveText = t('app.confirm')
     }
   }
   return {
@@ -263,5 +293,6 @@ export const useBuyNftStore = defineStore('buyNft', () => {
     nftLoading,
     transferNFTFlow,
     activeNFTFlow,
+    hasNft,
   }
 })

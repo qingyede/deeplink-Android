@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <n-alert type="warning">
-      <div class="text-[12.5px] leading-6">
+      <div class="text-[12.5px] leading-6 dark:text-[#92400E]">
         {{ $t('home.tipDBCFluctuation') }}
       </div>
     </n-alert>

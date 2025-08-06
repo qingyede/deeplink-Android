@@ -36,10 +36,16 @@
       </n-tag>
       <!-- 内容主体 -->
       <div class="flex items-start gap-4">
-        <img class="w-14 h-14 rounded-md object-cover" :src="nft.image" alt="NFT 图标" />
+        <img
+          @click="router.push({ name: 'transferHistory', query: { coin: 'NFT', length: buyNft.myNftList.length } })"
+          class="w-14 h-14 rounded-md object-cover"
+          :src="nft.image"
+          alt="NFT 图标"
+        />
         <div class="flex-1 flex flex-col justify-between">
-          <p class="text-base font-bold leading-5 text-black dark:text-white max-w-[200px]">
-            {{ nft.name }}
+          <p class="text-base font-bold leading-5 text-black dark:text-white max-w-[180px]">
+            <!-- {{ nft.name }} -->
+            {{ map1[nft.version_type] }} {{ map[nft.expire_type] }}{{ $t('home.months') }}
           </p>
           <div class="mt-3 flex gap-3">
             <n-button size="small" round type="primary" @click="transferH(nft)">{{ $t('home.transfer') }}</n-button>
@@ -52,6 +58,9 @@
               >{{ $t('home.activate') }}</n-button
             >
           </div>
+          <p v-if="nft.NFTStatus === 'activated' ? true : false" class="mt-2.5 text-gray-500 text-xs">
+            {{ $t('home.time') }}：{{ nft.timeLeftText }}
+          </p>
         </div>
       </div>
       <n-divider v-if="index !== buyNft.myNftList.length - 1" class="my-1" />
@@ -72,13 +81,13 @@
     <div class="flex gap-4">
       <n-button
         @click="router.push({ name: 'Store' })"
-        color="#E5F9F3"
+        :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >
         {{ $t('home.buyNft') }}
       </n-button>
       <n-button
-        color="#E5F9F3"
+        :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
         @click="openExternalLink('https://www.deeplink.cloud/nft')"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >
@@ -102,7 +111,21 @@ const router = useRouter()
 const route = useRoute()
 const { openExternalLink } = useOpenExternalLink()
 const buyNft = useBuyNftStore()
+import { appStore } from '@/store/Modules/app/index'
+let map = {
+  0: 1,
+  1: 3,
+  2: 6,
+  3: 12,
+}
 
+let map1 = computed(() => {
+  return {
+    0: `${t('Store.nft.proCrown')} /`,
+    1: `${t('Store.nft.enterpriseCrown')} /`,
+  }
+})
+const app = appStore()
 // 初始化列表
 buyNft.getMyNftListH()
 

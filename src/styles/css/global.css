@@ -38,13 +38,50 @@ body {
   touch-action: pan-y; /* 或 none：表示允许水平方向手势 */
   overscroll-behavior: none;
 }
+.n-message {
+  max-width: 350px !important;
+}
+
 .n-message-container.n-message-container--top {
   top: 80px !important;
 }
+
 .n-form-item .n-form-item-label {
   font-size: 14.5px;
-  color: #615f63;
+  color: #939393;
 }
+.n-dialog .n-dialog__title {
+  color: #939393;
+}
+
+/* 暗黑模式样式 */
+[data-theme='dark'] .n-input {
+  background-color: transparent;
+}
+[data-theme='dark'] .n-base-selection .n-base-selection-label {
+  background-color: transparent;
+}
+
+[data-theme='dark'] .n-base-selection-input__content {
+  color: #939393;
+}
+
+[data-theme='dark'] .n-alert {
+  background-color: transparent;
+}
+[data-theme='dark'] .n-input .n-input__input-el,
+.n-input .n-input__textarea-el {
+  color: #939393 !important;
+}
+
+[data-theme='dark']
+  .n-collapse
+  .n-collapse-item:not(.n-collapse-item--disabled).n-collapse-item--trigger-area-arrow
+  .n-collapse-item__header
+  .n-collapse-item-arrow {
+  color: rgb(163 169 168) !important;
+}
+
 .n-tabs .n-tabs-tab {
   color: var(--text-color1);
 }
@@ -52,7 +89,11 @@ body {
 [data-v-f04faf34] .n-input:not(.n-input--autosize) {
   border-radius: 8px !important;
   background: var(--iptbg) !important;
-  color: #737373;
+  color: #939393;
+}
+.n-form-item-feedback__line {
+  font-size: 12px;
+  margin: 9px 0;
 }
 .n-input .n-input__suffix .n-base-icon,
 .n-input .n-input__prefix .n-base-icon {

@@ -6,7 +6,7 @@
       Join us on
       <span
         @click="copyH(props.item?.url)"
-        class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300 transition-colors duration-300 text-base"
+        class="text-primary-600 dark:text-primary-400 underline hover:text-primary-800 dark:hover:text-primary-300 transition-colors duration-300 text-sm md:text-[15px] cursor-pointer"
       >
         {{ props.item?.url }}
       </span>
@@ -17,15 +17,17 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useClipboard } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 const { copy } = useClipboard()
 const props = defineProps(['item'])
-
 // 点击复制
 const copyH = (url) => {
   console.log(url)
   copy(url)
 
-  window.$message?.success('复制成功,快去加入我们吧~')
+  window.$message?.success(t('app.copySuccess'))
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <span>{{ minutes }} 分 {{ seconds }} 秒</span>
+  <span>{{ minutes }} {{ $t('devices.minute') }} {{ seconds }} {{ $t('devices.second') }}</span>
 </template>
 
 <script setup lang="ts">

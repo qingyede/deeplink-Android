@@ -38,7 +38,8 @@ import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { appStore } from '@/store/Modules/app/index'
 import { useSafeAreaFooter } from '@/hooks/common/useSafeAreaFooter'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const { safeAreaBottom } = useSafeAreaFooter()
 const app = appStore()
 const router = useRouter()
@@ -80,7 +81,7 @@ const tabClick = (index: number) => {
   // }
   if (!app.isWalletRegistered) {
     if (index === 0 || index === 3) {
-      window.$message?.warning('请先创建您的钱包')
+      window.$message?.warning(t('app.pleaseCreateWalletFirst'))
       router.push({ name: 'IsWallet' })
     } else {
       router.push({ name: tabs.value[index].path })

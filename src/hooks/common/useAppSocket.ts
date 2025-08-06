@@ -1,5 +1,5 @@
 // src/hooks/common/useAppSocket.ts
-import { ref, getCurrentInstance } from 'vue'
+import { ref, getCurrentInstance, onUnmounted } from 'vue'
 
 const socket = ref<WebSocket | null>(null)
 
@@ -9,18 +9,48 @@ let pongTimeout: ReturnType<typeof setTimeout> | null = null
 let reconnecting = false
 
 const messageHandlers = new Set<(event: MessageEvent) => void>()
+const openHandlers = new Set<() => void>() // ✅ 用于连接成功后执行逻辑（如重新拉取数据）
 
 const WS_URL = 'wss://go.deeplink.cloud/websocket'
+
+// ✅ WebSocket 准备状态 Promise 控制器
+let readyPromise: Promise<void> | null = null
+let readyResolve: (() => void) | null = null
+let readyReject: ((err: any) => void) | null = null
+
+// ✅ 等待连接准备（组件调用 await waitForReady()）
+const waitForReady = () => {
+  if (!readyPromise) {
+    readyPromise = new Promise<void>((resolve, reject) => {
+      readyResolve = resolve
+      readyReject = reject
+    })
+  }
+  return readyPromise
+}
+
+// ✅ 是否已连接
+const isConnected = () => socket.value?.readyState === WebSocket.OPEN
 
 export function useAppSocket() {
   const connect = () => {
     if (socket.value) return
 
+    // 重置 waitForReady 的 Promise
+    readyPromise = new Promise<void>((resolve, reject) => {
+      readyResolve = resolve
+      readyReject = reject
+    })
+
     socket.value = new WebSocket(WS_URL)
 
     socket.value.onopen = () => {
-      console.log('[WebSocket] 已连接')
+      console.log('[WebSocket] ✅ 已连接')
+      readyResolve?.()
       startPing()
+
+      // ✅ 执行所有连接成功回调
+      openHandlers.forEach((cb) => cb())
     }
 
     socket.value.onmessage = (event) => {
@@ -33,22 +63,24 @@ export function useAppSocket() {
         const parsed = JSON.parse(event.data)
 
         if (parsed?.result?.error) {
-          console.log('WebSocket 错误:', parsed.result.error)
+          console.warn('[WebSocket] ⚠️ 错误:', parsed.result.error)
         }
 
         messageHandlers.forEach((cb) => cb(event))
       } catch (err: any) {
-        console.error('[WebSocket] 消息解析失败:', err)
+        console.error('[WebSocket] ❌ 消息解析失败:', err)
       }
     }
 
     socket.value.onerror = (err) => {
-      console.error('[WebSocket] 出错:', err)
+      console.error('[WebSocket] ❌ 出错:', err)
+      readyReject?.(err)
       reconnect()
     }
 
     socket.value.onclose = () => {
-      console.warn('[WebSocket] 已关闭')
+      console.warn('[WebSocket] ⚠️ 已关闭')
+      readyReject?.(new Error('WebSocket closed'))
       reconnect()
     }
   }
@@ -60,7 +92,7 @@ export function useAppSocket() {
         socket.value.send('ping')
         pongTimeout && clearTimeout(pongTimeout)
         pongTimeout = setTimeout(() => {
-          console.warn('[WebSocket] pong 未响应，主动关闭')
+          console.warn('[WebSocket] ❌ pong 未响应，主动关闭连接')
           socket.value?.close()
         }, 30000)
       }
@@ -75,7 +107,7 @@ export function useAppSocket() {
     clearTimeout(pongTimeout!)
 
     setTimeout(() => {
-      console.log('[WebSocket] 正在重连...')
+      console.log('[WebSocket] 🔄 正在重连...')
       socket.value = null
       connect()
       reconnecting = false
@@ -96,23 +128,34 @@ export function useAppSocket() {
     trySend()
   }
 
+  // ✅ 注册消息监听回调
   const onMessage = (handler: (event: MessageEvent) => void) => {
     messageHandlers.add(handler)
   }
 
-  const cleanup = () => {
-    socket.value?.close()
-    pingInterval && clearInterval(pingInterval)
-    pongTimeout && clearTimeout(pongTimeout)
-    messageHandlers.clear()
+  // ✅ 注册连接成功回调（组件用于自动拉取数据）
+  const onOpen = (handler: () => void) => {
+    if (!openHandlers.has(handler)) {
+      openHandlers.add(handler)
+    }
   }
 
-  // 自动检测，如果在组件中使用，帮你绑定生命周期
+  // ✅ 清理 socket（但不清除 openHandlers，以保留组件回调）
+  const cleanup = () => {
+    socket.value?.close()
+    clearInterval(pingInterval!)
+    clearTimeout(pongTimeout!)
+    // messageHandlers.clear()
+    // ❗ 注意：不清空 openHandlers，避免 onOpen 注册失效
+    readyPromise = null
+    readyResolve = null
+    readyReject = null
+  }
+
+  // ✅ 组件卸载自动清理（仅用于当前调用组件）
   if (getCurrentInstance()) {
-    import('vue').then(({ onUnmounted }) => {
-      onUnmounted(() => {
-        cleanup()
-      })
+    onUnmounted(() => {
+      cleanup()
     })
   }
 
@@ -121,6 +164,9 @@ export function useAppSocket() {
     connect,
     send,
     onMessage,
+    onOpen,
+    waitForReady,
     cleanup,
+    isConnected,
   }
 }

@@ -12,7 +12,7 @@
 
       <!-- 文案部分 -->
       <div class="flex flex-col items-center text-center">
-        <span class="font-bold text-[16px] text-black">
+        <span class="font-bold text-[14px] text-black">
           {{ item.price }}
         </span>
         <span class="text-[12px] text-gray-600">
@@ -42,7 +42,7 @@
     <n-skeleton class="rounded-lg !h-[180px]" size="large" />
   </div>
   <!-- 立即购买 -->
-  <div class="mt-[60px] flex items-center gap-6">
+  <div class="mt-[60px] flex items-center gap-6 flex-wrap">
     <n-button
       v-for="(btn, index) in actionButtons"
       :key="index"
@@ -59,7 +59,7 @@
   </div>
   <!-- Get Discount campaign ends on July 5th -->
   <!-- Crown NFT Discount Campaign -->
-  <div class="mt-[60px] bg-[#000] px-[15px] py-[36px] rounded-[21px] flex flex-col gap-6 relative">
+  <!-- <div class="mt-[60px] bg-[#000] px-[15px] py-[36px] rounded-[21px] flex flex-col gap-6 relative">
     <h1 class="font-bold sm:text-[18px] md:text-[20px] text-[#fff]">{{ $t('Store.crown_nft_discount_campaign') }}</h1>
     <n-button
       type="primary"
@@ -68,7 +68,6 @@
     >
       <div class="flex items-center gap-2 !w-[100%] justify-between">
         <span class="text-[19.5px]">{{ $t('Store.get_discount') }}</span>
-        <!-- <Icon class="text-[28px]" icon="mdi:arrow-right" /> -->
       </div>
     </n-button>
     <h2 class="font-bold sm:text-[19px] md:text-[18px] text-[#fff] max-w-[200px]">
@@ -83,12 +82,11 @@
         alt=""
       />
     </div>
-    <!-- 背景渐变光晕 -->
     <div
       class="absolute z-0 bottom-[-80px] left-1/2 w-[350px] h-[400px] translate-x-[-50%] rounded-full pointer-events-none blur-3xl opacity-50"
       style="background: radial-gradient(circle at center, #00ffaa 0%, #960dff 100%)"
     ></div>
-  </div>
+  </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -162,8 +160,6 @@ const actionButtons = computed(() => [
         negativeText: t('app.cancel'),
         onPositiveClick: async () => {
           if (d) {
-            d.loading = true
-            d.positiveText = 'loading...'
             console.log(convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value))
             const rs: any = await buyNft.purchaseNFTFlow({
               dlcAmount: NftsDialogRef.value?.number,
@@ -177,22 +173,11 @@ const actionButtons = computed(() => [
                 mintNFT: false,
               },
             })
-            d.loading = false
-            d.positiveText = t('app.confirm')
+
             if (rs) {
               router.push({ name: 'home' })
               home.activeTab = 'NFTs'
             }
-            // await buyNft.purchaseNFTFlow({ dlcAmount: 1000 })
-
-            // await new Promise((resolve, reject) => {
-            //   setTimeout(() => {
-            //     d.loading = false
-            //     d.positiveText = '确定'
-            //     window.$message?.success('购买成功')
-            //     resolve(true)
-            //   }, 2000)
-            // })
           }
         },
       })

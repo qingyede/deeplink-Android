@@ -184,6 +184,7 @@ const testNet = (item: any) => {
     },
     content: () => h(testNetDialog),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+
     showIcon: false,
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
@@ -205,7 +206,7 @@ const rentH = async (item: any) => {
       cloudComputersStore.rentMachineDialogBefore(item)
     }
   } else {
-    window.$message?.warning('请先创建您的钱包')
+    window.$message?.warning(t('app.pleaseCreateWalletFirst'))
     router.push({ name: 'openWallet' })
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col gap-5 w-full rounded-lg text-white px-[17px] py-[20px] relative"
+    class="flex flex-col gap-5 w-full rounded-lg text-white px-[17px] py-[27px] relative"
     style="background: linear-gradient(to right, #017543 0%, #017543 26%, #03ff91 100%)"
   >
     <h1 class="text-[20px] font-bold">{{ $t('home.walletBalance') }}</h1>
@@ -45,7 +45,7 @@
       <span class="text-[12px]">{{ maskAddress(app.address) }} </span>
       <Icon @click="copyH" icon="mdi:content-copy" class="cursor-pointer text-[18px]" />
     </h1>
-    <h1 class="flex items-center gap-2">
+    <h1 class="flex items-center gap-2 flex-wrap">
       <n-button @click="transferH" secondary class="text-white text-[12px] md:text-[13px] dark:text-white rounded-lg">
         <template #icon>
           <Icon icon="mdi:wallet" class="text-[18px]" />
@@ -113,12 +113,12 @@ import transferDialogDlcAndDbc from './myCardModules/transferDialogDlcAndDbc.vue
 import { useTransfer } from '@/utils/wallet/dbcProvider'
 import { useRouter, useRoute } from 'vue-router'
 
+const { t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
-const { transfer } = useTransfer()
+const { transfer } = useTransfer(t)
 const { dbc_price } = useGetDbcPrice()
 const { dlc_price } = useGetDlcPrice()
-const { t, locale } = useI18n()
 const price = priceStore()
 const { dbcNumber, dlcNumber } = useGetDbcAndDlcNumber()
 // 缓存美元价值
@@ -151,7 +151,8 @@ const exportKeystoreToFile = () => {
     negativeText: t('app.cancel'),
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
-    class: 'rounded-2xl',
+    class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+
     onPositiveClick: async () => {
       console.log(exportWalletRef.value)
       if (d) {
@@ -169,7 +170,11 @@ const exportKeystoreToFile = () => {
         if (rs) {
           d.loading = true
           d.positiveText = t('home.exporting')
-          const { address, privateKey, mnemonic } = await decryptKeystore(app.keystore, exportWalletRef.value.model.password)
+          const { address, privateKey, mnemonic } = await decryptKeystore(
+            app.keystore,
+            exportWalletRef.value.model.password,
+            t
+          )
           if (privateKey !== '') {
             console.log(t('home.success'))
             copy(privateKey)
@@ -194,16 +199,16 @@ const exportKeystoreToFile = () => {
 const cryptoData = computed(() => {
   return [
     {
-      coin: 'DBC',
-      icon: DBC,
-      number: formatNumber(dbcNumber.value),
-      price: price.useLocalizedCurrency(convertDbcToUsd(Number(dbcNumber.value), dbc_price.value)),
-    },
-    {
       coin: 'DLC',
       icon: DLC,
       number: formatNumber(dlcNumber.value),
       price: price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value)),
+    },
+    {
+      coin: 'DBC',
+      icon: DBC,
+      number: formatNumber(dbcNumber.value),
+      price: price.useLocalizedCurrency(convertDbcToUsd(Number(dbcNumber.value), dbc_price.value)),
     },
   ]
 })
@@ -222,12 +227,23 @@ const totalAssets = price.useLocalizedCurrency(
 // 购买Dlc
 const buyDlc = () => {
   window.$dialog?.info({
-    title: () => h('div', { class: 'dark:text-white font-bold' }, 'Buy DLC'),
+    title: () => {
+      return h(
+        NGradientText,
+        {
+          size: 24,
+          type: 'success',
+          class: 'font-bold',
+        },
+        { default: () => 'Buy DLC' }
+      )
+    },
     content: () => h(BuyDlc),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
     showIcon: false,
-    negativeButtonProps: { color: '#3CD8A6' },
-    positiveButtonProps: { color: '#03C188' },
+    negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+    positiveButtonProps: { color: '#03C188', size: 'medium' },
+
     onPositiveClick: () => {
       console.log('Confirm')
     },
@@ -279,9 +295,10 @@ const transferH = () => {
           // 从用户钱包系统中解密私钥（你应该有自己的方法）
           const { privateKey, address } = await decryptKeystore(
             appStore().keystore,
-            transferDialogDlcAndDbcDialogRef.value.model[coinType].password
+            transferDialogDlcAndDbcDialogRef.value.model[coinType].password,
+            t
           )
-          const tx = await transfer(coinType, to, amount, privateKey)
+          const tx = await transfer(coinType, to, amount, privateKey, t)
 
           window.$message?.success(t('home.transferSuccess'))
         } catch (error) {
@@ -289,14 +306,6 @@ const transferH = () => {
           d.positiveText = t('app.confirm')
           return false
         }
-        // await new Promise((resolve, reject) => {
-        //   setTimeout(() => {
-        //     d.loading = false
-        //     d.positiveText = '确定'
-        //     window.$message?.success('购买成功')
-        //     resolve(true)
-        //   }, 2000)
-        // })
       }
     },
   })

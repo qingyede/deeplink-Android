@@ -58,8 +58,8 @@ const btnData = ref([
         content: () => h(UploadMyInfo, { ref: formRef }),
         class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
         showIcon: false,
-        positiveText: '确定',
-        negativeText: '取消',
+        positiveText: t('app.confirm'),
+        negativeText: t('app.cancel'),
         negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
         positiveButtonProps: { color: '#03C188', size: 'medium' },
         onPositiveClick: async () => {
@@ -69,7 +69,7 @@ const btnData = ref([
               if (!errors) {
                 resolve(true)
               } else {
-                window.$message?.error('请检查您的输入')
+                window.$message?.error(t('app.pleaseCheckYourInput'))
                 resolve(false)
               }
             })
@@ -82,8 +82,8 @@ const btnData = ref([
               await new Promise((resolve, reject) => {
                 setTimeout(() => {
                   d.loading = false
-                  d.positiveText = '确定'
-                  window.$message?.success('上传成功')
+                  d.positiveText = t('app.confirm')
+                  window.$message?.success(t('app.submitSuccess'))
                   resolve(true)
                 }, 2000)
               })
@@ -115,8 +115,9 @@ const btnData = ref([
         class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
         showIcon: false,
 
-        negativeButtonProps: { color: '#3CD8A6' },
-        positiveButtonProps: { color: '#03C188' },
+        negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+        positiveButtonProps: { color: '#03C188', size: 'medium' },
+
         onPositiveClick: async () => {
           console.log(formRef.value)
           const rs = await new Promise(async (resolve, reject) => {
@@ -124,7 +125,7 @@ const btnData = ref([
               if (!errors) {
                 resolve(true)
               } else {
-                window.$message?.error('请检查您的输入')
+                window.$message?.error(t('app.pleaseCheckYourInput'))
                 resolve(false)
               }
             })
@@ -137,8 +138,8 @@ const btnData = ref([
               await new Promise((resolve, reject) => {
                 setTimeout(() => {
                   d.loading = false
-                  d.positiveText = '确定'
-                  window.$message?.success('上传成功')
+                  d.positiveText = t('app.confirm')
+                  window.$message?.success(t('app.submitSuccess'))
                   resolve(true)
                 }, 2000)
               })

@@ -1,13 +1,15 @@
 <template>
   <div class="px-[16px] rounded-lg">
-    <div class="flex items-center justify-between gap-6 sticky top-0 left-0 z-[99999] bg-white">
+    <div class="flex items-center justify-between gap-6 sticky top-0 left-0 z-[99999] bg-white dark:bg-[#1e1e1e]">
+      <!-- :ghost="activeIndex !== index" -->
+      <!-- class="flex-1 rounded-lg min-h-[40px]" -->
+
       <n-button
         v-for="(item, index) in btnData"
         :key="index"
         @click="changeBtn(index)"
         type="primary"
-        :ghost="activeIndex !== index"
-        class="flex-1 rounded-lg min-h-[40px]"
+        class="w-full rounded-lg min-h-[48px]"
         >{{ item.title }}</n-button
       >
     </div>
@@ -30,10 +32,10 @@ const route = useRoute()
 // 顶部按钮数据
 const btnData = computed(() => {
   return [
-    {
-      title: t('gpu.cloudComputers'),
-      ghost: true,
-    },
+    // {
+    //   title: t('gpu.cloudComputers'),
+    //   ghost: true,
+    // },
     {
       title: t('gpu.cloudCafe'),
       ghost: false,
@@ -43,11 +45,11 @@ const btnData = computed(() => {
 
 // 切换模式
 const changeBtn = (index: number) => {
-  if (index === 0) {
-    router.push({ name: 'CloudComputers' })
-  } else {
-    router.push({ name: 'CloudCafe' })
-  }
+  // if (index === 0) {
+  //   router.push({ name: 'CloudComputers' })
+  // } else {
+  //   router.push({ name: 'CloudCafe' })
+  // }
 }
 
 // 计算属性之active当前选中的按钮

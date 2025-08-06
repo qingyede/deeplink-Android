@@ -12,8 +12,9 @@ const buyDBC = () => {
     content: () => h(BuyDbc),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
     showIcon: false,
-    negativeButtonProps: { color: '#3CD8A6' },
-    positiveButtonProps: { color: '#03C188' },
+    negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+    positiveButtonProps: { color: '#03C188', size: 'medium' },
+
     onPositiveClick: () => {
       console.log('Confirm')
     },

@@ -42,16 +42,17 @@ sendCurrentConfig()
 </script>
 
 <template>
-  <div class="px-4 pb-6 w-full max-w-screen-md mx-auto">
-    <div class="space-y-5">
+  <div class="px-4 pb-6 w-full mx-auto">
+    <div class="space-y-5" v-motion-slide-visible-left>
       <!-- 主题设置 -->
       <n-card
+        content-class="!px-3"
         class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
       >
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <Icon icon="mdi:theme-light-dark" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white">{{ $t('setting.darkMode') }}</span>
+            <span class="font-medium text-[15px] text-black dark:text-white">{{ $t('setting.darkMode') }}</span>
           </div>
           <ThemeSwitcher />
         </div>
@@ -59,12 +60,13 @@ sendCurrentConfig()
 
       <!-- 语言设置 -->
       <n-card
+        content-class="!px-3"
         class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
       >
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <Icon icon="mdi:translate" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white">
+            <span class="font-medium text-[15px] text-black dark:text-white">
               {{ LANG_MAP[app.lang]?.label }}
             </span>
           </div>
@@ -73,13 +75,13 @@ sendCurrentConfig()
       </n-card>
 
       <!-- ✅ 禁用鼠标操作（虚拟摇杆） -->
-      <n-card class="rounded-xl border ...">
+      <n-card content-class="!px-3" class="rounded-xl border dark:border-[#3c3d3f] dark:bg-[#1e1e1e]">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <Icon icon="mdi:mouse-off" class="text-[20px] text-primary-600" />
             <n-tooltip trigger="hover">
               <template #trigger>
-                <span class="font-medium text-base text-black dark:text-white"> {{ $t('setting.disableMouse') }} </span>
+                <span class="font-medium text-[15px] text-black dark:text-white"> {{ $t('setting.disableMouse') }} </span>
               </template>
               {{ $t('setting.disableMouseTip') }}
             </n-tooltip>
@@ -89,13 +91,13 @@ sendCurrentConfig()
       </n-card>
 
       <!-- ✅ 自动启用虚拟摇杆 -->
-      <n-card class="rounded-xl border ...">
+      <n-card content-class="!px-3" class="rounded-xl border dark:border-[#3c3d3f] dark:bg-[#1e1e1e]">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2">
             <Icon icon="mdi:gamepad-variant" class="text-[20px] text-primary-600" />
             <n-tooltip trigger="hover">
               <template #trigger>
-                <span class="font-medium text-base text-black dark:text-white"> {{ $t('setting.autoJoystick') }} </span>
+                <span class="font-medium text-[15px] text-black dark:text-white"> {{ $t('setting.autoJoystick') }} </span>
               </template>
               {{ $t('setting.autoJoystickTip') }}
             </n-tooltip>
@@ -106,14 +108,15 @@ sendCurrentConfig()
 
       <!-- 应用版本号显示 -->
       <n-card
+        content-class="!px-3"
         class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
       >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2">
             <Icon icon="mdi:information-outline" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-base text-black dark:text-white">{{ $t('setting.currentVersion') }}</span>
+            <span class="font-medium text-[15px] text-black dark:text-white">{{ $t('setting.currentVersion') }}</span>
           </div>
-          <span class="text-sm text-gray-500 dark:text-gray-400 font-mono">
+          <span class="text-[13px] text-gray-500 dark:text-gray-400 font-mono">
             {{ version }}
           </span>
         </div>

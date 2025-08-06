@@ -4,11 +4,11 @@
       <n-collapse-item name="1">
         <template #header-extra>
           <div class="flex items-center gap-1">
-            <span class="text-sm text-gray-500">{{ $t('gpu.title') }}</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $t('gpu.title') }}</span>
             <Icon icon="mdi:alert-circle-outline" class="text-[20px] text-gray-500" />
           </div>
         </template>
-        <div class="text-sm leading-6">
+        <div class="text-sm leading-6 dark:text-gray-400">
           {{ $t(`gpu.description2`) }}
         </div>
       </n-collapse-item>
@@ -16,6 +16,7 @@
   </div>
   <!-- 选择区域 -->
   <div
+    v-motion-slide-visible-left
     class="my-6 w-full justify-between min-h-[50px] bg-[#E1EBE7] dark:bg-[#2c2c2c] rounded-[14px] px-[15px] py-[5px] flex items-center gap-3 transition-colors duration-300"
   >
     <span class="text-[#333] dark:text-white text-nowrap">{{ $t('gpu.distance') }}</span>
@@ -25,11 +26,11 @@
       v-model:value="cafe.distance"
       :options="options"
     />
-    <n-button @click="getFreeTime" type="primary" class="max-w-[100px] rounded-lg min-h-[46px] ml-4">
+    <!-- <n-button @click="getFreeTime" type="primary" class="max-w-[100px] rounded-lg min-h-[46px] ml-4">
       <span class="text-[12px] md:text-[14px]">
         {{ currentFreeTime === 24 ? `剩余:${currentFreeTime}小时` : $t('gpu.inputInviteCode') }}
       </span>
-    </n-button>
+    </n-button> -->
   </div>
 
   <!-- 卡片区域 -->
@@ -55,7 +56,7 @@
   </n-card> -->
 
   <!-- 卡片列表部分 -->
-  <div>
+  <div v-motion-slide-visible-left>
     <!-- ✅ 骨架屏 Loading -->
 
     <div v-if="cafe.gpuTypeListLoading" class="flex flex-col gap-6">
@@ -85,8 +86,8 @@
         <div class="w-full flex items-center justify-between">
           <span class="text-base max-w-[200px]">{{ $t('gpu.numberOfMachines') }}:</span>
           <n-button class="rounded-[10px] !px-2 !text-[#000] dark:!text-[#21593d]" color="#9cebcb">
-            {{ item.num }}
-            <span class="text-xs mt-1 ml-[2px]">个</span>
+            {{ item.canRentTrue }} / {{ item.num }}
+            <!-- <span class="text-xs mt-1 ml-[2px]">个</span> -->
           </n-button>
         </div>
 
@@ -180,14 +181,14 @@ const getFreeTime = () => {
           if (!errors) {
             resolve(true)
           } else {
-            window.$message?.error('请检查您的填写')
+            window.$message?.error(t('app.pleaseCheckYourInput'))
             resolve(false)
           }
         })
       })
 
       if (rs) {
-        window.$message?.success('提交成功')
+        window.$message?.success(t('app.submitSuccess'))
         currentFreeTime.value = 24
       } else {
         return false

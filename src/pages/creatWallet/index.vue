@@ -51,7 +51,9 @@ import { useDeviceId } from '@/hooks/devices/useDeviceId'
 import { useWalletTransfer } from '@/hooks/wallet/useWalletTransfer'
 import { appStore } from '@/store/Modules/app'
 const { registerDevice } = useDeviceId()
-
+import { getOrGenerateDeviceId } from '@/utils/common/getDeviceId'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const app = appStore()
 const { setWalletData } = useWalletTransfer()
 const router = useRouter()
@@ -78,7 +80,12 @@ const rules: FormRules = {
     },
   ],
 }
+onMounted(() => {
+  // deviceId 是一个 9 位数字字符串
+  getOrGenerateDeviceId()
+})
 
+// 创建钱包
 const handleValidateButtonClick = (e: MouseEvent) => {
   e.preventDefault()
   formRef.value?.validate(async (errors) => {
@@ -88,55 +95,58 @@ const handleValidateButtonClick = (e: MouseEvent) => {
       try {
         const { address, privateKey, mnemonic, keystore, createAndEncryptWallet } = useWallet()
         await createAndEncryptWallet(model.password)
-        console.log(address.value, privateKey.value, mnemonic.value)
-        // 获取nonce
+        console.log('BBBBBBBBBBBBBBB')
+
+        // 获取 nonce
         const { data: res } = await getNonce(address.value)
         const nonce = res.result ? res.result.nonce + 1 : 0
         console.log(nonce, 'noncenoncenonce')
 
-        // 注册设备生成id
-
-        await registerDevice()
-
         // 开始签名
-        const { nonce: nonce1, signature } = await CreateSignature(
-          nonce,
-          keystore.value, // 传递 keystore JSON 字符串
-          model.password,
-          'json',
-          'EVM'
-        )
+        const { nonce: nonce1, signature } = await CreateSignature(nonce, keystore.value, model.password, 'json', 'EVM')
         console.log('签名结果:', nonce1, signature)
-        const { data: tokenRes } = await getToken({
-          device_id: app.deviceInfo.device_id, // 从 localStorage 或 appStore 获取
-          user_id: address.value,
-          nonce,
-          signature,
-        })
-        if (tokenRes.result) {
-          app.token = tokenRes.result.token
-          const tokenPayload = JSON.parse(atob(tokenRes.result.token.split('.')[1]))
-          console.log(tokenPayload, '解密')
-          console.log(tokenRes, 'tokentokenRestokenRestokenResRes')
-          setWalletData({
-            address: address.value,
-            privateKey: privateKey.value,
-            mnemonic: mnemonic.value,
-            keystore: keystore.value,
-            pwd: model.password,
+
+        // ✅ 注册设备前等待 socket 准备好
+        const { registerDevice } = useDeviceId()
+        const device_id = await registerDevice() // 内部已有 waitForReady
+
+        if (device_id) {
+          const { data: tokenRes } = await getToken({
+            device_id,
+            user_id: address.value,
+            nonce,
+            signature,
           })
 
-          // 这里可以添加创建钱包的实际逻辑
-          router.push({ name: 'walletSuccess' })
-          loading.value = false
-          window.$message?.success('钱包创建成功')
+          if (tokenRes.result) {
+            app.token = tokenRes.result.token
+            const tokenPayload = JSON.parse(atob(tokenRes.result.token.split('.')[1]))
+            console.log(tokenPayload, '解密')
+            console.log(tokenRes, 'tokentokenRestokenRestokenResRes')
+
+            setWalletData({
+              address: address.value,
+              privateKey: privateKey.value,
+              mnemonic: mnemonic.value,
+              keystore: keystore.value,
+              pwd: model.password,
+            })
+
+            // 🎉 最后成功逻辑
+            router.push({ name: 'walletSuccess' })
+            window.$message?.success(t('app.walletCreateSuccess'))
+          }
+        } else {
+          throw new Error('设备注册失败')
         }
       } catch (error) {
         console.log(error, '创建钱包失败')
-        window.$message?.error('创建钱包失败')
+        window.$message?.error(t('app.walletCreateFailed'))
       }
+
+      loading.value = false
     } else {
-      window.$message?.error('请检查您的密码')
+      window.$message?.error(t('app.checkYourPassword'))
     }
   })
 }

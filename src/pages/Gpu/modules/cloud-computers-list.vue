@@ -185,7 +185,7 @@ const rentH = async (item: any, index: number) => {
       cloudComputersStore.rentMachineDialogBefore(item)
     }
   } else {
-    window.$message?.warning('请先创建您的钱包')
+    window.$message?.warning(t('app.pleaseCreateWalletFirst'))
     router.push({ name: 'openWallet' })
   }
 }

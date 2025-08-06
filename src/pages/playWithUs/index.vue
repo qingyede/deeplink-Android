@@ -1,6 +1,6 @@
 <template>
   <div class="px-[16px] rounded-lg">
-    <div class="flex items-center justify-between gap-4">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
       <n-button
         v-for="(item, index) in btnData"
         :key="index"

@@ -5,3 +5,6 @@ export const baseUrl = 'https://nodeapi.deeplink.cloud'
 
 // 获取代币价格请求基础路径
 export const priceUrl = 'https://dbchaininfo.congtu.cloud'
+
+// 交易
+export const transactionUrl = 'https://www.dbcscan.io'

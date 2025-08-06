@@ -77,7 +77,7 @@ watchEffect(() => {
 })
 const copyH = () => {
   copy(model.privateKey)
-  window.$message?.success('复制成功')
+  window.$message?.success(t('app.copySuccess2'))
 }
 
 const handleValidateButtonClick = async () => {
@@ -95,7 +95,7 @@ const handleValidateButtonClick = async () => {
     app.address = result.address.toLowerCase()
     app.keystore = result.keystore
   } else {
-    window.$message?.error('导入失败，私钥格式或密码错误')
+    window.$message?.error(t('app.importFailed2'))
   }
 }
 </script>

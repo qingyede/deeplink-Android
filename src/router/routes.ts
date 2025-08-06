@@ -18,13 +18,29 @@ export const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/transferHistory',
+    component: () => import('@/pages/transfer-history/index.vue'),
+    name: 'transferHistory',
+    meta: {
+      title: '转账记录',
+    },
+  },
+  {
+    path: '/TransferHistoryDetail',
+    component: () => import('@/pages/TransferHistoryDetail/index.vue'),
+    name: 'TransferHistoryDetail',
+    meta: {
+      title: '转账记录',
+    },
+  },
+  {
     path: '/GPU',
     component: () => import('@/pages/Gpu/index.vue'),
     name: 'GPU',
     meta: {
       title: '玩游戏',
     },
-    redirect: '/GPU/CloudComputers', // 添加这一行作为默认重定向
+    redirect: '/GPU/CloudCafe', // 添加这一行作为默认重定向
     children: [
       {
         path: 'CloudComputers', // 注意：子路由 path 不需要加 `/` 前缀
@@ -83,7 +99,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Store/modules/nfts/index.vue'),
         name: 'nfts',
         meta: {
-          title: '租用云电脑',
+          title: '购买NFT',
         },
       },
       {
@@ -91,7 +107,7 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/pages/Store/modules/PartnerProduct/index.vue'),
         name: 'PartnerProduct',
         meta: {
-          title: '租用云电脑',
+          title: '合作伙伴',
         },
       },
     ],

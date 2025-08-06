@@ -5,7 +5,7 @@ import { appStore } from '@/store/Modules/app'
 import { getToken } from '@/api/test/test'
 
 export function useDeviceList() {
-  const { connect, send } = useAppSocket()
+  const { connect, send, waitForReady } = useAppSocket()
   const deviceList = ref<any[]>([])
 
   const fetchDeviceList = () => {
@@ -48,8 +48,10 @@ export function useDeviceList() {
     deviceList.value = list || []
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     connect()
+    await waitForReady()
+
     fetchDeviceList()
     window.addEventListener('deviceList:update', onDeviceListUpdate)
   })

@@ -3,11 +3,18 @@ import { getUserDeviceList } from '@/api/deviceList/index'
 import { appStore } from '@/store/Modules/app/index'
 import { iconMap } from '@/constant/APP'
 import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
+import { getGpuDetail } from '@/api/gpu/index'
+import { useI18n } from 'vue-i18n'
 
 export const useDeviceListStore = defineStore('deviceList', () => {
   const deviceList = ref<any>([])
   let loading = ref(false)
   const app = appStore()
+  const { t } = useI18n()
+
+  // 用户的租用详情数据
+  const userDeviceDetail: any = ref(null)
+
   // 获取用户的租用列表
   const getUserDeviceListH = async () => {
     loading.value = true
@@ -26,12 +33,14 @@ export const useDeviceListStore = defineStore('deviceList', () => {
         }
       })
     } else {
-      window.$message?.error('获取用户的租用列表失败')
+      window.$message?.error(t('app.fetchUserRentalListFailed'))
     }
   }
+
   return {
     deviceList,
     getUserDeviceListH,
     loading,
+    userDeviceDetail,
   }
 })

@@ -64,7 +64,7 @@ export const getTokenBalance = async (tokenAddress: string, userAddress: string)
 }
 
 // 错误处理
-function handleTxError(error: any) {
+function handleTxError(error: any, t) {
   // 提取错误信息
   const code = error?.code
   const message = error?.error?.message || error?.message || '未知错误'
@@ -74,21 +74,21 @@ function handleTxError(error: any) {
 
   // 按错误类型处理
   if (code === 'INSUFFICIENT_FUNDS') {
-    window.$message?.error('余额不足，请确保钱包中有足够的 DBC 用于支付转账金额和矿工费')
+    window.$message?.error(t('app.insufficientBalance'))
   } else if (code === 'NETWORK_ERROR') {
-    window.$message?.error('网络错误，请检查您的网络连接或重试')
+    window.$message?.error(t('app.networkError'))
   } else if (code === 'INVALID_ARGUMENT') {
-    window.$message?.error('参数错误，请检查地址或金额格式')
+    window.$message?.error(t('app.invalidParams'))
   } else if (code === 'CALL_EXCEPTION' && reason === null) {
-    window.$message?.error('转账失败：合约执行失败（可能余额不足 / 权限问题 / 黑名单）')
+    window.$message?.error(t('app.transferContractError'))
   } else {
     // 通用错误提示
-    window.$message?.error(`转账失败：${message}`, { duration: 8000 })
+    window.$message?.error(`${t('app.transferFailed')}：${message}`, { duration: 8000 })
   }
 }
 
 // ✅ DBC 原生币转账
-export const transferDbc = async (to: string, amount: string, privateKey: string) => {
+export const transferDbc = async (to: string, amount: string, privateKey: string, t) => {
   const signer = getSignerFromPrivateKey(privateKey)
   try {
     const tx = await signer.sendTransaction({
@@ -98,13 +98,13 @@ export const transferDbc = async (to: string, amount: string, privateKey: string
     await tx.wait()
     return tx
   } catch (error: any) {
-    handleTxError(error)
+    handleTxError(error, t)
     throw error
   }
 }
 
 // ✅ DLC 代币转账
-export const transferDlc = async (to: string, amount: string, privateKey: string) => {
+export const transferDlc = async (to: string, amount: string, privateKey: string, t) => {
   const signer = getSignerFromPrivateKey(privateKey)
   const contract = getErc20Contract(DLC_TOKEN_ADDRESS, signer)
   try {
@@ -114,7 +114,7 @@ export const transferDlc = async (to: string, amount: string, privateKey: string
     await tx.wait()
     return tx
   } catch (error: any) {
-    handleTxError(error)
+    handleTxError(error, t)
     throw error
   }
 }
@@ -122,7 +122,7 @@ export const transferDlc = async (to: string, amount: string, privateKey: string
 /**
  * 通用转账 hook
  */
-export function useTransfer() {
+export function useTransfer(t) {
   /**
    * 发起转账
    * @param coin 'DBC' | 'DLC'
@@ -130,11 +130,11 @@ export function useTransfer() {
    * @param amount 金额（字符串，如 "1.5"）
    * @param privateKey 用户私钥
    */
-  const transfer = async (coin: 'DBC' | 'DLC', toAddress: string, amount: string, privateKey: string) => {
+  const transfer = async (coin: 'DBC' | 'DLC', toAddress: string, amount: string, privateKey: string, t) => {
     if (coin === 'DBC') {
-      return await transferDbc(toAddress, amount, privateKey)
+      return await transferDbc(toAddress, amount, privateKey, t)
     } else if (coin === 'DLC') {
-      return await transferDlc(toAddress, amount, privateKey)
+      return await transferDlc(toAddress, amount, privateKey, t)
     } else {
       throw new Error('不支持的币种类型')
     }

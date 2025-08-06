@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-6">
     <n-alert :show-icon="false" type="warning">
-      <div class="text-[12.5px] leading-6">{{ $t('home.exportWarning') }}</div>
+      <div class="text-[12.5px] leading-6 dark:text-[#92400E]">{{ $t('home.exportWarning') }}</div>
     </n-alert>
 
     <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">

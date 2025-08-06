@@ -64,6 +64,14 @@ export function createViteBuild(): BuildOptions | undefined {
         assetFileNames: `assets/[name].[ext]`,
       },
     },
+
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
   }
 }
 

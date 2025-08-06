@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-3">
     <n-alert type="warning">
-      <div class="text-[12.5px] leading-6">{{ $t('shareGpu.deeplink_notice') }}</div>
+      <div class="text-[12.5px] leading-6 dark:text-[#92400E]">{{ $t('shareGpu.deeplink_notice') }}</div>
     </n-alert>
 
     <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">

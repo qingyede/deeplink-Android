@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <n-alert type="warning">
-      <div class="text-[12px] leading-4">{{ $t('home.tipDLCFluctuation') }}</div>
+      <div class="text-[12px] leading-4 dark:text-white">{{ $t('home.tipDLCFluctuation') }}</div>
     </n-alert>
 
     <!-- 卡片 -->
@@ -34,7 +34,8 @@ import xai from '@/assets/img/xai.png'
 import lbank from '@/assets/img/lbank.svg'
 import { appStore } from '@/store/Modules/app/index'
 import { useClipboard } from '@vueuse/core'
-
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 const { copy } = useClipboard()
 const app = appStore()
 
@@ -42,59 +43,59 @@ const app = appStore()
 const bugData = ref([
   {
     number: '01',
-    text: `Gate.io`,
-    img: gate,
+    text: `${t('home.paypal')}`,
+    img: PayPal,
     key: 1,
-    url: `https://www.gate.tv/trade/DEEPLINK_USDT`,
+    url: `https://www.deeplink.cloud/paypal?wallet=${app.address}`,
   },
   {
     number: '02',
-    text: `Mexc Exchange`,
-    img: buydlc,
+    text: `${t('home.gate')}`,
+    img: gate,
     key: 2,
-    url: `https://www.mexc.com/exchange/DLC_USDT`,
+    url: `https://www.gate.tv/trade/DEEPLINK_USDT`,
   },
   {
     number: '03',
-    text: `Bitmart Exchange`,
-    img: bit,
+    text: `${t('home.mexc')}`,
+    img: buydlc,
     key: 3,
-    url: `https://www.bitmart.com/trade/en-US?symbol=DLC_USDT`,
+    url: `https://www.mexc.com/exchange/DLC_USDT`,
   },
   {
     number: '04',
-    text: `Bingx Exchange`,
-    img: bin,
+    text: `${t('home.bitmart')}`,
+    img: bit,
     key: 4,
-    url: `https://bingx.com`,
+    url: `https://www.bitmart.com/trade/en-US?symbol=DLC_USDT`,
   },
   {
     number: '05',
-    text: `从LBank交易所`,
-    img: lbank,
+    text: `${t('home.bingx')}`,
+    img: bin,
     key: 5,
-    url: `https://www.lbank.com/trade/dlc_usdt`,
+    url: `https://bingx.com`,
   },
+  // {
+  //   number: '06',
+  //   text: `从LBank交易所`,
+  //   img: lbank,
+  //   key: 6,
+  //   url: `https://www.lbank.com/trade/dlc_usdt`,
+  // },
   {
     number: '06',
-    text: `从XAIAgent`,
+    text: `${t('home.xaia')}`,
     img: xai,
     key: 6,
     url: `https://app.xaiagent.io/zh`,
-  },
-  {
-    number: '07',
-    text: `PayPal`,
-    img: PayPal,
-    key: 7,
-    url: `https://www.deeplink.cloud/paypal?wallet=${app.address}`,
   },
 ])
 
 // 点击购买
 const handleClick = (item: any) => {
   copy(item.url)
-  window.$message?.success(`已复制购买链接，请在浏览器打开进行购买~`)
+  window.$message?.success(t('app.copiedPurchaseLink'))
 }
 </script>
 

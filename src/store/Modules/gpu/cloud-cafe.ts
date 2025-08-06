@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia'
 import { getGps, getGpuTypeCafe, getGpuListCafe } from '@/api/gpu/index'
 import { removeGeForceRTX } from '@/utils/common/removeGeForceRTX'
+import { useI18n } from 'vue-i18n'
 
 export const useCloudCafeStore = defineStore('cloud-cafe', () => {
+  const { t } = useI18n()
+
   // gpu类型数据loading
   const gpuTypeListLoading = ref(false)
   const distance = ref(500)
@@ -13,6 +16,7 @@ export const useCloudCafeStore = defineStore('cloud-cafe', () => {
     {
       title: () => h('div', { class: 'dark:text-white font-bold' }, '暂无数据'),
       num: 0,
+      canRentTrue: 0,
       maxCalcPoint: 0,
     },
   ])
@@ -43,13 +47,14 @@ export const useCloudCafeStore = defineStore('cloud-cafe', () => {
           return {
             title: () => h('div', { class: 'dark:text-white font-bold' }, removeGeForceRTX(item._id)),
             num: item.total,
+            canRentTrue: item.canRentTrue,
             maxCalcPoint: item.maxCalcPoint,
             type: item._id,
           }
         })
       }
     } else {
-      window.$message?.error('获取当前经纬度失败')
+      window.$message?.error(t('app.fetchCurrentLocationFailed'))
     }
   }
 
@@ -91,7 +96,7 @@ export const useCloudCafeStore = defineStore('cloud-cafe', () => {
         }
       })
     } else {
-      window.$message?.error('获取 GPU 列表失败')
+      window.$message?.error(t('app.fetchGpuListFailed'))
     }
   }
 

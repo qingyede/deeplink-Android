@@ -15,6 +15,7 @@
               :get-show="() => true"
               style="border-radius: 8px"
               class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
+              :input-props="{ inputmode: 'numeric', pattern: '[0-9]*' }"
             />
           </n-form-item-gi>
 
@@ -39,7 +40,7 @@
               >
                 <span class="text-lg"> {{ $t('remote.Connect') }} </span>
               </n-button>
-              <div class="text-[#333] dark:text-white/70">
+              <div class="text-[#333] dark:text-white/70 !text-xs">
                 {{ $t('remote.connectAndActivateFlow') }}
               </div>
             </div>
@@ -49,7 +50,7 @@
     </div>
 
     <!-- 商店 -->
-    <div class="mt-[20px] flex flex-col gap-3">
+    <!-- <div class="mt-[20px] flex flex-col gap-3">
       <div class="flex items-center gap-4">
         <n-button
           @click="router.push({ name: 'Store' })"
@@ -57,12 +58,7 @@
         >
           {{ $t('home.store') }}
         </n-button>
-        <!-- <n-button
-        @click="router.push({ name: 'share' })"
-        class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
-      >
-        {{ $t('home.shareGpu') }}
-      </n-button> -->
+     
         <n-button
           @click="router.push({ name: 'playWithUs' })"
           class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
@@ -70,15 +66,10 @@
           {{ $t('home.playWithUs') }}
         </n-button>
       </div>
-      <!-- <n-button
-      @click="router.push({ name: 'playWithUs' })"
-      class="w-full rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
-    >
-      {{ $t('home.playWithUs') }}
-    </n-button> -->
-    </div>
+    
+    </div> -->
 
-    <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3">
+    <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3" v-motion-slide-visible-bottom>
       <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>
       <div class="flex items-center w-full justify-center gap-3">
         <n-button
@@ -110,7 +101,10 @@ import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
 import LinkDialog from './modules/linkDialog.vue'
 const { t, locale } = useI18n()
 const { connectToRemoteDevice } = useRemoteStream()
+import { objectToBase64 } from '@/utils/common/objToBase64'
+import { useBuyNftStore } from '@/store/Modules/buyNft/index'
 
+const buyNft = useBuyNftStore()
 const app = appStore()
 const router = useRouter()
 const formRef = ref<FormInst | null>(null)
@@ -214,7 +208,15 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
   try {
     await formRef.value?.validate()
 
-    connectToRemoteDevice({ id: model.id, password: model.password })
+    // connectToRemoteDevice({ id: model.id, password: model.password })
+
+    connectToRemoteDevice({
+      id: model.id,
+      password: objectToBase64({
+        password: model.password,
+        // nft_enabled: buyNft.hasNft,
+      }),
+    })
 
     // 添加历史记录逻辑（最多6条，去重，最新在前）
     const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
@@ -256,6 +258,9 @@ const handleSocialIconClick = (item: any) => {
     },
     content: () => h(LinkDialog, { item }),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+    negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+    positiveButtonProps: { color: '#03C188', size: 'medium' },
+
     showIcon: false,
     onPositiveClick: async () => {
       if (d) {

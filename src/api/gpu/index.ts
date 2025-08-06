@@ -60,3 +60,39 @@ export const getGpuStatus = (data) => {
     data,
   })
 }
+
+// 获取单个机器的出租详细信息
+export const getGpuDetail = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/cyc/getRentGpuInfo`,
+    data,
+  })
+}
+
+// 续租机器订单数据存储
+export const extendOrder = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/cyc/saveRenewMac`,
+    data,
+  })
+}
+
+// 提前结束租用
+export const endOrder = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/cyc/endRentMac`,
+    data,
+  })
+}
+
+// 续租后通知
+export const extendNotify = (data) => {
+  return axios({
+    method: 'post',
+    url: `https://go.deeplink.cloud/send_rent_info`,
+    data,
+  })
+}

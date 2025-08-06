@@ -6,21 +6,21 @@ import { ethers } from 'ethers'
  * @param password 用户输入的密码
  * @returns { address, privateKey, mnemonic? } 或抛出错误
  */
-export async function decryptKeystore(keystoreJson: string, password: string) {
+export async function decryptKeystore(keystoreJson: string, password: string, t: any) {
+  console.log(password, 'passwordpassword22222222222')
   try {
     const wallet: any = await ethers.Wallet.fromEncryptedJson(keystoreJson, password)
-
+    console.log(wallet, 'walletwalletwallet')
     return {
       address: wallet.address,
       privateKey: wallet.privateKey,
       mnemonic: wallet.mnemonic?.phrase ?? '',
     }
   } catch (error) {
-    window.$message?.error('Keystore 解密失败，请检查密码是否正确')
-    return {
-      address: '',
-      privateKey: '',
-      mnemonic: '',
-    }
+    console.log(error, '直接抛出错误，不要返回空数据直接抛出错误，不要返回空数据')
+    window.$message?.error(t('app.keystoreDecryptFailed'))
+
+    // ❗直接抛出错误，不要返回空数据
+    throw new Error(t('app.keystoreDecryptFailed'))
   }
 }

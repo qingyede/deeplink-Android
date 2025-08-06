@@ -57,6 +57,11 @@ import { appStore } from '@/store/Modules/app'
 import { useI18n } from 'vue-i18n'
 import { useWallet } from '@/hooks/wallet/useWallet'
 const { importFromPrivateKey } = useWallet()
+import { getNonce, getToken } from '@/api/token/index'
+import { useDeviceId } from '@/hooks/devices/useDeviceId'
+const { registerDevice } = useDeviceId()
+import { CreateSignature } from '@/utils/walletInfo'
+import { getOrGenerateDeviceId } from '@/utils/common/getDeviceId'
 
 const app = appStore()
 const router = useRouter()
@@ -82,12 +87,7 @@ const passwordStatus = computed(() => {
 
 // 表单是否有效（用于禁用按钮）
 const isFormValid = computed(() => {
-  return (
-    model.privateKey.length > 0 &&
-    model.password.length >= 8 &&
-    privateKeyStatus.value === 'success' &&
-    passwordStatus.value === 'success'
-  )
+  return model.privateKey.length > 0 && model.password.length > 0
 })
 
 // 校验规则
@@ -101,11 +101,11 @@ const rules: FormRules = {
           return Promise.reject(new Error(t('openWallet.privateKeyRequired')))
         }
 
-        const isValid = /^0x[0-9a-fA-F]{64}$/.test(normalized)
+        // const isValid = /^0x[0-9a-fA-F]{64}$/.test(normalized)
 
-        if (!isValid) {
-          return Promise.reject(new Error(t('openWallet.invalidPrivateKey')))
-        }
+        // if (!isValid) {
+        //   return Promise.reject(new Error(t('openWallet.invalidPrivateKey')))
+        // }
 
         return Promise.resolve()
       },
@@ -131,23 +131,123 @@ const rules: FormRules = {
   ],
 }
 
-// E9873D79C6D87DC0FB6A5778633389F4453213303DA61F20BD67FC233AA33262
-// 用户输入的
+// 导入钱包
+
+// const importWallet = async () => {
+//   const result = await importFromPrivateKey(model.privateKey, model.password)
+//   if (result) {
+//     console.log('地址:', result.address)
+//     console.log('私钥:', result.privateKey)
+
+//     console.log('keystore:', result.keystore)
+//     window.$message?.success(t('openWallet.walletImportSuccess'))
+//     app.isWalletRegistered = true
+//     router.push({ name: 'home' })
+//     app.address = result.address.toLowerCase()
+//     app.keystore = result.keystore
+
+//     // 先注册设备
+//     // 获取nonce
+//     const { data: res } = await getNonce(app.address)
+//     const nonce = res.result ? res.result.nonce + 1 : 0
+//     console.log(nonce, 'noncenoncenonce')
+
+//     // 开始签名
+//     const { nonce: nonce1, signature } = await CreateSignature(
+//       nonce,
+//       app.keystore, // 传递 keystore JSON 字符串
+//       model.password,
+//       'json',
+//       'EVM'
+//     )
+//     console.log('签名结果:', nonce1, signature)
+
+//     // 注册设备
+//     const device_id = await registerDevice()
+
+//     console.log(device_id, 'device_iddevice_id')
+//     if (device_id) {
+//       const { data: tokenRes } = await getToken({
+//         // device_id: app.deviceInfo.device_id, // 从 localStorage 或 appStore 获取
+//         device_id: device_id, // 从 localStorage 或 appStore 获取
+//         user_id: app.address,
+//         nonce,
+//         signature,
+//       })
+//       if (tokenRes.result) {
+//         app.token = tokenRes.result.token
+//         const tokenPayload = JSON.parse(atob(tokenRes.result.token.split('.')[1]))
+//         console.log(tokenPayload, '解密')
+//         console.log(tokenRes, 'tokentokenRestokenRestokenResRes')
+//       }
+//     }
+//   } else {
+//     window.$message?.error(t('app.importFailed'))
+//   }
+// }
 
 const importWallet = async () => {
   const result = await importFromPrivateKey(model.privateKey, model.password)
-  if (result) {
-    console.log('地址:', result.address)
-    console.log('私钥:', result.privateKey)
+  if (!result) {
+    window.$message?.error(t('app.importFailed'))
+    return
+  }
 
-    console.log('keystore:', result.keystore)
-    window.$message?.success(t('openWallet.walletImportSuccess'))
-    app.isWalletRegistered = true
-    router.push({ name: 'home' })
-    app.address = result.address.toLowerCase()
-    app.keystore = result.keystore
-  } else {
-    window.$message?.error('导入失败，私钥格式或密码错误')
+  // console.log('地址:', result.address)
+  // console.log('私钥:', result.privateKey)
+  // console.log('keystore:', result.keystore)
+
+  app.isWalletRegistered = true
+  app.address = result.address.toLowerCase()
+  app.keystore = result.keystore
+
+  try {
+    // 获取 nonce
+    const { data: res } = await getNonce(app.address)
+    const nonce = res.result ? res.result.nonce + 1 : 0
+    console.log(nonce, 'noncenoncenonce')
+
+    // 开始签名
+    const { nonce: nonce1, signature } = await CreateSignature(
+      nonce,
+      app.keystore, // 传递 keystore JSON 字符串
+      model.password,
+      'json',
+      'EVM'
+    )
+    console.log('签名结果:', nonce1, signature)
+
+    // 注册设备
+    const device_id = await registerDevice()
+    console.log(device_id, 'device_iddevice_id')
+
+    if (device_id) {
+      const { data: tokenRes } = await getToken({
+        device_id: device_id,
+        user_id: app.address,
+        nonce,
+        signature,
+      })
+
+      if (tokenRes.result) {
+        app.token = tokenRes.result.token
+        const tokenPayload = JSON.parse(atob(tokenRes.result.token.split('.')[1]))
+        console.log(tokenPayload, '解密')
+        console.log(tokenRes, 'tokentokenRestokenRestokenResRes')
+
+        // ✅ 所有流程成功后才显示提示并跳转
+        window.$message?.success(t('openWallet.walletImportSuccess'))
+        router.push({ name: 'home' })
+      } else {
+        window.$message?.error(t('app.importFailed'))
+      }
+    } else {
+      window.$message?.error(t('app.importFailed'))
+    }
+    isSubmitting.value = false
+  } catch (err) {
+    console.error('导入流程失败:', err)
+    window.$message?.error(t('app.importFailed'))
   }
 }
 // 表单提交
@@ -157,11 +257,10 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
 
   try {
     await formRef.value?.validate()
+
     importWallet()
   } catch (errors) {
     window.$message?.error(t('openWallet.formInvalid'))
-  } finally {
-    isSubmitting.value = false
   }
 }
 </script>

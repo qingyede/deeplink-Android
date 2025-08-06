@@ -4,11 +4,11 @@
       <n-collapse-item name="1">
         <template #header-extra>
           <div class="flex items-center gap-1">
-            <span class="text-sm text-gray-500">{{ $t('gpu.title') }}</span>
+            <span class="text-sm text-gray-500 dark:text-gray-400">{{ $t('gpu.title') }}</span>
             <Icon icon="mdi:alert-circle-outline" class="text-[20px] text-gray-500" />
           </div>
         </template>
-        <div class="text-sm leading-6">
+        <div class="text-sm leading-6 dark:text-gray-400">
           {{ $t(`gpu.game_tip`) }}
         </div>
       </n-collapse-item>
@@ -28,11 +28,11 @@
       @update:value="updateH"
       :options="options"
     />
-    <n-button @click="getFreeTime" type="primary" class="max-w-[100px] rounded-lg min-h-[46px] ml-4">
+    <!-- <n-button @click="getFreeTime" type="primary" class="max-w-[100px] rounded-lg min-h-[46px] ml-4">
       <span class="text-[12px] md:text-[14px]">
         {{ currentFreeTime === 24 ? `剩余:${currentFreeTime}小时` : $t('gpu.inputInviteCode') }}
       </span>
-    </n-button>
+    </n-button> -->
   </div>
   <div class="flex items-center gap-1 my-4">
     <span class="text-[10px] md:text-[13px] text-gray-400"> {{ $t('gpu.distanceWarning') }} </span>
@@ -69,8 +69,7 @@
         <div class="w-full flex items-center justify-between">
           <span class="text-base max-w-[200px]">{{ $t('gpu.numberOfMachines') }}:</span>
           <n-button class="rounded-[10px] !px-2 !text-[#000] dark:!text-[#21593d]" color="#9cebcb">
-            {{ item.num }}
-            <!-- <span class="text-xs mt-1 ml-[2px]">{{ $t('gpu.piece') }}</span> -->
+            {{ item.canRentTrue }} / {{ item.num }}
           </n-button>
         </div>
 
@@ -165,14 +164,14 @@ const getFreeTime = () => {
           if (!errors) {
             resolve(true)
           } else {
-            window.$message?.error('请检查您的填写')
+            window.$message?.error(t('app.pleaseCheckYourInput'))
             resolve(false)
           }
         })
       })
 
       if (rs) {
-        window.$message?.success('提交成功')
+        window.$message?.success(t('app.submitSuccess'))
         currentFreeTime.value = 24
       } else {
         return false

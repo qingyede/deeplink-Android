@@ -3,6 +3,9 @@
 import en from '@/locales/lang/en.json'
 import zh from '@/locales/lang/zh.json'
 import ko from '@/locales/lang/ko.json'
+import ja from '@/locales/lang/ja.json'
+import ru from '@/locales/lang/ru.json'
+import vn from '@/locales/lang/vn.json'
 import { createI18n } from 'vue-i18n'
 
 const i18n = createI18n({
@@ -12,6 +15,9 @@ const i18n = createI18n({
     en,
     zh,
     ko,
+    ja,
+    ru,
+    vn,
   },
 })
 

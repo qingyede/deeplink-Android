@@ -6,12 +6,10 @@ import { createSignerFromPrivateKey } from '@/utils/wallet/creatSiger'
 import { ethers } from 'ethers'
 import { generateRandomId } from '@/utils//common/generateUuid'
 import { CreateSignatureEVM } from '@/utils/wallet/dbcProvider'
-import { useI18n } from 'vue-i18n'
 
-export function useGetEvmSignature() {
+export function useGetEvmSignature(t) {
   const getEvmSignature = async (): Promise<any> => {
     const dialogComponentRef = ref<any>(null) // ✅ 用 ref 正确引用组件
-    const { t } = useI18n()
 
     return new Promise((resolve) => {
       const dialog: any = window.$dialog?.warning({
@@ -19,7 +17,10 @@ export function useGetEvmSignature() {
         content: () => h(exportWalletDialog, { ref: dialogComponentRef }), // ✅ 绑定 ref
         positiveText: t('app.confirm'),
         negativeText: t('app.cancel'),
-        class: 'rounded-2xl',
+        class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+        negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+        positiveButtonProps: { color: '#03C188', size: 'medium' },
+
         onPositiveClick: async () => {
           dialog.loading = true
           dialog.positiveText = t('app.processing')
@@ -30,7 +31,6 @@ export function useGetEvmSignature() {
             const model = component?.model
 
             if (!formRef || !model) {
-              window.$message?.error('组件未正确加载')
               dialog.loading = false
               dialog.positiveText = t('app.confirm')
               resolve(null)
@@ -49,7 +49,7 @@ export function useGetEvmSignature() {
               return
             }
 
-            const { privateKey, address } = await decryptKeystore(appStore().keystore, model.password)
+            const { privateKey, address } = await decryptKeystore(appStore().keystore, model.password, t)
             const id8 = generateRandomId(8)
             const { nonce, signature } = await CreateSignatureEVM(id8, privateKey)
 

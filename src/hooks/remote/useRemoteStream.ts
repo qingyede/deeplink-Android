@@ -4,7 +4,7 @@ import { useEventListener } from '@vueuse/core'
 
 interface RemoteDevicePayload {
   id: string
-  password: string
+  password: any
 }
 
 interface HeartbeatPayload {
@@ -41,16 +41,11 @@ export function useRemoteStream() {
   }
 
   /**
-   * 发起远程连接请求
+   * 设备码发起远程连接请求
    * @param id 远程设备ID
    * @param password 密码
    */
   function connectToRemoteDevice({ id, password }: RemoteDevicePayload) {
-    // if (!window.dlc?.toNative) {
-    //   window.$message?.warning('未检测到 Native 桥接对象 window.dlc')
-    //   throw new Error('未检测到 Native 桥接对象 window.dlc')
-    // }
-
     const payload = {
       action: 1001,
       data: {
@@ -61,6 +56,24 @@ export function useRemoteStream() {
     }
     console.log(payload, 'payloadpayloadpayload')
     window.dlc.toNative(JSON.stringify(payload))
+    isConnected.value = true
+    startHeartbeat()
+  }
+
+  // 通过钱包安卓远程连接
+  function connectToAndroidRemoteDevice(data) {
+    const fullPayload = {
+      action: 1001,
+      data,
+    }
+
+    console.log('[安卓远程连接 Payload]', fullPayload)
+    if (!window.dlc?.toNative) {
+      window.$message?.warning('未检测到 Native 桥接对象 window.dlc')
+      return
+    }
+
+    window.dlc.toNative(JSON.stringify(fullPayload))
     isConnected.value = true
     startHeartbeat()
   }
@@ -143,6 +156,7 @@ export function useRemoteStream() {
     isConnected,
     clientID,
     connectToRemoteDevice,
+    connectToAndroidRemoteDevice,
     sendHeartbeat,
     stopHeartbeat,
   }

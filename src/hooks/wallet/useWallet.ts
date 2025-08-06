@@ -49,8 +49,8 @@ export function useWallet() {
   const importFromPrivateKey = async (inputPrivateKey: string, password: string) => {
     try {
       const trimmed = inputPrivateKey.trim()
-      const isHex = /^0x[0-9a-fA-F]{64}$/.test(trimmed)
-      if (!isHex) throw new Error('私钥格式错误，必须是 64 位十六进制字符串（以 0x 开头）')
+      // const isHex = /^0x[0-9a-fA-F]{64}$/.test(trimmed)
+      // if (!isHex) throw new Error('私钥格式错误，必须是 64 位十六进制字符串（以 0x 开头）')
 
       const importedWallet = new ethers.Wallet(trimmed)
 

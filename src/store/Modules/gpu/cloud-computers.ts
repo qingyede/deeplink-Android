@@ -1,24 +1,34 @@
 import { defineStore } from 'pinia'
-import { getGps, getGpuType, getGpuList, rentSuccess, getGpuStatus } from '@/api/gpu/index'
-import { useDateFormat, useNow } from '@vueuse/core'
+import {
+  getGps,
+  getGpuType,
+  getGpuList,
+  rentSuccess,
+  getGpuStatus,
+  getGpuDetail,
+  extendOrder,
+  endOrder,
+  extendNotify,
+} from '@/api/gpu/index'
 import { removeGeForceRTX } from '@/utils/common/removeGeForceRTX'
 import { NGradientText } from 'naive-ui'
 import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS } from '@/utils/common/contracts'
-import { getDbcProvider, getSignerFromPrivateKey } from '@/utils/wallet/dbcProvider'
+import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { ethers } from 'ethers'
 import { useWalletSigner } from '@/hooks/wallet/useSignTransaction'
 import rentMachineDialog from '@/components/common/rentMachineDialog.vue'
 import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
 import { priceStore } from '@/store/Modules/price/index'
-import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
+import { convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { appStore } from '@/store/Modules/app/index'
-
+import { useDeviceListStore } from '@/store/Modules/deviceList/index'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const price = priceStore()
   const app = appStore()
+  const device = useDeviceListStore()
   const router = useRouter()
   const route = useRoute()
   const { t } = useI18n()
@@ -39,6 +49,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     {
       title: () => h('div', { class: 'dark:text-white font-bold' }, '暂无数据'),
       num: 0,
+      canRentTrue: 0,
       maxCalcPoint: 0,
     },
   ])
@@ -69,13 +80,14 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             title: () => h('div', { class: 'dark:text-white font-bold' }, removeGeForceRTX(item._id)),
             type: item._id,
             num: item.total,
+            canRentTrue: item.canRentTrue,
             maxCalcPoint: item.maxCalcPoint,
             canRentIntotal: () => {},
           }
         })
       }
     } else {
-      window.$message?.error('获取当前经纬度失败')
+      window.$message?.error(t('app.fetchCurrentLocationFailed2'))
     }
   }
   // gpu详情列表数据
@@ -117,7 +129,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         }
       })
     } else {
-      window.$message?.error('获取 GPU 列表失败')
+      window.$message?.error(t('app.fetchGpuListFailed2'))
     }
   }
 
@@ -149,8 +161,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
   }
   // 在合约上查询租用dlc数量
-  async function getRentPrice(item) {
-    item.loading = true
+  async function getRentPrice() {
     // 2. 查询价格与余额
     const provider = getDbcProvider()
 
@@ -167,12 +178,15 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     rentMachineDialogBeforeForm.dlcprice = dlc_price.value
     const resPrice = price.useLocalizedCurrency(convertDlcToUsd(priceNumber, dlc_price.value))
     console.log(resPrice, '价格', dlc_price.value, priceNumber)
-    item.loading = false
     rentMachineDialogBeforeForm.dLCNumber = Number(priceNumber.toFixed(5))
     rentMachineDialogBeforeForm.price = resPrice
   }
   const rentMachineDialogBefore = async (item) => {
-    await getRentPrice(item)
+    item.loading = true
+
+    await getRentPrice()
+    item.loading = false
+
     const NftsDialogRef = ref()
     const d = window.$dialog?.info({
       title: () => {
@@ -339,6 +353,250 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       window.$message?.error(err?.message || '交易失败，请稍后再试')
     }
   }
+
+  /**
+   * 发起退租流程（统一为 encodeFunctionData + sendTransaction 格式）
+   * @param machineId 租用的机器 ID
+   */
+  async function endRentFlow(machineId: string) {
+    const { ensureWallet } = useWalletSigner(t)
+
+    const result = await ensureWallet()
+    if (!result) return
+
+    const { signer, dialog } = result
+
+    try {
+      dialog.loading = true
+      dialog.positiveText = t('app.rentingOut')
+
+      // 获取租用合约
+      const rentContract = getContract('RENT', signer)
+
+      // 构造原始交易对象
+      const endRentTx = {
+        to: CONTRACT_ADDRESSES.RENT,
+        data: rentContract.interface.encodeFunctionData('endRentMachine', [machineId]),
+      }
+
+      // 发起交易
+      const txResp = await signer.sendTransaction(endRentTx)
+      const txReceipt: any = await txResp.wait()
+
+      if (txReceipt.status !== 1) {
+        throw new Error('退租交易失败，请稍后重试')
+      }
+      const { data: res } = await endOrder({
+        wallet: app.address,
+        device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+        machine_id: rentMachineDialogBeforeForm.rentinfo.machine_id,
+      })
+      if (!res.success) {
+        throw new Error('提前结束租用api失败，请稍后重试')
+      }
+      // 成功提示
+      window.$message?.success(t(t('app.releaseSuccess')))
+
+      // 关闭对话框
+      dialog.destroy?.()
+      device.getUserDeviceListH()
+    } catch (err: any) {
+      console.error('[退租失败]', err)
+
+      dialog.loading = false
+      dialog.positiveText = t('app.confirm') || '确认'
+
+      const revertData = err?.data || err?.error?.data
+      if (revertData) {
+        try {
+          const iface = new ethers.Interface(CONTRACT_ABIS.RENT)
+          const parsed = iface.parseError(revertData)
+          const errorMsg = parsed?.name || '退租失败'
+          window.$message?.error(`退租失败：${errorMsg}`)
+          return
+        } catch (parseErr) {
+          console.warn('⛔ 无法解析 Revert 错误:', parseErr)
+        }
+      }
+
+      window.$message?.error(err?.message || '退租失败，请稍后重试')
+    }
+  }
+
+  // 发起续租流程
+  // 续租loading
+  let renewRentLoading = ref(false)
+  async function renewRentFlow(info: any) {
+    renewRentLoading.value = true
+
+    // 先获取机器信息
+    const { data: res } = await getGpuDetail({
+      machine_id: rentMachineDialogBeforeForm.rentinfo.machine_id,
+    })
+
+    if (res.success) {
+      console.log(res.content, '机器信息')
+      // 计算 end_time（结束时间戳）
+      const endTime = res.content.current_time + res.content.can_use_time * 60 * 60 * 1000 - +new Date()
+      // 机器剩余可用时长
+      const canUseTimeMinutes = Number((endTime / (1000 * 60)).toFixed(0)) // 四舍五入到整数分钟
+
+      function getRemainingSeconds(startTime: number, rentSeconds: number): number {
+        const now = Date.now()
+        const endTime = startTime + rentSeconds * 1000
+        const remainingMs = endTime - now
+        return Math.max(Math.floor(remainingMs / 1000), 0) // 返回剩余秒数，最小为 0
+      }
+      // 当前用户租用的机器剩余可用时长
+      const remainingSeconds = getRemainingSeconds(res.content.rent_satrtime, res.content.rent_time)
+      if (canUseTimeMinutes < 60) {
+        window.$message?.warning(t('app.availableTimeTooShort'))
+        return
+      } else if (remainingSeconds < 120) {
+        window.$message?.warning(t('app.notEnoughTimeToRenew'))
+        return
+      } else {
+        // 满足续租了可以续租
+        console.log(info, 'info')
+        const NftsDialogRef = ref()
+        console.log(rentMachineDialogBeforeForm, 'rentMachineDialogBeforeForm')
+        await getRentPrice()
+
+        console.log(rentMachineDialogBeforeForm, '我是关键信息')
+        renewRentLoading.value = false
+
+        const d = window.$dialog?.info({
+          title: () => {
+            return h(
+              NGradientText,
+              {
+                size: 24,
+                type: 'success',
+                class: 'font-bold',
+              },
+              { default: () => t('gpu.rentalDetails') }
+            )
+          },
+          content: () => h(rentMachineDialog, { ref: NftsDialogRef }),
+          class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+          showIcon: false,
+          negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+          positiveButtonProps: { color: '#03C188', size: 'medium' },
+          positiveText: t('gpu.confirm'),
+          negativeText: t('app.cancel'),
+          onPositiveClick: async () => {
+            const { ensureWallet } = useWalletSigner(t)
+            const result = await ensureWallet()
+            if (!result) return
+
+            const { signer, dialog, address: userAddress } = result
+
+            try {
+              dialog.loading = true
+              dialog.positiveText = t('app.renewing')
+
+              // 构造合约对象
+              const rentContract = getContract('RENT', signer)
+              const dlcContract = getContract('DLC_TOKEN', signer)
+
+              // 获取续租价格（同租用流程）
+              const priceWei = await rentContract.getMachinePrice(
+                rentMachineDialogBeforeForm.rentinfo.machine_id,
+                rentMachineDialogBeforeForm.duration
+              )
+
+              // 检查余额
+              const balanceWei = await dlcContract.balanceOf(userAddress)
+              if (balanceWei < priceWei) {
+                throw new Error(t('gpu.insufficientBalance'))
+              }
+
+              // 授权 approve
+              const approveTx = {
+                to: CONTRACT_ADDRESSES.DLC_TOKEN,
+                data: dlcContract.interface.encodeFunctionData('approve', [CONTRACT_ADDRESSES.RENT, priceWei]),
+              }
+              console.log('🚀 发起 approve 授权...')
+              const approveResp = await signer.sendTransaction(approveTx)
+              const approveReceipt: any = await approveResp.wait()
+              if (approveReceipt.status !== 1) {
+                throw new Error('授权失败，请稍后重试')
+              }
+              console.log('✅ 授权成功')
+
+              // 构造续租交易
+              const renewTx = {
+                to: CONTRACT_ADDRESSES.RENT,
+                data: rentContract.interface.encodeFunctionData('renewRent', [
+                  rentMachineDialogBeforeForm.rentinfo.machine_id,
+                  rentMachineDialogBeforeForm.duration,
+                ]),
+              }
+
+              console.log('🚀 发起续租交易...')
+              const txResp = await signer.sendTransaction(renewTx)
+              const txReceipt: any = await txResp.wait()
+              if (txReceipt.status !== 1) {
+                throw new Error('续租交易失败，请稍后重试')
+              }
+              const { data: res } = await extendOrder({
+                wallet: app.address,
+                renew_time: rentMachineDialogBeforeForm.duration,
+                device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+                machine_id: rentMachineDialogBeforeForm.rentinfo.machine_id,
+                rent_dlc: rentMachineDialogBeforeForm.dLCNumber,
+                rent_usdt: Number(rentMachineDialogBeforeForm.dLCNumber * rentMachineDialogBeforeForm.dlcprice),
+              })
+              if (!res.success) {
+                throw new Error('续租入库失败，请稍后重试')
+              }
+
+              //    https://go.deeplink.cloud/send_rent_info
+
+              // 通知
+
+              const { data: resx } = await extendNotify({
+                user_id: app.address,
+                device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+                start_time: res.content.rent_satrtime,
+                rent_time: res.content.rent_time,
+                display: {
+                  width: 0,
+                  height: 0,
+                  fps: 0,
+                },
+              })
+
+              window.$message?.success(t('app.renewSuccess'))
+              dialog.destroy?.()
+              device.getUserDeviceListH()
+            } catch (err: any) {
+              console.error('[续租失败]', err)
+              dialog.loading = false
+              dialog.positiveText = t('app.confirm')
+
+              const revertData = err?.data || err?.error?.data
+              if (revertData) {
+                try {
+                  const iface = new ethers.Interface(CONTRACT_ABIS.RENT)
+                  const parsed = iface.parseError(revertData)
+                  const friendlyError = mapCustomErrorToMessage(parsed?.name as any)
+                  window.$message?.error(friendlyError)
+                  return
+                } catch (parseErr) {
+                  console.warn('⛔ 无法解析 Revert 错误:', parseErr)
+                }
+              }
+
+              window.$message?.error(err?.message || '续租失败，请稍后再试')
+            }
+          },
+        })
+      }
+    } else {
+      window.$message?.error(t('app.fetchRentalDetailsFailed'))
+    }
+  }
   return {
     getGpsH,
     getGpuTypeH,
@@ -356,5 +614,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     getRentPrice,
     getMachineStatusH,
     RouterViewKey,
+    endRentFlow,
+    renewRentFlow,
+    renewRentLoading,
   }
 })
