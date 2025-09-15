@@ -7,7 +7,7 @@
         <span class="text-error-500" v-show="showBalanceIsOk">（{{ $t('Store.insufficientBalance') }}）</span>
       </span>
     </h1>
-    <n-card class="rounded-lg mb-8 !bg-[#efefef] dark:bg-[#1e1e1e] transition-colors duration-300">
+    <n-card class="rounded-lg mb-8 transition-colors duration-300">
       <div class="flex flex-col gap-2 items-center">
         <n-button
           type="primary"

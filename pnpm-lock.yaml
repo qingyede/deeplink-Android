@@ -80,6 +80,9 @@ importers:
       process:
         specifier: ^0.11.10
         version: 0.11.10
+      regenerator-runtime:
+        specifier: ^0.14.1
+        version: 0.14.1
       tinycolor2:
         specifier: ^1.6.0
         version: 1.6.0

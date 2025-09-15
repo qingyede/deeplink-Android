@@ -43,12 +43,9 @@ sendCurrentConfig()
 
 <template>
   <div class="px-4 pb-6 w-full mx-auto">
-    <div class="space-y-5" v-motion-slide-visible-left>
+    <div class="space-y-5">
       <!-- 主题设置 -->
-      <n-card
-        content-class="!px-3"
-        class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
-      >
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:theme-light-dark" class="text-[20px] text-primary-600" />
@@ -59,10 +56,7 @@ sendCurrentConfig()
       </n-card>
 
       <!-- 语言设置 -->
-      <n-card
-        content-class="!px-3"
-        class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
-      >
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:translate" class="text-[20px] text-primary-600" />
@@ -75,7 +69,7 @@ sendCurrentConfig()
       </n-card>
 
       <!-- ✅ 禁用鼠标操作（虚拟摇杆） -->
-      <n-card content-class="!px-3" class="rounded-xl border dark:border-[#3c3d3f] dark:bg-[#1e1e1e]">
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:mouse-off" class="text-[20px] text-primary-600" />
@@ -86,12 +80,20 @@ sendCurrentConfig()
               {{ $t('setting.disableMouseTip') }}
             </n-tooltip>
           </div>
-          <n-switch v-model:value="app.disableMouseWhenJoystick" @update:value="toggleDisableMouse" />
+          <n-switch
+            :rail-style="
+              ({ checked }) => ({
+                backgroundColor: checked ? '#03C188' : '#dcdcdc',
+              })
+            "
+            v-model:value="app.disableMouseWhenJoystick"
+            @update:value="toggleDisableMouse"
+          />
         </div>
       </n-card>
 
       <!-- ✅ 自动启用虚拟摇杆 -->
-      <n-card content-class="!px-3" class="rounded-xl border dark:border-[#3c3d3f] dark:bg-[#1e1e1e]">
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:gamepad-variant" class="text-[20px] text-primary-600" />
@@ -102,15 +104,20 @@ sendCurrentConfig()
               {{ $t('setting.autoJoystickTip') }}
             </n-tooltip>
           </div>
-          <n-switch v-model:value="app.useAutoVirtualJoystick" @update:value="toggleAutoVirtualJoystick" />
+          <n-switch
+            :rail-style="
+              ({ checked }) => ({
+                backgroundColor: checked ? '#03C188' : '#dcdcdc',
+              })
+            "
+            v-model:value="app.useAutoVirtualJoystick"
+            @update:value="toggleAutoVirtualJoystick"
+          />
         </div>
       </n-card>
 
       <!-- 应用版本号显示 -->
-      <n-card
-        content-class="!px-3"
-        class="rounded-xl border border-[#e7e8ea] dark:border-[#3c3d3f] dark:bg-[#1e1e1e] transition-colors duration-300"
-      >
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:information-outline" class="text-[20px] text-primary-600" />

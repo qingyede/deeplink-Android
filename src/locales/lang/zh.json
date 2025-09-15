@@ -56,7 +56,8 @@
     "invalidParams": "参数错误，请检查地址或金额格式",
     "transferContractError": "转账失败：合约执行失败",
     "transferFailed": "转账失败",
-    "nftTransferSuccess": "NFT 转账成功"
+    "nftTransferSuccess": "NFT 转账成功",
+    "notActivated": "还没有激活NFT,请先购买并激活NFT"
   },
   "home": {
     "buyDBC": "购买 DBC",
@@ -77,7 +78,7 @@
     "activated": "已激活",
     "transfer": "转账",
     "activate": "激活",
-    "buyNft": "购买 NFT",
+    "buyNft": "NFT商店",
     "viewNftFeatures": "查看 NFT 功能",
     "notActivated": "未激活",
     "noNftData": "暂无 NFT 数据",
@@ -203,7 +204,8 @@
     "deviceUnavailable": "设备不可用",
     "insufficientBalance": "余额不足",
     "rentalDetails": "租用详情",
-    "noGpuMachinesHere": "此区域暂时无GPU机器"
+    "noGpuMachinesHere": "此区域暂时无GPU机器",
+    "tips": "机器距离超过500公里，游戏延迟明显增加，请注意挑选"
   },
   "remote": {
     "controlRemoteDevice": "控制远程设备",
@@ -219,7 +221,8 @@
     "passwordAlphaNumeric": "密码必须包含字母和数字",
     "connectAndActivateFlow": "手机远程连接PC需要在商店购买并激活NFT",
     "community": "加入我们",
-    "Connect": "连接"
+    "Connect": "连接",
+    "dlcBalanceNotEnough": "您的钱包DLC余额不足!"
   },
   "setting": {
     "darkMode": "暗色模式",
@@ -399,5 +402,15 @@
     "date": "日期",
     "amount": "金额",
     "nft": "个"
+  },
+  "errors": {
+    "alreadyKnown": "交易已提交，请稍后查看确认",
+    "insufficientDbc": "矿工费不足（DBC），请充值后重试",
+    "nonceTooLow": "交易计数（nonce）过低，请稍后重试或清理待处理交易",
+    "feeTooLow": "手续费过低，建议提高后重试",
+    "gasUnderpriced": "Gas 价格过低，建议提高后重试",
+    "executionReverted": "合约拒绝执行（execution reverted）",
+    "timeout": "等待链上确认超时，请稍后在记录中查看",
+    "genericTxFailed": "交易失败，请稍后再试"
   }
 }

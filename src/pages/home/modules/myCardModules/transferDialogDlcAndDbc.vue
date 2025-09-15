@@ -107,7 +107,7 @@ const realDbcBalance = ref(0)
 // 初始化余额
 onMounted(async () => {
   if (app.address) {
-    realDlcBalance.value = await getAvailableDlcBalance(app.address)
+    realDlcBalance.value = (await getAvailableDlcBalance(app.address)) as any
     realDbcBalance.value = await getAvailableDbcBalance(app.address)
   }
 })

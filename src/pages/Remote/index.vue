@@ -20,12 +20,16 @@
           </n-form-item-gi>
 
           <n-form-item-gi :span="24" :label="$t('remote.partnerDeviceCode')" path="password">
-            <n-input
-              type="password"
+            <n-auto-complete
+              :options="app.InputPassword"
+              blur-after-select
               show-password-on="click"
-              class="min-h-[44px] rounded-lg text-[#737373] dark:text-white/80"
               v-model:value="model.password"
               :placeholder="$t('remote.partnerDeviceCodePlaceholder')"
+              :get-show="() => true"
+              style="border-radius: 8px"
+              class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
+              :input-props="{ inputmode: 'numeric', pattern: '[0-9]*' }"
             />
           </n-form-item-gi>
 
@@ -50,26 +54,22 @@
     </div>
 
     <!-- 商店 -->
-    <!-- <div class="mt-[20px] flex flex-col gap-3">
+    <div class="mt-[20px] flex flex-col gap-3">
       <div class="flex items-center gap-4">
-        <n-button
-          @click="router.push({ name: 'Store' })"
-          class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
-        >
-          {{ $t('home.store') }}
+        <n-button type="primary" @click="router.push({ name: 'Store' })" class="flex-[1] rounded-lg min-h-[48px] text-lg">
+          {{ $t('home.buyNft') }}
         </n-button>
-     
-        <n-button
+
+        <!-- <n-button
           @click="router.push({ name: 'playWithUs' })"
           class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
         >
           {{ $t('home.playWithUs') }}
-        </n-button>
+        </n-button> -->
       </div>
-    
-    </div> -->
+    </div>
 
-    <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3" v-motion-slide-visible-bottom>
+    <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3">
       <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>
       <div class="flex items-center w-full justify-center gap-3">
         <n-button
@@ -208,32 +208,38 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
   try {
     await formRef.value?.validate()
 
-    // connectToRemoteDevice({ id: model.id, password: model.password })
+    // 先获取 NFT（保留你原逻辑）
+    await buyNft.getMyNftListH()
+    console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
 
+    // 规范化输入：去掉首尾空格（避免保存“看起来一样但有空格”的记录）
+    const id = String(model.id ?? '').trim()
+    const pwd = String(model.password ?? '').trim()
+
+    // 发起连接（不等待结果）
     connectToRemoteDevice({
-      id: model.id,
+      id,
       password: objectToBase64({
-        password: model.password,
-        // nft_enabled: buyNft.hasNft,
+        password: pwd,
+        nft_enabled: buyNft.hasNft,
       }),
     })
 
-    // 添加历史记录逻辑（最多6条，去重，最新在前）
-    const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
-    if (existsIndex !== -1) {
-      // 如果已存在，则移除旧位置
-      app.Inputoptions.splice(existsIndex, 1)
+    // ===== 保存历史（不依赖连接成功）=====
+    // 1) 设备 ID：去重后插到最前，最多 6 条，忽略空值
+    if (id) {
+      const existsIndex = app.Inputoptions.findIndex((item) => item?.value === id)
+      if (existsIndex !== -1) app.Inputoptions.splice(existsIndex, 1)
+      app.Inputoptions.unshift({ label: id, value: id })
+      if (app.Inputoptions.length > 6) app.Inputoptions.pop()
     }
 
-    // 在最前面插入新记录
-    app.Inputoptions.unshift({
-      label: model.id,
-      value: model.id,
-    })
-
-    // 保留最多6条记录
-    if (app.Inputoptions.length > 6) {
-      app.Inputoptions.pop()
+    // 2) 验证码：规则同上，忽略空值
+    if (pwd) {
+      const pwdIndex = (app.InputPassword as any[]).findIndex((item: any) => item?.value === pwd)
+      if (pwdIndex !== -1) app.InputPassword.splice(pwdIndex, 1)
+      app.InputPassword.unshift({ label: pwd, value: pwd })
+      if (app.InputPassword.length > 6) app.InputPassword.pop()
     }
   } catch (errors) {
     window.$message?.error(t('app.formInvalid'))

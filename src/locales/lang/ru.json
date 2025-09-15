@@ -56,7 +56,8 @@
     "invalidParams": "Неверные параметры. Проверьте адрес и формат суммы",
     "transferContractError": "Ошибка перевода: сбой выполнения контракта",
     "transferFailed": "Ошибка перевода",
-    "nftTransferSuccess": "NFT успешно передан"
+    "nftTransferSuccess": "NFT успешно передан",
+    "notActivated": "NFT ещё не активирован. Пожалуйста, сначала купите и активируйте NFT."
   },
   "home": {
     "buyDBC": "Купить DBC",
@@ -77,7 +78,7 @@
     "activated": "Активирован",
     "transfer": "Перевод",
     "activate": "Активировать",
-    "buyNft": "Купить NFT",
+    "buyNft": "Магазин NFT",
     "viewNftFeatures": "Функции NFT",
     "notActivated": "Не активирован",
     "noNftData": "Нет данных по NFT",
@@ -196,7 +197,8 @@
     "deviceUnavailable": "Устройство недоступно",
     "insufficientBalance": "Недостаточно баланса",
     "rentalDetails": "Детали аренды",
-    "noGpuMachinesHere": "В этом районе нет доступных GPU"
+    "noGpuMachinesHere": "В этом районе нет доступных GPU",
+    "tips": "Расстояние до машины превышает 500 км, что значительно увеличит задержку в игре. Пожалуйста, выбирайте внимательно."
   },
   "remote": {
     "controlRemoteDevice": "Управление удалённым устройством",
@@ -212,7 +214,8 @@
     "passwordAlphaNumeric": "Пароль должен содержать буквы и цифры",
     "connectAndActivateFlow": "Для подключения мобильного устройства необходимо активировать NFT",
     "community": "Присоединяйтесь к нам",
-    "Connect": "Подключиться"
+    "Connect": "Подключиться",
+    "dlcBalanceNotEnough": "Недостаточно DLC на балансе вашего кошелька!"
   },
   "setting": {
     "darkMode": "Тёмный режим",

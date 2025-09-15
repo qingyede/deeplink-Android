@@ -17,8 +17,6 @@ defineOptions({
 import { useSafeArea } from '@/hooks/common/useSafeArea'
 import MyHeader from './layout-header/index.vue'
 import MyFooter from './layout-footer/index.vue'
-import { appStore } from '@/store/Modules/app/index'
-const app = appStore()
 const { safeAreaInsetTop } = useSafeArea()
 </script>
 

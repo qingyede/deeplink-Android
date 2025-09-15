@@ -32,7 +32,6 @@ export function useSafeArea() {
   const handleToH5 = (json: string) => {
     try {
       const returndata = JSON.parse(json)
-      console.log('[toH5 监听] 返回数据:', returndata)
 
       if (returndata.action === 3003 && returndata.data?.statusBarHeight) {
         const raw = returndata.data.statusBarHeight

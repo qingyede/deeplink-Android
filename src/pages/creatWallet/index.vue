@@ -22,14 +22,14 @@
           </n-form-item-gi>
           <n-form-item-gi :span="24">
             <n-button
-              class="w-full rounded-lg min-h-[48px]"
-              color="#D7EDEB"
+              class="w-full rounded-lg min-h-[48px] text-lg"
+              :color="!model.password ? '#D7EDEB' : '#03C188'"
               round
               :loading="loading"
               @click="handleValidateButtonClick"
               :disabled="!model.password"
             >
-              <span class="text-black text-lg"> {{ $t('createWallet.Create') }} </span>
+              {{ $t('createWallet.Create') }}
             </n-button>
           </n-form-item-gi>
         </n-grid>
@@ -50,7 +50,6 @@ import { ethers } from 'ethers'
 import { useDeviceId } from '@/hooks/devices/useDeviceId'
 import { useWalletTransfer } from '@/hooks/wallet/useWalletTransfer'
 import { appStore } from '@/store/Modules/app'
-const { registerDevice } = useDeviceId()
 import { getOrGenerateDeviceId } from '@/utils/common/getDeviceId'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()

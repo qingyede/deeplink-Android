@@ -20,35 +20,8 @@ export function createVitePlugins(): PluginOption[] {
       // 指定symbolId格式
       symbolId: 'icon-[dir]-[name]',
     }),
-    legacy({
-      targets: ['defaults', 'not IE 11'],
-    }),
   ]
 }
-
-// build
-// export function createViteBuild(): BuildOptions | undefined {
-//   return {
-//     reportCompressedSize: false,
-//     sourcemap: false,
-//     commonjsOptions: {
-//       ignoreTryCatch: false,
-//     },
-//     minify: 'esbuild',
-//     // 手动分包
-//     rollupOptions: {
-//       // input: 'h5.html',
-
-//       output: {
-//         manualChunks(id) {
-//           if (id.includes('node_modules')) {
-//             return id.toString().split('node_modules/')[1].split('/')[0].toString()
-//           }
-//         },
-//       },
-//     },
-//   }
-// }
 
 export function createViteBuild(): BuildOptions | undefined {
   return {
@@ -56,21 +29,7 @@ export function createViteBuild(): BuildOptions | undefined {
     outDir: 'dist',
     assetsDir: 'assets',
     rollupOptions: {
-      // input: 'h5.html',
-      output: {
-        format: 'iife', // 👈 非模块格式（关键）
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
-      },
-    },
-
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
+      input: 'h5.html',
     },
   }
 }

@@ -68,9 +68,9 @@
 
     <!-- 空状态提示 -->
     <div v-if="buyNft.myNftList.length === 0" class="text-center py-10 text-gray-400 dark:text-white/50">
-      <n-empty :description="$t('home.noNftData')">
+      <n-empty :description="$t('app.noNftHeld')">
         <template #extra>
-          <n-button size="small">{{ $t('home.buyNft') }}</n-button>
+          <n-button @click="router.push({ name: 'Store' })" size="small">{{ $t('home.buyNft') }}</n-button>
         </template>
       </n-empty>
     </div>

@@ -56,7 +56,8 @@
     "invalidParams": "無効なパラメータ。アドレスや金額形式をご確認ください",
     "transferContractError": "送金失敗：コントラクト実行エラー",
     "transferFailed": "送金失敗",
-    "nftTransferSuccess": "NFT送信成功"
+    "nftTransferSuccess": "NFT送信成功",
+    "notActivated": "NFTはまだ有効化されていません。まずNFTを購入して有効化してください。"
   },
   "home": {
     "buyDBC": "DBCを購入",
@@ -77,7 +78,7 @@
     "activated": "有効化済み",
     "transfer": "送金",
     "activate": "アクティベート",
-    "buyNft": "NFTを購入",
+    "buyNft": "NFTショップ",
     "viewNftFeatures": "NFT機能を見る",
     "notActivated": "未アクティベート",
     "noNftData": "NFTデータなし",
@@ -197,7 +198,8 @@
     "deviceUnavailable": "デバイス利用不可",
     "insufficientBalance": "残高不足",
     "rentalDetails": "レンタル詳細",
-    "noGpuMachinesHere": "この地域にGPUマシンはありません"
+    "noGpuMachinesHere": "この地域にGPUマシンはありません",
+    "tips": "機器が500km以上離れているため、ゲームの遅延が大幅に増加します。注意して選択してください。"
   },
   "remote": {
     "controlRemoteDevice": "リモートデバイスを操作",
@@ -213,7 +215,8 @@
     "passwordAlphaNumeric": "パスワードは英数字を含める必要があります",
     "connectAndActivateFlow": "スマホからPCをリモート接続するには、NFTの購入と有効化が必要です",
     "community": "コミュニティに参加",
-    "Connect": "接続"
+    "Connect": "接続",
+    "dlcBalanceNotEnough": "ウォレットのDLC残高が不足しています!"
   },
   "setting": {
     "darkMode": "ダークモード",

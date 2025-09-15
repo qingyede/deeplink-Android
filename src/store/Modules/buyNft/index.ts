@@ -129,7 +129,9 @@ export const useBuyNftStore = defineStore('buyNft', () => {
   // 获取我的nft列表
   const myNftList = ref<any[]>([])
   // 判断是否有nft
-  const hasNft = computed(() => myNftList.value.length > 0)
+  const hasNft = computed(() => {
+    return myNftList.value.length > 0 && myNftList.value.some((item) => item.NFTStatus === 'activated')
+  })
   const nftLoading = ref(false)
 
   // 工具函数：格式化剩余时间
@@ -157,9 +159,10 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       // 获取所有 Token ID
       const tokenIds: bigint[] = await NFTContract.getTokenIdsByAddress(app.address)
       if (tokenIds.length === 0) {
+        nftLoading.value = false
         myNftList.value = []
         console.log('✅ 当前钱包未持有任何 NFT')
-        window.$message?.warning(t('app.noNftHeld'))
+        // window.$message?.warning(t('app.noNftHeld'))
 
         return
       }
@@ -178,7 +181,6 @@ export const useBuyNftStore = defineStore('buyNft', () => {
           metadata = await res.json()
         } catch (e) {
           console.warn(`⚠️ TokenId ${id} 元数据加载失败`)
-          window.$message?.warning(`⚠️ TokenId ${id} 元${t('app.metadataLoadFailed')}`)
         }
 
         // 2. 获取链上状态信息

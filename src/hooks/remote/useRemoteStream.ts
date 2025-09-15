@@ -124,7 +124,33 @@ export function useRemoteStream() {
   useEventListener(window, 'toH5', (e: any) => {
     try {
       const raw = typeof e === 'string' ? e : e.detail
-      const { action, data } = JSON.parse(raw)
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+      // 注意：data 可能是字符串
+      const inner = typeof parsed?.data === 'string' ? JSON.parse(parsed.data) : parsed
+
+      if (inner?.method === 'authAck') {
+        const { version, nft_enabled, cafe_selfuse } = inner.data || {}
+        console.log('[远程] 收到 authAck:', inner.data)
+
+        // === 根据后端 1.0.6.9 规则给提示 ===
+        if (cafe_selfuse === true) {
+          window.$message?.warning?.('当前网吧机器处于“内部自用/禁止自动挖矿”状态，禁止被远程。')
+        } else if (nft_enabled === false) {
+          window.$message?.error?.('被控端未启用 NFT，来自 Android 的远程认证不通过。')
+        } else {
+          window.$message?.info?.('收到被控端认证回执（authAck），已停止远程。')
+        }
+
+        // ✅ 按你的需求：打印并停止远程
+        isConnected.value = false
+        stopHeartbeat()
+        return
+      }
+
+      // 其余 2000/2001/2002 原逻辑保持不变
+      const { action, data } = parsed
+      console.log(data, '✅原声发给我的数据')
       switch (action) {
         case 2001:
           console.log('[远程] 串流断开')

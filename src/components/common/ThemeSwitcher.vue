@@ -19,23 +19,28 @@ onMounted(() => {
   const html = document.documentElement
   html.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
 })
-
-// // ✅ 实时监听变化，更新 data-theme 属性
-// watch(isDark, (val) => {
-//   const html = document.documentElement
-//   html.setAttribute('data-theme', val ? 'dark' : 'light')
-// })
 </script>
 
 <template>
   <n-switch
     :value="isDark"
     @update:value="(val) => (isDark = val)"
-    size="medium"
+    size="large"
     :rail-style="
       ({ checked }) => ({
         backgroundColor: checked ? '#03C188' : '#dcdcdc',
       })
     "
-  />
+  >
+    <template #checked-icon>
+      <n-icon>
+        <Icon icon="solar:cloudy-moon-bold-duotone" class="text-yellow-500" />
+      </n-icon>
+    </template>
+    <template #unchecked-icon>
+      <n-icon>
+        <Icon icon="solar:sun-2-linear" class="text-amber-500" />
+      </n-icon>
+    </template>
+  </n-switch>
 </template>

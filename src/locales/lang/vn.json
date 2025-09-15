@@ -56,7 +56,8 @@
     "invalidParams": "Tham số không hợp lệ",
     "transferContractError": "Chuyển khoản thất bại: lỗi hợp đồng",
     "transferFailed": "Chuyển khoản thất bại",
-    "nftTransferSuccess": "Chuyển NFT thành công"
+    "nftTransferSuccess": "Chuyển NFT thành công",
+    "notActivated": "NFT chưa được kích hoạt. Vui lòng mua và kích hoạt NFT trước."
   },
   "home": {
     "buyDBC": "Mua DBC",
@@ -77,7 +78,7 @@
     "activated": "Đã kích hoạt",
     "transfer": "Chuyển",
     "activate": "Kích hoạt",
-    "buyNft": "Mua NFT",
+    "buyNft": "Cửa hàng NFT",
     "viewNftFeatures": "Xem tính năng NFT",
     "notActivated": "Chưa kích hoạt",
     "noNftData": "Không có dữ liệu NFT",
@@ -196,7 +197,8 @@
     "deviceUnavailable": "Thiết bị không khả dụng",
     "insufficientBalance": "Số dư không đủ",
     "rentalDetails": "Chi tiết thuê",
-    "noGpuMachinesHere": "Không có máy GPU tại khu vực này"
+    "noGpuMachinesHere": "Không có máy GPU tại khu vực này",
+    "tips": "Máy cách hơn 500 km, độ trễ trò chơi sẽ tăng đáng kể. Vui lòng chọn cẩn thận."
   },
   "remote": {
     "controlRemoteDevice": "Điều khiển từ xa",
@@ -212,7 +214,8 @@
     "passwordAlphaNumeric": "Mật khẩu gồm chữ và số",
     "connectAndActivateFlow": "Cần mua và kích hoạt NFT để kết nối từ xa",
     "community": "Tham gia cộng đồng",
-    "Connect": "Kết nối"
+    "Connect": "Kết nối",
+    "dlcBalanceNotEnough": "Số dư DLC trong ví của bạn không đủ!"
   },
   "setting": {
     "darkMode": "Chế độ tối",

@@ -41,7 +41,7 @@
           @click="toDetail(item)"
           v-for="item in currentHistory"
           :key="item.tx_hash"
-          class="flex justify-between items-center gap-3 hover:bg-background-soft px-1 py-2 rounded-md transition"
+          class="flex justify-between items-center gap-3 hover:bg-[#EFF1F0] px-1 py-2 rounded-md transition"
         >
           <img class="max-w-[48px] max-h-[48px]" :src="currentIcon" alt="" />
           <div class="flex flex-col gap-1 justify-center">

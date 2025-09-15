@@ -3380,7 +3380,8 @@ export const CONTRACT_ABIS = {
     'function symbol() view returns (string)',
     'function decimals() view returns (uint8)',
     'function balanceOf(address) view returns (uint256)',
-    'function approve(address, uint256) returns (bool)',
+    'function transfer(address,uint256) returns (bool)', // ✅ 补上
+    'function approve(address,uint256) returns (bool)', // 你说不需要授权可以删掉
   ],
 }
 

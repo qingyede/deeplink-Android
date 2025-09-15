@@ -190,6 +190,8 @@ const importWallet = async () => {
   const result = await importFromPrivateKey(model.privateKey, model.password)
   if (!result) {
     window.$message?.error(t('app.importFailed'))
+    isSubmitting.value = false
+
     return
   }
 
@@ -248,6 +250,9 @@ const importWallet = async () => {
   } catch (err) {
     console.error('导入流程失败:', err)
     window.$message?.error(t('app.importFailed'))
+    app.$reset()
+  } finally {
+    isSubmitting.value = false
   }
 }
 // 表单提交

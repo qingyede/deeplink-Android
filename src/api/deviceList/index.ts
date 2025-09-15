@@ -9,3 +9,12 @@ export const getUserDeviceList = (data) => {
     data,
   })
 }
+
+// 设备列表添加备注
+export const addDeviceRemark = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/cyc/deviceNotes`,
+    data,
+  })
+}

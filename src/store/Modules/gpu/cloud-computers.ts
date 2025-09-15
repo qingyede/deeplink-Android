@@ -24,6 +24,9 @@ import { appStore } from '@/store/Modules/app/index'
 import { useDeviceListStore } from '@/store/Modules/deviceList/index'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAppSocket } from '@/hooks/common/useAppSocket'
+import { handleTxError } from './err'
+import { ensureDbcForTx } from '@/utils/wallet/gas' // 你前面新建并导出的工具函数
 
 export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const price = priceStore()
@@ -32,6 +35,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const router = useRouter()
   const route = useRoute()
   const { t } = useI18n()
+  const { connect, send, onMessage, waitForReady, onOpen, offMessage } = useAppSocket()
+
   // 强制重新加载组件
   let RouterViewKey = ref(0)
   const forceUpdate = () => {
@@ -216,6 +221,31 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     })
   }
 
+  // 通知函数
+  const notify = async () => {
+    // 通知
+    const { data: resx } = await extendNotify({
+      user_id: app.address,
+      device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+      start_time: new Date().getTime(),
+      rent_time: rentMachineDialogBeforeForm.duration,
+      display: {
+        width: 0,
+        height: 0,
+        fps: 0,
+      },
+    })
+    send({
+      id: 1,
+      method: 'preconnect',
+      token: app.token,
+      params: {
+        device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+        display: { width: 1920, height: 1080, fps: 60 },
+      },
+    })
+  }
+
   // 租用后存储数据到数据库
   const rentSuccessH = async () => {
     const { data: res } = await rentSuccess({
@@ -246,15 +276,9 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
   }
   // 真正的租用
-  function mapCustomErrorToMessage(errorName: string): string {
-    const map: Record<string, string> = {
-      InvalidRentDuration: '租用时间无效，请检查输入时间是否符合要求',
-      AddressEmptyCode: '合约调用地址无效，目标地址代码为空',
-      Unauthorized: '您无权限执行此操作，请检查权限',
-    }
+  // 顶部新增
 
-    return map[errorName] || `合约拒绝执行（${errorName}）`
-  }
+  // 真正的租用
   async function rentMachineFlow({
     machineId,
     rentSeconds,
@@ -267,9 +291,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
 
     // 解锁钱包
     const result = await ensureWallet()
-    if (!result) {
-      return
-    }
+    if (!result) return
 
     const { signer, address: userAddress, dialog } = result
 
@@ -304,6 +326,15 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         data: dlcContract.interface.encodeFunctionData('approve', [CONTRACT_ADDRESSES.RENT, priceWei]),
       }
 
+      // ✅ 在发送 approve 之前做一次 DBC 预检（不改你的发送方式）
+      await ensureDbcForTx({
+        provider,
+        signerOrFrom: signer,
+        to: approveTx.to!,
+        data: approveTx.data!,
+        bufferPct: 20, // 预留 20%，可按需调整
+      })
+
       console.log('🚀 发起 approve 交易...')
       const approveResp = await signer.sendTransaction(approveTx)
       const approveReceipt: any = await approveResp.wait()
@@ -318,6 +349,15 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         data: rentContract.interface.encodeFunctionData('rentMachine', [machineId, rentSeconds]),
       }
 
+      // ✅ 在发送 rent 之前再做一次 DBC 预检
+      await ensureDbcForTx({
+        provider,
+        signerOrFrom: signer,
+        to: rentTx.to!,
+        data: rentTx.data!,
+        bufferPct: 20,
+      })
+
       console.log('🚀 发起 rentMachine 交易...')
       const txResp = await signer.sendTransaction(rentTx)
       const txReceipt: any = await txResp.wait()
@@ -325,6 +365,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         throw new Error('租用交易失败，请稍后重试')
       }
 
+      // 通知
+      await notify()
       await rentSuccessH()
       dialog.destroy()
 
@@ -334,23 +376,14 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
 
       dialog.loading = false
       dialog.positiveText = '确认'
+      dialog.destroy()
 
-      // ✅ 自定义错误优先解析
-      const revertData = err?.data || err?.error?.data
-      if (revertData) {
-        try {
-          const iface = new ethers.Interface(CONTRACT_ABIS.RENT)
-          const parsed = iface.parseError(revertData)
-          const friendlyError = mapCustomErrorToMessage(parsed?.name as any)
-          window.$message?.error(friendlyError)
-          return
-        } catch (parseErr) {
-          console.warn('⛔ 无法解析 Revert 错误:', parseErr)
-        }
-      }
-
-      // ✅ 通用 JS 错误兜底提示
-      window.$message?.error(err?.message || '交易失败，请稍后再试')
+      // ✅ 统一错误处理（优先解析合约自定义错误）
+      handleTxError(err, {
+        abiForCustomError: CONTRACT_ABIS.RENT,
+        // 如需自定义特定错误名的人性化提示，再传 nameToMessage
+        // nameToMessage: (name) => mapCustomErrorToMessage(name as any),
+      })
     }
   }
 
@@ -395,7 +428,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         throw new Error('提前结束租用api失败，请稍后重试')
       }
       // 成功提示
-      window.$message?.success(t(t('app.releaseSuccess')))
+      window.$message?.success(t('app.releaseSuccess'))
 
       // 关闭对话框
       dialog.destroy?.()
@@ -406,20 +439,11 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       dialog.loading = false
       dialog.positiveText = t('app.confirm') || '确认'
 
-      const revertData = err?.data || err?.error?.data
-      if (revertData) {
-        try {
-          const iface = new ethers.Interface(CONTRACT_ABIS.RENT)
-          const parsed = iface.parseError(revertData)
-          const errorMsg = parsed?.name || '退租失败'
-          window.$message?.error(`退租失败：${errorMsg}`)
-          return
-        } catch (parseErr) {
-          console.warn('⛔ 无法解析 Revert 错误:', parseErr)
-        }
-      }
-
-      window.$message?.error(err?.message || '退租失败，请稍后重试')
+      // ✅ 统一错误处理（优先解析合约自定义错误）
+      handleTxError(err, {
+        abiForCustomError: CONTRACT_ABIS.RENT,
+        // 如需覆盖默认中文，可传 nameToMessage: (name) => mapCustomErrorToMessage(name as any),
+      })
     }
   }
 
@@ -447,8 +471,10 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         const remainingMs = endTime - now
         return Math.max(Math.floor(remainingMs / 1000), 0) // 返回剩余秒数，最小为 0
       }
+
       // 当前用户租用的机器剩余可用时长
       const remainingSeconds = getRemainingSeconds(res.content.rent_satrtime, res.content.rent_time)
+
       if (canUseTimeMinutes < 60) {
         window.$message?.warning(t('app.availableTimeTooShort'))
         return
@@ -469,11 +495,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
           title: () => {
             return h(
               NGradientText,
-              {
-                size: 24,
-                type: 'success',
-                class: 'font-bold',
-              },
+              { size: 24, type: 'success', class: 'font-bold' },
               { default: () => t('gpu.rentalDetails') }
             )
           },
@@ -484,6 +506,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
           positiveButtonProps: { color: '#03C188', size: 'medium' },
           positiveText: t('gpu.confirm'),
           negativeText: t('app.cancel'),
+
           onPositiveClick: async () => {
             const { ensureWallet } = useWalletSigner(t)
             const result = await ensureWallet()
@@ -498,6 +521,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               // 构造合约对象
               const rentContract = getContract('RENT', signer)
               const dlcContract = getContract('DLC_TOKEN', signer)
+              const provider = signer.provider || getDbcProvider()
 
               // 获取续租价格（同租用流程）
               const priceWei = await rentContract.getMachinePrice(
@@ -511,10 +535,20 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
                 throw new Error(t('gpu.insufficientBalance'))
               }
 
-              // 授权 approve
+              // ===== DBC 预检：approve 之前 =====
+              const approveData = dlcContract.interface.encodeFunctionData('approve', [CONTRACT_ADDRESSES.RENT, priceWei])
+              await ensureDbcForTx({
+                provider,
+                signerOrFrom: signer,
+                to: CONTRACT_ADDRESSES.DLC_TOKEN,
+                data: approveData,
+                bufferPct: 20, // 预留 20% buffer
+              })
+
+              // 授权 approve（保持你原来的发送方式）
               const approveTx = {
                 to: CONTRACT_ADDRESSES.DLC_TOKEN,
-                data: dlcContract.interface.encodeFunctionData('approve', [CONTRACT_ADDRESSES.RENT, priceWei]),
+                data: approveData,
               }
               console.log('🚀 发起 approve 授权...')
               const approveResp = await signer.sendTransaction(approveTx)
@@ -525,12 +559,23 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               console.log('✅ 授权成功')
 
               // 构造续租交易
+              const renewData = rentContract.interface.encodeFunctionData('renewRent', [
+                rentMachineDialogBeforeForm.rentinfo.machine_id,
+                rentMachineDialogBeforeForm.duration,
+              ])
+
+              // ===== DBC 预检：续租交易之前 =====
+              await ensureDbcForTx({
+                provider,
+                signerOrFrom: signer,
+                to: CONTRACT_ADDRESSES.RENT,
+                data: renewData,
+                bufferPct: 20,
+              })
+
               const renewTx = {
                 to: CONTRACT_ADDRESSES.RENT,
-                data: rentContract.interface.encodeFunctionData('renewRent', [
-                  rentMachineDialogBeforeForm.rentinfo.machine_id,
-                  rentMachineDialogBeforeForm.duration,
-                ]),
+                data: renewData,
               }
 
               console.log('🚀 发起续租交易...')
@@ -539,6 +584,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               if (txReceipt.status !== 1) {
                 throw new Error('续租交易失败，请稍后重试')
               }
+
               const { data: res } = await extendOrder({
                 wallet: app.address,
                 renew_time: rentMachineDialogBeforeForm.duration,
@@ -551,21 +597,8 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
                 throw new Error('续租入库失败，请稍后重试')
               }
 
-              //    https://go.deeplink.cloud/send_rent_info
-
               // 通知
-
-              const { data: resx } = await extendNotify({
-                user_id: app.address,
-                device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
-                start_time: res.content.rent_satrtime,
-                rent_time: res.content.rent_time,
-                display: {
-                  width: 0,
-                  height: 0,
-                  fps: 0,
-                },
-              })
+              await notify()
 
               window.$message?.success(t('app.renewSuccess'))
               dialog.destroy?.()
@@ -575,20 +608,10 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               dialog.loading = false
               dialog.positiveText = t('app.confirm')
 
-              const revertData = err?.data || err?.error?.data
-              if (revertData) {
-                try {
-                  const iface = new ethers.Interface(CONTRACT_ABIS.RENT)
-                  const parsed = iface.parseError(revertData)
-                  const friendlyError = mapCustomErrorToMessage(parsed?.name as any)
-                  window.$message?.error(friendlyError)
-                  return
-                } catch (parseErr) {
-                  console.warn('⛔ 无法解析 Revert 错误:', parseErr)
-                }
-              }
-
-              window.$message?.error(err?.message || '续租失败，请稍后再试')
+              // ✅ 统一错误处理（优先解析合约自定义错误）
+              handleTxError(err, {
+                abiForCustomError: CONTRACT_ABIS.RENT,
+              })
             }
           },
         })

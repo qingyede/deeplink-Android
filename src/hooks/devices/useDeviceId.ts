@@ -1,4 +1,3 @@
-// src/hooks/devices/useDeviceId.ts
 import { appStore } from '@/store/Modules/app/index'
 import { getDeviceName } from '@/utils/common/getDeviceName'
 import { useAppSocket } from '@/hooks/common/useAppSocket'
@@ -6,7 +5,7 @@ import { getOrGenerateDeviceId } from '@/utils/common/getDeviceId'
 
 export function useDeviceId() {
   const app = appStore()
-  const { connect, send, onMessage, cleanup, waitForReady } = useAppSocket()
+  const { connect, send, onMessage, offMessage, waitForReady } = useAppSocket()
 
   const registerDevice = async (): Promise<string> => {
     getOrGenerateDeviceId()
@@ -25,8 +24,34 @@ export function useDeviceId() {
 
       const device_name = getDeviceName()
 
-      // 每次注册都需监听响应
       const deviceId = await new Promise<string | null>((resolve) => {
+        const timer = setTimeout(() => {
+          offMessage(handler) // ⛔ 超时也要解绑
+          resolve(null)
+        }, 8000)
+
+        const handler = (event: MessageEvent) => {
+          try {
+            const msg = JSON.parse(event.data)
+            if (msg.method === 'registerDevice') {
+              clearTimeout(timer)
+              offMessage(handler) // ✅ 响应到达时解绑
+              if (msg.result?.device_id) {
+                app.deviceInfo = msg.result
+                resolve(msg.result.device_id)
+              } else {
+                resolve(null)
+              }
+            }
+          } catch {
+            clearTimeout(timer)
+            offMessage(handler)
+            resolve(null)
+          }
+        }
+
+        onMessage(handler)
+
         send({
           id: 1,
           method: 'registerDevice',
@@ -36,29 +61,6 @@ export function useDeviceId() {
             mac: app.deviceId,
           },
         })
-
-        const timer = setTimeout(() => {
-          resolve(null)
-        }, 8000)
-
-        const handler = (event: MessageEvent) => {
-          try {
-            const msg = JSON.parse(event.data)
-            if (msg.method === 'registerDevice') {
-              clearTimeout(timer)
-              if (msg.result?.device_id) {
-                app.deviceInfo = msg.result
-                resolve(msg.result.device_id)
-              } else {
-                resolve(null)
-              }
-            }
-          } catch {
-            resolve(null)
-          }
-        }
-
-        onMessage(handler)
       })
 
       if (deviceId) {
@@ -70,13 +72,11 @@ export function useDeviceId() {
       await sleep(1000)
     }
 
-    // 理论上不会走到这
     throw new Error('注册设备失败')
   }
 
   return {
     registerDevice,
-    cleanup,
   }
 }
 

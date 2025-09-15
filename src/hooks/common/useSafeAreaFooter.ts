@@ -27,7 +27,6 @@ export function useSafeAreaFooter() {
   const handleToH5 = (json: string) => {
     try {
       const returndata = JSON.parse(json)
-      console.log('[safe-area-bottom] 返回数据:', returndata)
 
       if (returndata.action === 3003) {
         const rawBottom =

@@ -14,10 +14,10 @@
       </n-collapse-item>
     </n-collapse>
   </div>
+
   <!-- 选择区域 -->
   <div
-    v-motion-slide-visible-left
-    class="my-6 w-full justify-between min-h-[50px] bg-[#E1EBE7] dark:bg-[#2c2c2c] rounded-[14px] px-[15px] py-[5px] flex items-center gap-3 transition-colors duration-300"
+    class="my-2 w-full justify-between min-h-[50px] bg-[#E1EBE7] dark:bg-[#2c2c2c] rounded-[14px] px-[15px] py-[5px] flex items-center gap-3 transition-colors duration-300"
   >
     <span class="text-[#333] dark:text-white text-nowrap">{{ $t('gpu.distance') }}</span>
     <n-select
@@ -25,13 +25,18 @@
       :placeholder="$t('gpu.selectDistance')"
       v-model:value="cafe.distance"
       :options="options"
-    />
+      :virtual-scroll="false"
+      :menu-props="{ style: { paddingTop: '12px' } }"
+    >
+      >
+    </n-select>
     <!-- <n-button @click="getFreeTime" type="primary" class="max-w-[100px] rounded-lg min-h-[46px] ml-4">
       <span class="text-[12px] md:text-[14px]">
         {{ currentFreeTime === 24 ? `剩余:${currentFreeTime}小时` : $t('gpu.inputInviteCode') }}
       </span>
     </n-button> -->
   </div>
+  <h1 class="my-3 whitespace-normal break-all text-xs leading-5">{{ $t('gpu.tips') }}</h1>
 
   <!-- 卡片区域 -->
   <!-- <n-card
@@ -56,7 +61,7 @@
   </n-card> -->
 
   <!-- 卡片列表部分 -->
-  <div v-motion-slide-visible-left>
+  <div>
     <!-- ✅ 骨架屏 Loading -->
 
     <div v-if="cafe.gpuTypeListLoading" class="flex flex-col gap-6">
@@ -111,7 +116,6 @@ const cafe = useCloudCafeStore()
 const router = useRouter()
 const route = useRoute()
 
-const selectValue = ref(500)
 const options = ref([
   {
     label: 'All',

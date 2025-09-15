@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme-overrides="APP.lightThemeOverrides">
+  <n-config-provider :theme="app.theme === 'light' ? lightTheme : darkTheme" :theme-overrides="APP.lightThemeOverrides">
     <AppProvider>
       <Layout />
     </AppProvider>
@@ -10,7 +10,7 @@
 import { watch, onMounted, watchEffect } from 'vue'
 import { storeToRefs } from 'pinia'
 import Layout from '@/pages/layout/index.vue'
-import { NConfigProvider } from 'naive-ui'
+import { NConfigProvider, darkTheme, lightTheme } from 'naive-ui'
 import { APP } from '@/constant/APP'
 import { appStore } from '@/store/Modules/app/index'
 import { useI18n } from 'vue-i18n'

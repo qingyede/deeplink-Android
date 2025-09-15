@@ -6,12 +6,7 @@
     </n-button>
 
     <!-- 可用设备 -->
-    <n-card
-      v-motion-slide-visible-left
-      :title="titleH1"
-      class="rounded-lg mb-8 dark:bg-[#1e1e1e] transition-colors duration-300"
-      content-class="!px-4"
-    >
+    <n-card :title="titleH1" class="rounded-lg mb-8 dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
       <!-- 加载中骨架屏 -->
       <div class="flex flex-col gap-2" v-if="loading1">
         <n-skeleton class="rounded-lg" size="large" />
@@ -58,12 +53,7 @@
     </n-card>
 
     <!-- 我的设备 -->
-    <n-card
-      v-motion-slide-visible-left
-      :title="titleH2"
-      class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300"
-      content-class="!px-4"
-    >
+    <n-card :title="titleH2" class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
       <div v-if="deviceListStore.loading" class="flex flex-col gap-3">
         <n-skeleton class="rounded-lg" size="large" />
         <n-skeleton class="rounded-lg" size="large" />
@@ -89,8 +79,6 @@
                 <span class="text-sm text-left md:text-base font-bold text-black dark:text-white text-wrap">
                   {{ item.name }}
                 </span>
-
-                <!-- <CountdownTimer :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" /> -->
               </div>
             </div>
           </div>
@@ -105,17 +93,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, h, onMounted, onActivated } from 'vue'
+import { ref, h, onMounted, onUnmounted } from 'vue'
 import { NButton, NGradientText } from 'naive-ui'
 import { Icon } from '@iconify/vue'
 import { useAppSocket } from '@/hooks/common/useAppSocket'
 import { appStore } from '@/store/Modules/app'
-import { iconMap } from '@/constant/APP'
-import { getDeviceName } from '@/utils/common/getDeviceName'
 import deviceInfoDIalog from './dialogs/deviceInfoDIalog.vue'
 import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
 import { useDeviceListStore } from '@/store/Modules/deviceList/index'
-import CountdownTimer from '@/components/common/CountdownTimer.vue'
 import MyDeviceInfo from './dialogs/myDeviceInfo.vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
@@ -123,16 +108,16 @@ import { useGetEvmSignature } from '@/hooks/wallet/useGetEvmSignature'
 import { useCloudComputersStore } from '@/store/Modules/gpu/cloud-computers'
 import { useBuyNftStore } from '@/store/Modules/buyNft/index'
 import { objectToBase64 } from '@/utils/common/objToBase64'
-import { getOrGenerateDeviceId } from '@/utils/common/getDeviceId'
 import { useI18n } from 'vue-i18n'
-const { t } = useI18n()
+import { parseNotes, parseName } from '@/utils/common/parseNotes'
 
+const { t } = useI18n()
 const cloudComputersStore = useCloudComputersStore()
 const { getEvmSignature } = useGetEvmSignature(t)
 const buyNft = useBuyNftStore()
 const { connectToRemoteDevice, connectToAndroidRemoteDevice } = useRemoteStream()
 const app = appStore()
-const { connect, send, onMessage, waitForReady, onOpen } = useAppSocket()
+const { connect, send, onMessage, waitForReady, onOpen, offMessage } = useAppSocket()
 const deviceListStore = useDeviceListStore()
 
 function useMergedClickHandler<T extends any[]>(
@@ -253,14 +238,24 @@ const showInfo = (item: any, n: number) => {
           { default: () => t('devices.info') }
         )
       },
-      content: () => h(deviceInfoDIalog, { item }),
+      content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
       class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
 
-      // positiveText: '立即连接',
+      positiveText: '立即连接',
       negativeText: t('devices.unbind'),
       positiveButtonProps: { color: '#03C188', size: 'medium' },
       negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },
-      onPositiveClick: () => {},
+      onPositiveClick: async () => {
+        if (d) {
+          try {
+            d.loading = true
+            await rentDevice(item, 0)
+          } catch (error) {
+          } finally {
+            d.loading = false
+          }
+        }
+      },
       onNegativeClick: async () => {
         console.log(item, '8888888888')
         await send({
@@ -269,9 +264,7 @@ const showInfo = (item: any, n: number) => {
           token: app.token,
           params: { device_id: item.deviceCode },
         })
-        // 刷新页面
-        window.location.reload()
-        window.$message?.success(t('app.unbindSuccess'))
+
         return false
       },
       showIcon: false,
@@ -286,6 +279,10 @@ const rentDevice = async (item: any, n: number) => {
   if (n === 0) {
     console.log(item, 'PPPPPPP')
     // 租用设备
+
+    // 先获取nft
+    await buyNft.getMyNftListH()
+    console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
 
     const rs: any = await getEvmSignature()
     console.log(rs, '签名签名签名签名')
@@ -303,7 +300,7 @@ const rentDevice = async (item: any, n: number) => {
             wallet_type: 'evm',
             // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
             wallet_role: 1,
-            nft_enabled: true,
+            nft_enabled: buyNft.hasNft,
             // // 传到被控端创建虚拟显示器
             display: {
               width: 1920,
@@ -319,7 +316,7 @@ const rentDevice = async (item: any, n: number) => {
       return false
     }
   } else {
-    // 租用我的设备
+    // 远程租用的设备
     if (item.status === 'Online') {
       item.status = 'Offline'
     } else {
@@ -366,27 +363,7 @@ const rentDevice = async (item: any, n: number) => {
 onMounted(async () => {
   connect()
 
-  // ✅ 注册 onMessage 在 waitForReady 之前
-  onMessage((event) => {
-    try {
-      const message = JSON.parse(event.data)
-      if (message.method === 'getDeviceList') {
-        deviceList.value = message.result.device_list.map((item: any) => ({
-          name: item.device_name,
-          icon: getDeviceIcon(item.os_release),
-          status: item.online ? t('devices.Online') : t('devices.Offline'),
-          loading: false,
-          statusValue: item.online ? 'Online' : 'Offline',
-          deviceCode: item.device_id,
-          os: item.os_release,
-          ...item,
-        }))
-        loading1.value = false
-      }
-    } catch (err) {
-      console.error('[WS] ❌ 消息解析失败:', err)
-    }
-  })
+  onMessage(handleDeviceListMessage)
 
   try {
     await waitForReady()
@@ -397,10 +374,50 @@ onMounted(async () => {
 
   onOpen(() => {
     console.log('[onOpen] 触发 fetchDeviceList')
-    fetchDeviceList()
+    // ✅ 放到下一个事件循环执行，确保 handler 注册完毕
+    setTimeout(() => {
+      fetchDeviceList()
+    }, 0)
   })
 
-  fetchDeviceList() // 页面初次进入也拉一遍
+  // ✅ 页面初次进入也拉一遍，延迟执行
+  setTimeout(() => {
+    fetchDeviceList()
+  }, 0)
+})
+// ✅ 具名函数：处理设备列表消息
+const handleDeviceListMessage = (event: MessageEvent) => {
+  try {
+    const message = JSON.parse(event.data)
+    console.log(message.method, 'message.method')
+    if (message.method === 'getDeviceList' && message.result.device_list) {
+      console.log('✅ 具名函数：处理设备列表消息')
+      deviceList.value = message.result.device_list.map((item: any) => ({
+        name: parseName(item.device_name),
+        icon: getDeviceIcon(item.os_release),
+        status: item.online ? t('devices.Online') : t('devices.Offline'),
+        loading: false,
+        statusValue: item.online ? 'Online' : 'Offline',
+        deviceCode: item.device_id,
+        os: item.os_release,
+        ...item,
+      }))
+    } else if (message.method === 'unbindDevice') {
+      console.log(message, 'FFF')
+      // 刷新页面
+      window.location.reload()
+      window.$message?.success(t('app.unbindSuccess'))
+    }
+  } catch (err) {
+    console.error('[WS] ❌ 消息解析失败:', err)
+  } finally {
+    loading1.value = false
+  }
+}
+
+// ✅ 页面卸载时移除监听器，防止重复触发
+onUnmounted(() => {
+  offMessage(handleDeviceListMessage)
 })
 
 // 发送请求：获取设备列表
@@ -449,14 +466,6 @@ const showMyDeviceInfo = (item) => {
         d.loading = false
         d.positiveText = t('devices.connectDevice')
         if (rs) {
-          // console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
-          // try {
-          //   connectToRemoteDevice({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` })
-          //   d.destroy?.()
-          // } catch (error) {
-          //   return false
-          // }
-
           console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
           try {
             connectToRemoteDevice({

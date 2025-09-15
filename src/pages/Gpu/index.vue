@@ -1,8 +1,8 @@
 <template>
   <div class="px-[16px] rounded-lg">
-    <div class="flex items-center justify-between gap-6 sticky top-0 left-0 z-[99999] bg-white dark:bg-[#1e1e1e]">
-      <!-- :ghost="activeIndex !== index" -->
-      <!-- class="flex-1 rounded-lg min-h-[40px]" -->
+    <!-- <div class="flex items-center justify-between gap-6 sticky top-0 left-0 z-[99999] bg-white dark:bg-[#1e1e1e]">
+      :ghost="activeIndex !== index"
+      class="flex-1 rounded-lg min-h-[40px]"
 
       <n-button
         v-for="(item, index) in btnData"
@@ -12,7 +12,7 @@
         class="w-full rounded-lg min-h-[48px]"
         >{{ item.title }}</n-button
       >
-    </div>
+    </div> -->
     <!-- 强制刷新路由组件 -->
     <RouterView :key="cloudComputersStore.RouterViewKey" />
   </div>
@@ -64,7 +64,6 @@ const activeIndex = computed(() => {
 
 <style lang="scss" scoped>
 :deep(.n-base-selection .n-base-selection-label) {
-  background: #d6e6db !important;
   width: 130px;
   height: 40px;
   border-radius: 10px;

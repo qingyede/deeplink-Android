@@ -56,7 +56,8 @@
     "invalidParams": "Invalid address or amount.",
     "transferContractError": "Transfer failed: contract error.",
     "transferFailed": "Transfer failed",
-    "nftTransferSuccess": "NFT transfer successful"
+    "nftTransferSuccess": "NFT transfer successful",
+    "notActivated": "NFT is not activated yet. Please purchase and activate the NFT first."
   },
   "home": {
     "buyDBC": "Buy DBC",
@@ -77,7 +78,7 @@
     "activated": "Activated",
     "transfer": "Transfer",
     "activate": "Activate",
-    "buyNft": "Buy NFT",
+    "buyNft": "NFT Store",
     "viewNftFeatures": "View NFT Features",
     "notActivated": "Not Activated",
     "noNftData": "No NFT Data",
@@ -203,7 +204,8 @@
     "deviceUnavailable": "Device Not Available",
     "insufficientBalance": "Insufficient Balance",
     "rentalDetails": "Rental Details",
-    "noGpuMachinesHere": "No GPU machines available in this area"
+    "noGpuMachinesHere": "No GPU machines available in this area",
+    "tips": "The machine is more than 500 km away, which will significantly increase game latency. Please choose carefully."
   },
   "devices": {
     "devices": "Devices",
@@ -259,7 +261,8 @@
     "passwordAlphaNumeric": "Password must contain both letters and numbers",
     "connectAndActivateFlow": "Remote phone-to-PC connection requires purchasing and activating an NFT in the store.",
     "community": "Join the community",
-    "Connect": "Connect"
+    "Connect": "Connect",
+    "dlcBalanceNotEnough": "Your wallet DLC balance is insufficient!"
   },
   "IsWallet": {
     "walletUserManual": "Wallet - User Manual",
@@ -399,5 +402,15 @@
     "date": "Date",
     "amount": "Amount",
     "nft": "NFT(s)"
+  },
+  "errors": {
+    "alreadyKnown": "Transaction already submitted. Please check confirmation later.",
+    "insufficientDbc": "Not enough gas (DBC). Please top up and try again.",
+    "nonceTooLow": "Nonce too low. Please retry later or clear pending transactions.",
+    "feeTooLow": "Fee too low. Consider increasing it and retry.",
+    "gasUnderpriced": "Gas price too low. Consider increasing it and retry.",
+    "executionReverted": "Execution reverted by the contract.",
+    "timeout": "Timed out waiting for on-chain confirmation. Check the record later.",
+    "genericTxFailed": "Transaction failed. Please try again later."
   }
 }

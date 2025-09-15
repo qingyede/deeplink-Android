@@ -38,6 +38,30 @@ export const getErc20Contract = (tokenAddress: string, providerOrSigner: ethers.
     'function decimals() view returns (uint8)',
     'function balanceOf(address) view returns (uint256)',
     'function transfer(address,uint256) returns (bool)',
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'caller',
+          type: 'address',
+        },
+      ],
+      name: 'getAvailableAmount',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256',
+        },
+      ],
+      stateMutability: 'view',
+      type: 'function',
+    },
   ]
   return new ethers.Contract(tokenAddress, ERC20_ABI, providerOrSigner)
 }
@@ -153,51 +177,27 @@ export const getAvailableDbcBalance = async (wallet: string) => {
   return parseFloat(ethers.formatEther(raw)) - 2 // ✅ 可转余额，减 2 保留 gas
 }
 /**
- * 获取 DLC 可用余额（ERC20 合约）
+ * 获取 DLC 可用余额（优先走合约 getAvailableAmount）
+ * 返回 string，避免大数精度丢失；需要数字时再在 UI 里转 Number。
  */
 export const getAvailableDlcBalance = async (wallet: string) => {
-  const contract = getErc20Contract(DLC_TOKEN_ADDRESS, getDbcProvider())
-  const decimals = await contract.decimals()
-  const raw = await contract.balanceOf(wallet)
-  return parseFloat(ethers.formatUnits(raw, decimals)) - 2 // ✅ 保守预留
+  const provider = getDbcProvider()
+  const contract = getErc20Contract(DLC_TOKEN_ADDRESS, provider)
+
+  const decimals: number = await contract.decimals()
+
+  // 优先使用合约可用余额接口
+  try {
+    // 期望返回 [total, available]（BigNumber/bigint）
+    const [totalBn, availableBn] = await contract.getAvailableAmount(wallet)
+    const availableStr = ethers.formatUnits(availableBn, decimals)
+    return Number(availableStr) - 2 // ← 字符串，UI 再格式化
+  } catch (e) {
+    // 没有该方法时兜底为 balanceOf（注意：这可能是“总额”，不扣锁仓）
+    const raw = await contract.balanceOf(wallet)
+    return ethers.formatUnits(raw, decimals)
+  }
 }
-
-// import { ApiPromise, WsProvider } from '@polkadot/api'
-
-// let api: ApiPromise | null = null
-
-// const GetApi = async () => {
-//   if (!api) {
-//     const provider = new WsProvider('wss://info1.dbcwallet.io') // ✅ 正式链地址
-//     api = await ApiPromise.create({ provider })
-//   }
-//   return api
-// }
-
-// /**
-//  * 获取可转账 DBC 余额（free - feeFrozen）
-//  */
-// export const getAvailableDbcBalance = async (wallet: string): Promise<number> => {
-//   const api = await GetApi()
-//   const account = await api.query.system.account(wallet)
-//   const data = account.toJSON() as any
-
-//   const free = Number(data.data.free)
-//   const feeFrozen = Number(data.data.feeFrozen)
-
-//   const transferable = (free - feeFrozen) / Math.pow(10, 18)
-//   return Math.max(transferable, 0)
-// }
-
-// /**
-//  * 获取 DLC 可用余额（ERC20 合约）
-//  */
-// export const getAvailableDlcBalance = async (wallet: string): Promise<number> => {
-//   const provider = getDbcProvider()
-//   const contract = getErc20Contract(DLC_TOKEN_ADDRESS, provider)
-//   const [rawBalance, decimals] = await Promise.all([contract.balanceOf(wallet), contract.decimals()])
-//   return parseFloat(ethers.formatUnits(rawBalance, decimals))
-// }
 
 // 生成签名
 export const CreateSignatureEVM = async (nonce, privateKey) => {

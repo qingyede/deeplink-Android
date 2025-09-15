@@ -102,6 +102,8 @@ import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { appStore } from '@/store/Modules/app'
 import { useHomeStore } from '@/store/Modules/home/index'
 import { useRouter, useRoute } from 'vue-router'
+import { useGetDbcAndDlcNumber } from '@/hooks/wallet/useGetDbcAndDlcNumber'
+const { dbcNumber, dlcNumber, homeCardLoading } = useGetDbcAndDlcNumber()
 
 const { openExternalLink } = useOpenExternalLink()
 const buyNft = useBuyNftStore()
@@ -160,23 +162,28 @@ const actionButtons = computed(() => [
         negativeText: t('app.cancel'),
         onPositiveClick: async () => {
           if (d) {
-            console.log(convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value))
-            const rs: any = await buyNft.purchaseNFTFlow({
-              dlcAmount: NftsDialogRef.value?.number,
-              saveData: {
-                price: convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value),
-                purchaser: app.address,
-                version_type: 0,
-                expire_type: NftsDialogRef.value?.endTime,
-                collection: 0,
-                purchase_path: 'Android',
-                mintNFT: false,
-              },
-            })
+            console.log('888888888888888', NftsDialogRef.value?.number, dlcNumber.value)
+            // 先判断钱包余额够不够
+            if (Number(NftsDialogRef.value?.number) <= Number(dlcNumber.value)) {
+              const rs: any = await buyNft.purchaseNFTFlow({
+                dlcAmount: NftsDialogRef.value?.number,
+                saveData: {
+                  price: convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value),
+                  purchaser: app.address,
+                  version_type: 0,
+                  expire_type: NftsDialogRef.value?.endTime,
+                  collection: 0,
+                  purchase_path: 'Android',
+                  mintNFT: false,
+                },
+              })
 
-            if (rs) {
-              router.push({ name: 'home' })
-              home.activeTab = 'NFTs'
+              if (rs) {
+                router.push({ name: 'home' })
+                home.activeTab = 'NFTs'
+              }
+            } else {
+              window.$message?.warning(t('remote.dlcBalanceNotEnough'))
             }
           }
         },
