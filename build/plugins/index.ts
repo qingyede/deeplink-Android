@@ -5,8 +5,6 @@ import progress from 'vite-plugin-progress'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'
 import VueDevtools from 'vite-plugin-vue-devtools'
 import path from 'path'
-// @ts-ignore
-import legacy from '@vitejs/plugin-legacy'
 
 // 插件
 export function createVitePlugins(): PluginOption[] {

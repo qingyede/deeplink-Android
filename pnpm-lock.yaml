@@ -59,6 +59,9 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      core-js:
+        specifier: ^3.45.1
+        version: 3.45.1
       cz-conventional-changelog-zh:
         specifier: ^0.0.2
         version: 0.0.2(@types/node@22.7.5)(typescript@5.5.4)
@@ -1967,8 +1970,8 @@ packages:
   core-js-compat@3.44.0:
     resolution: {integrity: sha512-JepmAj2zfl6ogy34qfWtcE7nHKAJnKsQFRn++scjVS2bZFllwptzw61BZcZFYBPpUznLfAvh0LGhxKppk04ClA==}
 
-  core-js@3.43.0:
-    resolution: {integrity: sha512-N6wEbTTZSYOY2rYAn85CuvWWkCK6QweMn7/4Nr3w+gDBeBhk/x4EJeY6FPo4QzDoJZxVTv8U7CMvgWk6pOHHqA==}
+  core-js@3.45.1:
+    resolution: {integrity: sha512-L4NPsJlCfZsPeXukyzHFlg/i7IIVwHSItR0wg0FLNqYClJ4MQYTYLbC7EkjKYRLZF2iof2MUgN0EGy7MdQFChg==}
 
   cors@2.8.5:
     resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
@@ -5997,7 +6000,7 @@ snapshots:
       '@babel/preset-env': 7.28.0(@babel/core@7.28.0)
       browserslist: 4.25.1
       browserslist-to-esbuild: 2.1.1(browserslist@4.25.1)
-      core-js: 3.43.0
+      core-js: 3.45.1
       magic-string: 0.30.17
       regenerator-runtime: 0.14.1
       systemjs: 6.15.1
@@ -6618,7 +6621,7 @@ snapshots:
     dependencies:
       browserslist: 4.25.1
 
-  core-js@3.43.0: {}
+  core-js@3.45.1: {}
 
   cors@2.8.5:
     dependencies:
@@ -9064,7 +9067,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.27.6
       copy-text-to-clipboard: 3.2.0
-      core-js: 3.43.0
+      core-js: 3.45.1
       mutation-observer: 1.0.3
 
   vdirs@0.1.8(vue@3.4.38(typescript@5.5.4)):

@@ -3,16 +3,12 @@ import { createApp } from 'vue'
 import router from '@/router/index'
 import pinia from '@/store/index'
 import './plugins/assets'
-import { Icon, addCollection } from '@iconify/vue'
+import { Icon } from '@iconify/vue'
 import { initI18n } from '@/plugins/lang'
 import { MotionPlugin } from '@vueuse/motion'
 import App from './App.vue'
 import i18n from '@/plugins/lang'
 
-// import('vconsole').then((VConsoleModule) => {
-//   const vConsole = new VConsoleModule.default()
-//   console.log('[VConsole] ready')
-// })
 function setupApp() {
   const app = createApp(App)
   initI18n()

@@ -22,9 +22,7 @@ export const appStore = defineStore('app', {
     // 真实设备信息
     deviceInfo: null as any,
     // 用户填写的记录（设备识别）-id
-    Inputoptions: [] as { label: any; value: any }[],
-    // 记录-密码
-    InputPassword: [] as { label: any; value: any }[],
+    Inputoptions: [] as { label: string; value: string; password: string }[],
     // 使用自动虚拟摇杆
     useAutoVirtualJoystick: true,
     // 使用虚拟摇杆时禁用鼠标

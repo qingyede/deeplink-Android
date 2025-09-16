@@ -16,20 +16,18 @@
               style="border-radius: 8px"
               class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
               :input-props="{ inputmode: 'numeric', pattern: '[0-9]*' }"
+              @select="handleIdSelect"
+              clearable
             />
           </n-form-item-gi>
 
           <n-form-item-gi :span="24" :label="$t('remote.partnerDeviceCode')" path="password">
-            <n-auto-complete
-              :options="app.InputPassword"
-              blur-after-select
+            <n-input
+              type="password"
               show-password-on="click"
+              class="min-h-[44px] rounded-lg text-[#737373] dark:text-white/80"
               v-model:value="model.password"
               :placeholder="$t('remote.partnerDeviceCodePlaceholder')"
-              :get-show="() => true"
-              style="border-radius: 8px"
-              class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
-              :input-props="{ inputmode: 'numeric', pattern: '[0-9]*' }"
             />
           </n-form-item-gi>
 
@@ -199,7 +197,12 @@ const socialIcons = computed(() => {
     ]
   }
 })
-
+const handleIdSelect = (value: string) => {
+  const selected = app.Inputoptions.find((item) => item.value === value)
+  if (selected) {
+    model.password = selected.password // ✅ 自动填充密码
+  }
+}
 // 表单提交
 const handleValidateButtonClick = async (e: MouseEvent) => {
   e.preventDefault()
@@ -207,39 +210,67 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
 
   try {
     await formRef.value?.validate()
-
-    // 先获取 NFT（保留你原逻辑）
+    // 先获取nft
     await buyNft.getMyNftListH()
+    // connectToRemoteDevice({ id: model.id, password: model.password })
     console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
 
-    // 规范化输入：去掉首尾空格（避免保存“看起来一样但有空格”的记录）
-    const id = String(model.id ?? '').trim()
-    const pwd = String(model.password ?? '').trim()
+    // if (buyNft.hasNft) {
+    //   // 有nft
 
-    // 发起连接（不等待结果）
+    //   connectToRemoteDevice({
+    //     id: model.id,
+    //     password: objectToBase64({
+    //       password: model.password,
+    //       nft_enabled: true,
+    //     }),
+    //   })
+
+    //   // 添加历史记录逻辑（最多6条，去重，最新在前）
+    //   const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
+    //   if (existsIndex !== -1) {
+    //     // 如果已存在，则移除旧位置
+    //     app.Inputoptions.splice(existsIndex, 1)
+    //   }
+
+    //   // 在最前面插入新记录
+    //   app.Inputoptions.unshift({
+    //     label: model.id,
+    //     value: model.id,
+    //   })
+
+    //   // 保留最多6条记录
+    //   if (app.Inputoptions.length > 6) {
+    //     app.Inputoptions.pop()
+    //   }
+    // } else {
+    //   // 没有nft
+    //   window.$message?.error(t('app.notActivated'))
+    // }
+
+    // 有nft
+
     connectToRemoteDevice({
-      id,
+      id: model.id,
       password: objectToBase64({
-        password: pwd,
+        password: model.password,
         nft_enabled: buyNft.hasNft,
       }),
     })
 
-    // ===== 保存历史（不依赖连接成功）=====
-    // 1) 设备 ID：去重后插到最前，最多 6 条，忽略空值
-    if (id) {
-      const existsIndex = app.Inputoptions.findIndex((item) => item?.value === id)
-      if (existsIndex !== -1) app.Inputoptions.splice(existsIndex, 1)
-      app.Inputoptions.unshift({ label: id, value: id })
-      if (app.Inputoptions.length > 6) app.Inputoptions.pop()
+    const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
+    if (existsIndex !== -1) {
+      app.Inputoptions.splice(existsIndex, 1) // 去重
     }
 
-    // 2) 验证码：规则同上，忽略空值
-    if (pwd) {
-      const pwdIndex = (app.InputPassword as any[]).findIndex((item: any) => item?.value === pwd)
-      if (pwdIndex !== -1) app.InputPassword.splice(pwdIndex, 1)
-      app.InputPassword.unshift({ label: pwd, value: pwd })
-      if (app.InputPassword.length > 6) app.InputPassword.pop()
+    app.Inputoptions.unshift({
+      label: model.id,
+      value: model.id,
+      password: model.password, // ✅ 一并保存
+    })
+
+    if (app.Inputoptions.length > 6) {
+      app.Inputoptions.pop() // 最多保留 6 条
     }
   } catch (errors) {
     window.$message?.error(t('app.formInvalid'))
