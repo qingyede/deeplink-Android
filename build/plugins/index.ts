@@ -23,11 +23,11 @@ export function createVitePlugins(): PluginOption[] {
 
 export function createViteBuild(): BuildOptions | undefined {
   return {
-    target: 'es2015', // 👈 兼容大部分 Android WebView
-    outDir: 'dist',
+    target: 'es2015',
+    outDir: 'dist-http',
     assetsDir: 'assets',
     rollupOptions: {
-      input: 'h5.html',
+      input: 'index.html', // 👈 用 index.html
     },
   }
 }
@@ -37,7 +37,7 @@ export function createViteServer(): ServerOptions | undefined {
   return {
     host: '0.0.0.0',
     port: 5173,
-    open: '/h5.html',
+    open: '/index.html', // 开发/预览走 http 的入口
     fs: {
       cachedChecks: false,
     },

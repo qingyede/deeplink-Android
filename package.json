@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode prod",
     "preview": "vite preview",
-    "build:file": "vite build -c vite.file.config.ts",
-    "build:all": "pnpm run build && pnpm run build:file"
+    "build:http": "vite build --mode prod",
+    "build:file": "vite build -c vite.file.config.ts && node scripts/copy-h5.cjs",
+    "build:all": "pnpm run build:http && pnpm run build:file"
   },
   "dependencies": {
     "@iconify-json/bxs": "^1.2.2",

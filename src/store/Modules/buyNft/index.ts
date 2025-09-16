@@ -9,6 +9,7 @@ import { NFTTRANSFER_ADDRESS } from '@/utils/common/contracts'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS } from '@/utils/common/contracts'
 import { appStore } from '@/store/Modules/app/index'
+import nfts from '@/assets/img/nfts.png'
 
 export const useBuyNftStore = defineStore('buyNft', () => {
   const price = priceStore()
@@ -174,14 +175,14 @@ export const useBuyNftStore = defineStore('buyNft', () => {
         const id = Number(tokenId)
 
         // 1. 获取元数据
-        let metadata = {}
-        try {
-          const tokenUri = await NFTContract.tokenURI(id)
-          const res = await fetch(tokenUri)
-          metadata = await res.json()
-        } catch (e) {
-          console.warn(`⚠️ TokenId ${id} 元数据加载失败`)
-        }
+        // let metadata = {}
+        // try {
+        //   const tokenUri = await NFTContract.tokenURI(id)
+        //   const res = await fetch(tokenUri)
+        //   // metadata = await res.json()
+        // } catch (e) {
+        //   console.warn(`⚠️ TokenId ${id} 元数据加载失败`)
+        // }
 
         // 2. 获取链上状态信息
         const [versionType, expireType, expireTime] = await NFTContract.tokenId2NFTInfo(id)
@@ -198,9 +199,9 @@ export const useBuyNftStore = defineStore('buyNft', () => {
         // 3. 合并并推入数组
         nftList.push({
           tokenId: id,
-          name: metadata['name'] || `NFT #${id}`,
-          image: metadata['image'] || '',
-          description: metadata['description'] || '',
+          // name: metadata['name'] || `NFT #${id}`,
+          image: nfts,
+          // description: metadata['description'] || '',
           version_type: Number(versionType),
           expire_type: Number(expireType),
           expire_time: expireTimestamp,

@@ -2,7 +2,6 @@
   <div class="px-[16px]">
     <!-- 导入钱包 -->
     <h1 class="text-black dark:text-white text-[24px] font-bold mb-2">{{ $t('remote.controlRemoteDevice') }}</h1>
-
     <div class="w-full">
       <n-form ref="formRef" :model="model" :rules="rules" label-placement="top">
         <n-grid :cols="24">
@@ -12,19 +11,18 @@
               :options="app.Inputoptions"
               blur-after-select
               :placeholder="$t('remote.enterDeviceId')"
-              :get-show="() => true"
+              :get-show="getShow"
               style="border-radius: 8px"
               class="min-h-[44px] rounded-lg !text-[#737373] dark:text-white/80"
               :input-props="{ inputmode: 'numeric', pattern: '[0-9]*' }"
               @select="handleIdSelect"
               clearable
+              :render-option="renderOption"
             />
           </n-form-item-gi>
 
           <n-form-item-gi :span="24" :label="$t('remote.partnerDeviceCode')" path="password">
             <n-input
-              type="password"
-              show-password-on="click"
               class="min-h-[44px] rounded-lg text-[#737373] dark:text-white/80"
               v-model:value="model.password"
               :placeholder="$t('remote.partnerDeviceCodePlaceholder')"
@@ -57,13 +55,6 @@
         <n-button type="primary" @click="router.push({ name: 'Store' })" class="flex-[1] rounded-lg min-h-[48px] text-lg">
           {{ $t('home.buyNft') }}
         </n-button>
-
-        <!-- <n-button
-          @click="router.push({ name: 'playWithUs' })"
-          class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 dark:bg-[#03C188]/20 text-black dark:text-white text-[20px]"
-        >
-          {{ $t('home.playWithUs') }}
-        </n-button> -->
       </div>
     </div>
 
@@ -90,7 +81,7 @@
 <script lang="ts" setup>
 import { ref, reactive, computed } from 'vue'
 import type { FormInst, FormRules } from 'naive-ui'
-import { NButton, NGradientText } from 'naive-ui'
+import { NButton, NGradientText, NTag } from 'naive-ui'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { appStore } from '@/store/Modules/app'
@@ -101,13 +92,17 @@ const { t, locale } = useI18n()
 const { connectToRemoteDevice } = useRemoteStream()
 import { objectToBase64 } from '@/utils/common/objToBase64'
 import { useBuyNftStore } from '@/store/Modules/buyNft/index'
+import type { SelectOption } from 'naive-ui'
+import type { VNodeChild } from 'vue'
 
 const buyNft = useBuyNftStore()
 const app = appStore()
 const router = useRouter()
 const formRef = ref<FormInst | null>(null)
 const isSubmitting = ref(false)
-
+// 是否显示showPanel
+const showPanel = ref(true)
+const getShow = () => showPanel.value
 // 表单数据模型
 const model = reactive({
   id: '', // 设备ID
@@ -203,6 +198,40 @@ const handleIdSelect = (value: string) => {
     model.password = selected.password // ✅ 自动填充密码
   }
 }
+
+// 自定义下拉项渲染：保留默认高亮 node，再追加图标等
+const renderOption = ({
+  node,
+  option,
+}: {
+  node: VNodeChild
+  option: SelectOption & { icon?: string; password?: string }
+}) => {
+  const onDelete = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    // 如果删除的是当前输入框显示的值，直接清空（或恢复到你想要的 prev 文本）
+    if (model.id === option.value) {
+      model.id = ''
+      model.password = ''
+    }
+
+    // 直接更新 options，不再关/开面板
+    app.Inputoptions = app.Inputoptions.filter((i: any) => i.value !== option.value)
+  }
+
+  return h('div', { class: 'w-full flex items-center justify-between gap-2 pr-1' }, [
+    h('div', { class: 'flex-1 truncate' }, [node]),
+    h(Icon, {
+      icon: 'mingcute:close-circle-line',
+      class: 'text-primary text-[20px] cursor-pointer',
+      onMousedown: (e: MouseEvent) => e.preventDefault(),
+      onClick: onDelete,
+    }),
+  ])
+}
+
 // 表单提交
 const handleValidateButtonClick = async (e: MouseEvent) => {
   e.preventDefault()
@@ -214,41 +243,6 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
     await buyNft.getMyNftListH()
     // connectToRemoteDevice({ id: model.id, password: model.password })
     console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
-
-    // if (buyNft.hasNft) {
-    //   // 有nft
-
-    //   connectToRemoteDevice({
-    //     id: model.id,
-    //     password: objectToBase64({
-    //       password: model.password,
-    //       nft_enabled: true,
-    //     }),
-    //   })
-
-    //   // 添加历史记录逻辑（最多6条，去重，最新在前）
-    //   const existsIndex = app.Inputoptions.findIndex((item) => item.value === model.id)
-    //   if (existsIndex !== -1) {
-    //     // 如果已存在，则移除旧位置
-    //     app.Inputoptions.splice(existsIndex, 1)
-    //   }
-
-    //   // 在最前面插入新记录
-    //   app.Inputoptions.unshift({
-    //     label: model.id,
-    //     value: model.id,
-    //   })
-
-    //   // 保留最多6条记录
-    //   if (app.Inputoptions.length > 6) {
-    //     app.Inputoptions.pop()
-    //   }
-    // } else {
-    //   // 没有nft
-    //   window.$message?.error(t('app.notActivated'))
-    // }
-
-    // 有nft
 
     connectToRemoteDevice({
       id: model.id,

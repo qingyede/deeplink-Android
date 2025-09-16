@@ -9,6 +9,11 @@ import { MotionPlugin } from '@vueuse/motion'
 import App from './App.vue'
 import i18n from '@/plugins/lang'
 
+// import('vconsole').then((VConsoleModule) => {
+//   const vConsole = new VConsoleModule.default()
+//   console.log('[VConsole] ready')
+// })
+
 function setupApp() {
   const app = createApp(App)
   initI18n()
