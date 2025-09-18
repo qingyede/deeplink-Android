@@ -34,28 +34,35 @@ const { t } = useI18n()
 const router = useRouter()
 const route = useRoute()
 // 创建钱包注意事项数据
+// const tipsData = [
+//   {
+//     number: '01',
+//     text: t('IsWallet.walletNftAccessTip'),
+//   },
+//   {
+//     number: '02',
+//     text: t('IsWallet.walletBuyTokensTip'),
+//   },
+//   {
+//     number: '03',
+//     text: t('IsWallet.walletPurchaseServicesTip'),
+//   },
+//   // {
+//   //   number: '04',
+//   //   text: t('IsWallet.walletClaimRewardsTip'),
+//   // },
+//   // {
+//   //   number: '05',
+//   //   text: t('IsWallet.walletShareGpuTip'),
+//   //   link: 'https://orion.deeplink.cloud/shortterm',
+//   // },
+// ]
+
 const tipsData = [
   {
     number: '01',
-    text: t('IsWallet.walletNftAccessTip'),
+    text: 'After logging into the wallet, you can manage and connect devices under the same wallet.',
   },
-  {
-    number: '02',
-    text: t('IsWallet.walletBuyTokensTip'),
-  },
-  {
-    number: '03',
-    text: t('IsWallet.walletPurchaseServicesTip'),
-  },
-  // {
-  //   number: '04',
-  //   text: t('IsWallet.walletClaimRewardsTip'),
-  // },
-  // {
-  //   number: '05',
-  //   text: t('IsWallet.walletShareGpuTip'),
-  //   link: 'https://orion.deeplink.cloud/shortterm',
-  // },
 ]
 </script>
 
