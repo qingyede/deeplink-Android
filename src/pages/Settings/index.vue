@@ -49,7 +49,7 @@ sendCurrentConfig()
   <div class="px-4 pb-6 w-full mx-auto">
     <div class="space-y-5">
       <!-- ✅ 切换模式 -->
-      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
+      <!-- <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:medal-outline" class="text-[20px] text-primary-600" />
@@ -65,7 +65,7 @@ sendCurrentConfig()
             @update:value="toggleMode"
           />
         </div>
-      </n-card>
+      </n-card> -->
       <!-- 主题设置 -->
       <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">

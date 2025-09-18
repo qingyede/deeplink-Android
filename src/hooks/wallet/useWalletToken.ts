@@ -89,69 +89,69 @@ export const useWalletToken = () => {
 
   // 卡片操作按钮
   const cardAction = ref([
-    {
-      t: 'home.transfer',
-      icon: 'mdi:wallet',
-      h: () => {
-        const transferDialogDlcAndDbcDialogRef: any = ref(null)
-        const d = window.$dialog?.info({
-          title: () => {
-            return h(
-              NGradientText,
-              {
-                size: 24,
-                type: 'success',
-                class: 'font-bold',
-              },
-              { default: () => t('home.transfer') }
-            )
-          },
-          content: () => h(transferDialogDlcAndDbc, { ref: transferDialogDlcAndDbcDialogRef }),
-          class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-          showIcon: false,
-          negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-          positiveButtonProps: { color: '#03C188', size: 'medium' },
-          positiveText: t('app.confirm'),
-          negativeText: t('app.cancel'),
-          onPositiveClick: async () => {
-            if (d) {
-              console.log(transferDialogDlcAndDbcDialogRef.value.activeTab)
-              const comp = transferDialogDlcAndDbcDialogRef.value
-              if (!comp) return false
+    // {
+    //   t: 'home.transfer',
+    //   icon: 'mdi:wallet',
+    //   h: () => {
+    //     const transferDialogDlcAndDbcDialogRef: any = ref(null)
+    //     const d = window.$dialog?.info({
+    //       title: () => {
+    //         return h(
+    //           NGradientText,
+    //           {
+    //             size: 24,
+    //             type: 'success',
+    //             class: 'font-bold',
+    //           },
+    //           { default: () => t('home.transfer') }
+    //         )
+    //       },
+    //       content: () => h(transferDialogDlcAndDbc, { ref: transferDialogDlcAndDbcDialogRef }),
+    //       class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+    //       showIcon: false,
+    //       negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+    //       positiveButtonProps: { color: '#03C188', size: 'medium' },
+    //       positiveText: t('app.confirm'),
+    //       negativeText: t('app.cancel'),
+    //       onPositiveClick: async () => {
+    //         if (d) {
+    //           console.log(transferDialogDlcAndDbcDialogRef.value.activeTab)
+    //           const comp = transferDialogDlcAndDbcDialogRef.value
+    //           if (!comp) return false
 
-              const valid = await comp.validateForm().catch(() => false)
-              if (!valid) {
-                window.$message?.error(t('home.formInvalid'))
-                return false
-              }
+    //           const valid = await comp.validateForm().catch(() => false)
+    //           if (!valid) {
+    //             window.$message?.error(t('home.formInvalid'))
+    //             return false
+    //           }
 
-              d.loading = true
-              d.positiveText = 'loading...'
+    //           d.loading = true
+    //           d.positiveText = 'loading...'
 
-              const coinType = transferDialogDlcAndDbcDialogRef.value.activeTab // 'DLC' or 'DBC'
-              const to = transferDialogDlcAndDbcDialogRef.value.model[coinType].address
-              const amount = transferDialogDlcAndDbcDialogRef.value.model[coinType].amount
-              // const pwd = transferDialogDlcAndDbcDialogRef.value.model[coinType].password
-              try {
-                // 从用户钱包系统中解密私钥（你应该有自己的方法）
-                const { privateKey, address } = await decryptKeystore(
-                  appStore().keystore,
-                  transferDialogDlcAndDbcDialogRef.value.model[coinType].password,
-                  t
-                )
-                const tx = await transfer(coinType, to, amount, privateKey, t)
+    //           const coinType = transferDialogDlcAndDbcDialogRef.value.activeTab // 'DLC' or 'DBC'
+    //           const to = transferDialogDlcAndDbcDialogRef.value.model[coinType].address
+    //           const amount = transferDialogDlcAndDbcDialogRef.value.model[coinType].amount
+    //           // const pwd = transferDialogDlcAndDbcDialogRef.value.model[coinType].password
+    //           try {
+    //             // 从用户钱包系统中解密私钥（你应该有自己的方法）
+    //             const { privateKey, address } = await decryptKeystore(
+    //               appStore().keystore,
+    //               transferDialogDlcAndDbcDialogRef.value.model[coinType].password,
+    //               t
+    //             )
+    //             const tx = await transfer(coinType, to, amount, privateKey, t)
 
-                window.$message?.success(t('home.transferSuccess'))
-              } catch (error) {
-                d.loading = false
-                d.positiveText = t('app.confirm')
-                return false
-              }
-            }
-          },
-        })
-      },
-    },
+    //             window.$message?.success(t('home.transferSuccess'))
+    //           } catch (error) {
+    //             d.loading = false
+    //             d.positiveText = t('app.confirm')
+    //             return false
+    //           }
+    //         }
+    //       },
+    //     })
+    //   },
+    // },
     {
       t: 'home.exportWallet',
       icon: null,

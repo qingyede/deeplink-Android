@@ -40,9 +40,9 @@
               >
                 <span class="text-lg"> {{ $t('remote.Connect') }} </span>
               </n-button>
-              <div class="text-[#333] dark:text-white/70 !text-xs">
+              <!-- <div class="text-[#333] dark:text-white/70 !text-xs">
                 {{ $t('remote.connectAndActivateFlow') }}
-              </div>
+              </div> -->
             </div>
           </n-form-item-gi>
         </n-grid>
@@ -50,13 +50,13 @@
     </div>
 
     <!-- 商店 -->
-    <div class="mt-[20px] flex flex-col gap-3">
+    <!-- <div class="mt-[20px] flex flex-col gap-3">
       <div class="flex items-center gap-4">
         <n-button type="primary" @click="router.push({ name: 'Store' })" class="flex-[1] rounded-lg min-h-[48px] text-lg">
           {{ $t('home.buyNft') }}
         </n-button>
       </div>
-    </div>
+    </div> -->
 
     <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3">
       <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>

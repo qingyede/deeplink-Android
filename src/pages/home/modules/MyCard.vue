@@ -3,7 +3,7 @@
     class="flex flex-col gap-5 w-full rounded-lg text-white px-[17px] py-[27px] relative"
     style="background: linear-gradient(to right, #017543 0%, #017543 26%, #03ff91 100%)"
   >
-    <h1 class="text-[20px] font-bold">{{ app.mode ? $t('p.home.pointsBalance') : $t('home.walletBalance') }}</h1>
+    <!-- <h1 class="text-[20px] font-bold">{{ app.mode ? $t('p.home.pointsBalance') : $t('home.walletBalance') }}</h1> -->
     <div class="flex gap-6 items-start flex-wrap gap-y-2 text-white">
       <!-- 左侧余额显示区-代币模式 -->
       <div v-if="!app.mode" class="flex flex-wrap items-start gap-x-2 text-base font-bold tabular-nums">
@@ -80,7 +80,7 @@
     </h1>
 
     <!-- 购买 DLC 按钮 -->
-    <div class="absolute top-3 right-3" v-if="!app.mode">
+    <!-- <div class="absolute top-3 right-3" v-if="!app.mode">
       <n-button
         @click="buyDlc"
         size="small"
@@ -92,10 +92,10 @@
         </template>
         <span class="text-xs font-bold">{{ $t('home.buyDLC') }}</span>
       </n-button>
-    </div>
+    </div> -->
   </div>
   <!-- tabs -->
-  <MyTabs :cryptoData="cryptoData" />
+  <!-- <MyTabs :cryptoData="cryptoData" /> -->
 </template>
 
 <script lang="ts" setup>

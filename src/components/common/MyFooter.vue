@@ -44,22 +44,36 @@ const { safeAreaBottom } = useSafeAreaFooter()
 const app = appStore()
 const router = useRouter()
 const route = useRoute()
+// const activeTab = computed(() => {
+//   if (route.name === 'home') {
+//     return 0
+//   } else if (route.name === 'Remote') {
+//     return 1
+//   } else if (
+//     route.name === 'CloudComputers' ||
+//     route.name === 'CloudCafe' ||
+//     route.name === 'CloudComputersList' ||
+//     route.name === 'CloudCafeList'
+//   ) {
+//     return 2
+//   } else if (route.name === 'DeviceList') {
+//     return 3
+//   } else if (route.name === 'Settings') {
+//     return 4
+//   } else {
+//     return 0
+//   }
+// })
+
 const activeTab = computed(() => {
   if (route.name === 'home') {
     return 0
   } else if (route.name === 'Remote') {
     return 1
-  } else if (
-    route.name === 'CloudComputers' ||
-    route.name === 'CloudCafe' ||
-    route.name === 'CloudComputersList' ||
-    route.name === 'CloudCafeList'
-  ) {
-    return 2
   } else if (route.name === 'DeviceList') {
-    return 3
+    return 2
   } else if (route.name === 'Settings') {
-    return 4
+    return 3
   } else {
     return 0
   }
@@ -68,7 +82,7 @@ const tabs = computed(() => {
   return [
     { name: 'app.wallet', icon: 'mdi:wallet', path: 'home' },
     { name: 'app.remote', icon: 'mdi:remote-desktop', path: 'Remote' },
-    { name: 'app.gpu', icon: 'bxs-joystick', path: 'GPU' },
+    // { name: 'app.gpu', icon: 'bxs-joystick', path: 'GPU' },
     { name: 'app.deviceList', icon: 'mdi:devices', path: 'DeviceList' },
     { name: 'app.settings', icon: 'mdi:cog', path: 'Settings' }, // ← 新增设置项
   ]
