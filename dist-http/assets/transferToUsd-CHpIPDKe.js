@@ -1,1 +1,0 @@
-function t(o,r){if(console.log(o,r,"PPPPPPPP"),o<0||r<0)throw new Error("DLC 数量和单价不能为负数");return parseFloat((o*r).toFixed(5))}function e(o,r){if(o<0||r<0)throw new Error("DBC 数量和单价不能为负数");return parseFloat((o*r).toFixed(5))}export{e as a,t as c};

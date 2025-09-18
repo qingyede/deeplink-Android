@@ -1,1 +1,0 @@
-function o(){return{openExternalLink:(n,t=!0)=>{var e;(e=window.dlc)!=null&&e.toNative?window.dlc.toNative(JSON.stringify({action:3001,data:{url:n,isShowTitle:t}})):window.open(n,"_blank")}}}export{o as u};

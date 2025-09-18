@@ -56,6 +56,7 @@ const route = useRoute()
 //   //   text: t('IsWallet.walletShareGpuTip'),
 //   //   link: 'https://orion.deeplink.cloud/shortterm',
 //   // },
+
 // ]
 
 const tipsData = [
