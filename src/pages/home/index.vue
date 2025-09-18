@@ -4,17 +4,19 @@ import MyCard from './modules/MyCard.vue'
 import MyContent from './modules/MyContent.vue'
 import BuyDbc from './modules/dialogs/BuyDbc.vue'
 import BuyDlc from './modules/dialogs/BuyDlc.vue'
+import { NGradientText } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+const { t, locale } = useI18n()
 
 // 购买dbc
 const buyDBC = () => {
   window.$dialog?.info({
-    title: () => h('div', { class: 'dark:text-white font-bold' }, 'Buy DBC'),
+    title: () => h(NGradientText, { size: 24, type: 'success', class: 'font-bold' }, { default: () => t('Buy DBC') }),
     content: () => h(BuyDbc),
     class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
     showIcon: false,
     negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
     positiveButtonProps: { color: '#03C188', size: 'medium' },
-
     onPositiveClick: () => {
       console.log('Confirm')
     },

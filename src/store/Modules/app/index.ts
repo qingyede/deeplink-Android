@@ -9,6 +9,8 @@ export const appStore = defineStore('app', {
     lang: 'en',
     // 当前主题
     theme: 'light' as 'light' | 'dark',
+    // 当前模式是不是积分
+    mode: true,
     // 用户钱包地址
     address: '',
     // keystore

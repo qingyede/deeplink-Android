@@ -225,6 +225,9 @@
     "dlcBalanceNotEnough": "您的钱包DLC余额不足!"
   },
   "setting": {
+    "point": "积分模式",
+    "token": "代币模式",
+    "title": "租用模式",
     "darkMode": "暗色模式",
     "disableMouse": "禁用鼠标操作（虚拟摇杆）",
     "disableMouseTip": "启用后，当你使用虚拟摇杆时，鼠标将不可用。",
@@ -412,5 +415,20 @@
     "executionReverted": "合约拒绝执行（execution reverted）",
     "timeout": "等待链上确认超时，请稍后在记录中查看",
     "genericTxFailed": "交易失败，请稍后再试"
+  },
+  "---------------------------------------------------------------": "",
+  "p": {
+    "home": {
+      "purchase": "积分购买",
+      "closeaccount": "关闭账号",
+      "close": "关闭账号",
+      "closeConfirm": "您确定要关闭账号吗？",
+      "closedSuccess": "已关闭账号!",
+      "buyPoints": "购买积分",
+      "withPoints": "提示：使用 DeepLink 积分，你可以在 DeepLink 网络中租用任意一台电脑",
+      "buyNow": "立即购买",
+      "points": "积分",
+      "pointsBalance": "积分余额"
+    }
   }
 }

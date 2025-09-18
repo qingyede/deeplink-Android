@@ -1,24 +1,48 @@
+// stores/login.ts
 import { defineStore } from 'pinia'
-import { LoginState, LoginActions } from './type' // 导入类型定义
+import { getWalletId } from '@/api/price/index'
+import { ref, computed } from 'vue'
+import { appStore } from '../app'
+import { useMaskAddress } from '@/hooks/common/useMaskAddress'
 
-const loginStore = defineStore<'login', LoginState, {}, LoginActions>({
-  id: 'login',
-  state: (): LoginState => {
-    return {
-      row: '666',
-      token: '88888888888',
+export const loginStore = defineStore('login', () => {
+  // 仅内存保存，切页/刷新即丢失
+  const app = appStore()
+  const { maskAddress } = useMaskAddress()
+
+  // 获取钱包对应的ID
+  const walletId = ref('')
+  const getWalletIdH = async () => {
+    const { data: res } = await getWalletId({
+      wallet: app.address,
+    })
+    if (res.success) {
+      walletId.value = res.data
     }
-  },
-  getters: {
-    isLoggedIn: (state): boolean => {
-      return !!state.token
-    },
-  },
-  actions: {
-    updateToken(newToken: string) {
-      this.token = newToken
-    },
-  },
-})
+  }
+  // 自动监听钱包重新请求
+  watchEffect(() => {
+    if (app.address) {
+      console.log('自动监听钱包重新请求')
+      getWalletIdH()
+    }
+  })
+  // 计算属性根据模式显示钱包地址
+  const walletAddress = computed(() => {
+    if (app.address) {
+      if (!app.mode) {
+        // 代币模式
+        return maskAddress(app.address)
+      } else {
+        // DLC模式
+        return walletId.value
+      }
+    }
+  })
 
-export default loginStore
+  return {
+    getWalletIdH,
+    walletId,
+    walletAddress,
+  }
+})

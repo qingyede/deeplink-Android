@@ -24,3 +24,12 @@ export const exchangeRate = () => {
     url: `${baseUrl}/api/cyc/getExchangeRate`,
   })
 }
+
+// 获取钱包对应唯一ID
+export const getWalletId = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/point/getWalletID`,
+    data,
+  })
+}

@@ -6,6 +6,7 @@ import { createSignerFromPrivateKey } from '@/utils/wallet/creatSiger'
 import { ethers } from 'ethers'
 import { generateRandomId } from '@/utils//common/generateUuid'
 import { CreateSignatureEVM } from '@/utils/wallet/dbcProvider'
+import { NGradientText } from 'naive-ui'
 
 export function useGetEvmSignature(t) {
   const getEvmSignature = async (): Promise<any> => {
@@ -13,7 +14,9 @@ export function useGetEvmSignature(t) {
 
     return new Promise((resolve) => {
       const dialog: any = window.$dialog?.warning({
-        title: t('app.walletUnlock'),
+        title: () =>
+          h(NGradientText, { size: 24, type: 'success', class: 'font-bold' }, { default: () => t('app.walletUnlock') }),
+
         content: () => h(exportWalletDialog, { ref: dialogComponentRef }), // ✅ 绑定 ref
         positiveText: t('app.confirm'),
         negativeText: t('app.cancel'),

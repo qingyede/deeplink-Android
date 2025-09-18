@@ -47,34 +47,23 @@ body {
 .n-dialog .n-dialog__title {
   color: #939393;
 }
-
-/* 暗黑模式样式 */
-/* [data-theme='dark'] .n-input {
-  background-color: transparent;
+/* 弹窗取消按钮 */
+.n-dialog__action .n-button:nth-child(1) {
+  border-radius: 9px;
 }
-[data-theme='dark'] .n-base-selection .n-base-selection-label {
-  background-color: transparent;
-} */
+/* 弹窗确认按钮 */
 
-/* [data-theme='dark'] .n-base-selection-input__content {
-  color: #939393;
-} */
-
-/* [data-theme='dark'] .n-alert {
-  background-color: transparent;
+.n-dialog__action .n-button:nth-child(2) {
+  border-radius: 9px;
 }
-[data-theme='dark'] .n-input .n-input__input-el,
-.n-input .n-input__textarea-el {
-  color: #939393 !important;
+.n-dialog {
+  padding: 15px 15px 20px 15px;
 }
-
-[data-theme='dark']
-  .n-collapse
-  .n-collapse-item:not(.n-collapse-item--disabled).n-collapse-item--trigger-area-arrow
-  .n-collapse-item__header
-  .n-collapse-item-arrow {
-  color: rgb(163 169 168) !important;
-} */
+@media screen and (max-width: 768px) {
+  .n-dialog {
+    padding: 14px 17px 20px 17px;
+  }
+}
 
 .n-tabs .n-tabs-tab {
   color: var(--text-color1);
@@ -91,7 +80,7 @@ body {
 }
 .n-input .n-input__suffix .n-base-icon,
 .n-input .n-input__prefix .n-base-icon {
-  font-size: 23px;
+  font-size: 21px;
 }
 .n-input .n-input__input-el {
   height: 100% !important;

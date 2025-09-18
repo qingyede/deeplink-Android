@@ -12,7 +12,11 @@ import { useI18n } from 'vue-i18n'
 const app = appStore()
 const { t } = useI18n()
 const { version } = useAppVersion(t)
-
+// 切换模式
+const toggleMode = (val: boolean) => {
+  console.log('切换模式:', val)
+  app.mode = val
+}
 // ✅ 切换方法（模拟业务逻辑）
 const toggleDisableMouse = (val: boolean) => {
   console.log('当使用虚拟摇杆时禁用鼠标:', val)
@@ -44,6 +48,24 @@ sendCurrentConfig()
 <template>
   <div class="px-4 pb-6 w-full mx-auto">
     <div class="space-y-5">
+      <!-- ✅ 切换模式 -->
+      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <Icon icon="mdi:medal-outline" class="text-[20px] text-primary-600" />
+            {{ $t('setting.title') }} ({{ app.mode ? $t('setting.point') : $t('setting.token') }})
+          </div>
+          <n-switch
+            :rail-style="
+              ({ checked }) => ({
+                backgroundColor: checked ? '#03C188' : '#dcdcdc',
+              })
+            "
+            v-model:value="app.mode"
+            @update:value="toggleMode"
+          />
+        </div>
+      </n-card>
       <!-- 主题设置 -->
       <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">

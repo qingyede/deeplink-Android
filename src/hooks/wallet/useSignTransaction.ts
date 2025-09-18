@@ -7,6 +7,7 @@ import { appStore } from '@/store/Modules/app'
 import { createSignerFromPrivateKey } from '@/utils/wallet/creatSiger'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { ethers } from 'ethers'
+import { NGradientText } from 'naive-ui'
 
 type EnsureWalletResult = {
   signer: ethers.Wallet
@@ -20,13 +21,15 @@ export function useWalletSigner(t: (key: string) => string) {
 
     return new Promise<EnsureWalletResult>((resolve) => {
       const dialog: any = window.$dialog?.warning({
-        title: t('app.walletUnlock'),
+        title: () =>
+          h(NGradientText, { size: 24, type: 'success', class: 'font-bold' }, { default: () => t('app.walletUnlock') }),
         content: () => h(exportWalletDialog, { ref: dialogComponentRef }),
         positiveText: t('app.confirm'),
         negativeText: t('app.cancel'),
         class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
         negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
         positiveButtonProps: { color: '#03C188', size: 'medium' },
+        showIcon: false,
 
         async onPositiveClick() {
           dialog.loading = true
