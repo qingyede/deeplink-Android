@@ -10,6 +10,8 @@ lerna-debug.log*
 # Node modules and build output
 node_modules
 dist
+dist-http
+dist-file
 dist-ssr
 
 # Compression files
