@@ -266,13 +266,13 @@
   },
   "IsWallet": {
     "walletUserManual": "Wallet - User Manual",
-    "createNewWallet": "Create new wallet",
-    "openWallet": "Open wallet",
-    "walletNftAccessTip": "Once you log in to your wallet, you can buy professional crown NFT to support you using more higher-level functions. Check details.",
-    "walletBuyTokensTip": "Once you log in to your wallet, you can buy DeepBrainChain Coin and DeepLink Coin.",
-    "walletPurchaseServicesTip": "Once you log in to your wallet, you can purchase cloud gaming or other services.",
-    "walletClaimRewardsTip": "Once you log in to your wallet, you can claim DeepLink Coin rewards.",
-    "walletShareGpuTip": "Once you log in to your wallet, you can share your GPU and earn DLC rewards. Your device must be equipped with an Nvidia 20 series or higher GPU to qualify. For more details on earning, please check:"
+    "createNewWallet": "Create New Wallet",
+    "openWallet": "Open Wallet",
+    "walletNftAccessTip": "Once you connect your wallet, you can unlock exclusive NFT features and explore more experiences.",
+    "walletBuyTokensTip": "Once you connect your wallet, you can view information related to DeepBrainChain Coin and DeepLink Coin.",
+    "walletPurchaseServicesTip": "Once you connect your wallet, you can use tokens to activate cloud gaming and other platform features.",
+    "walletClaimRewardsTip": "Once you connect your wallet, you can access DeepLink Coin benefits related to platform activities.",
+    "walletShareGpuTip": "Once you connect your wallet, you can join the distributed computing network and share your GPU (Nvidia 20 series or higher is required)."
   },
   "createWallet": {
     "newWallet": "New Wallet",

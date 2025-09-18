@@ -250,11 +250,11 @@
     "walletUserManual": "Hướng dẫn sử dụng ví",
     "createNewWallet": "Tạo ví mới",
     "openWallet": "Mở ví",
-    "walletNftAccessTip": "Sau khi đăng nhập ví, bạn có thể mua NFT Crown chuyên nghiệp để mở khóa tính năng nâng cao. Xem chi tiết.",
-    "walletBuyTokensTip": "Sau khi đăng nhập ví, bạn có thể mua DeepBrainChain Coin và DeepLink Coin.",
-    "walletPurchaseServicesTip": "Sau khi đăng nhập ví, bạn có thể mua dịch vụ chơi game đám mây hoặc dịch vụ khác.",
-    "walletClaimRewardsTip": "Sau khi đăng nhập ví, bạn có thể nhận phần thưởng DeepLink Coin.",
-    "walletShareGpuTip": "Sau khi đăng nhập ví, bạn có thể chia sẻ GPU và nhận phần thưởng DLC. Thiết bị của bạn phải sử dụng GPU Nvidia dòng 20 trở lên để đủ điều kiện. Xem thêm chi tiết tại:"
+    "walletNftAccessTip": "Sau khi kết nối ví, bạn có thể mở khóa các tính năng NFT độc quyền và khám phá nhiều trải nghiệm hơn.",
+    "walletBuyTokensTip": "Sau khi kết nối ví, bạn có thể xem thông tin liên quan đến DeepBrainChain Coin và DeepLink Coin.",
+    "walletPurchaseServicesTip": "Sau khi kết nối ví, bạn có thể sử dụng token để kích hoạt trò chơi đám mây và các tính năng khác của nền tảng.",
+    "walletClaimRewardsTip": "Sau khi kết nối ví, bạn có thể xem các quyền lợi liên quan đến DeepLink Coin từ hoạt động trên nền tảng.",
+    "walletShareGpuTip": "Sau khi kết nối ví, bạn có thể tham gia mạng tính toán phân tán và chia sẻ GPU (yêu cầu GPU Nvidia dòng 20 trở lên)."
   },
   "createWallet": {
     "newWallet": "Tạo ví mới",

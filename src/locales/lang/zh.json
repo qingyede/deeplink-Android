@@ -16,7 +16,7 @@
     "unknownVersion": "未知版本",
     "cannotFetchVersion": "无法获取版本信息",
     "fetchVersionFailed": "获取版本失败",
-    "pleaseCreateWalletFirst": "请先创建您的钱包",
+    "pleaseCreateWalletFirst": "After logging into the wallet, you can manage and connect devices under the same wallet",
     "walletUnlockFailed": "钱包解锁失败",
     "walletCreateSuccess": "钱包创建成功",
     "walletCreateFailed": "创建钱包失败",
@@ -271,11 +271,11 @@
     "walletUserManual": "钱包使用指南",
     "createNewWallet": "创建新钱包",
     "openWallet": "打开钱包",
-    "walletNftAccessTip": "登录钱包后，您可以购买专业皇冠 NFT，以解锁更高级功能。查看详情。",
-    "walletBuyTokensTip": "登录钱包后，您可以购买 DeepBrainChain Coin 和 DeepLink Coin。",
-    "walletPurchaseServicesTip": "登录钱包后，您可以购买云游戏或其他服务。",
-    "walletClaimRewardsTip": "登录钱包后，您可以领取 DeepLink Coin 奖励。",
-    "walletShareGpuTip": "登录钱包后，您可以共享 GPU 并获得 DLC 奖励。您的设备需配备 Nvidia 20 系列或更高型号显卡才能参与收益。了解更多收益详情，请查看："
+    "walletNftAccessTip": "连接钱包后，您可解锁专属 NFT 功能并探索更多体验。",
+    "walletBuyTokensTip": "连接钱包后，您可查看 DeepBrainChain Coin 与 DeepLink Coin 的相关信息。",
+    "walletPurchaseServicesTip": "连接钱包后，您可使用代币激活云游戏及其他功能。",
+    "walletClaimRewardsTip": "连接钱包后，您可查看并获取与平台活动相关的 DeepLink Coin 权益。",
+    "walletShareGpuTip": "连接钱包后，您可参与分布式算力网络并共享 GPU（需 Nvidia 20 系列及以上显卡）。"
   },
   "createWallet": {
     "newWallet": "新建钱包",

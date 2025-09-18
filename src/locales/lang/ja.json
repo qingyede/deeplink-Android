@@ -251,11 +251,11 @@
     "walletUserManual": "ウォレット使用ガイド",
     "createNewWallet": "新しいウォレットを作成",
     "openWallet": "ウォレットを開く",
-    "walletNftAccessTip": "ウォレットにログイン後、Crown NFTを購入して高機能を利用できます。詳細はこちら。",
-    "walletBuyTokensTip": "ウォレットにログイン後、DBCおよびDLCを購入できます。",
-    "walletPurchaseServicesTip": "ウォレットにログイン後、クラウドゲームや他のサービスを購入可能です。",
-    "walletClaimRewardsTip": "ウォレットにログイン後、DLC報酬を受け取ることができます。",
-    "walletShareGpuTip": "ウォレットにログイン後、GPUを共有してDLC報酬を得ることができます。対象はNVIDIA 20シリーズ以降のGPUです。詳細はこちら："
+    "walletNftAccessTip": "ウォレットを接続すると、専用のNFT機能が利用可能になり、さまざまな体験を楽しめます。",
+    "walletBuyTokensTip": "ウォレットを接続すると、DBCおよびDLCトークンに関する情報を確認できます。",
+    "walletPurchaseServicesTip": "ウォレットを接続すると、トークンを使ってクラウドゲームやその他の機能を有効化できます。",
+    "walletClaimRewardsTip": "ウォレットを接続すると、プラットフォーム活動に関連するDLC特典を確認できます。",
+    "walletShareGpuTip": "ウォレットを接続すると、分散コンピューティングネットワークに参加し、GPUを共有できます。（NVIDIA 20シリーズ以降のGPUが必要です）"
   },
   "createWallet": {
     "newWallet": "新規ウォレット",
