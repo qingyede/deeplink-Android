@@ -16,7 +16,7 @@ import i18n from '@/plugins/lang'
 
 function setupApp() {
   const app = createApp(App)
-  initI18n()
+  // initI18n()
   app.use(router).use(pinia).use(i18n)
   app.component('Icon', Icon)
   app.use(MotionPlugin)
