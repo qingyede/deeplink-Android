@@ -83,10 +83,7 @@
           <span class="font-bold text-base">{{ $t('gpu.machineStatus') }}:</span>
           <span class="font-bold text-sm text-primary-500">{{ $t(`gpu.${item.rsStatus()}`) }}</span>
         </div>
-        <!-- <div class="flex justify-between items-center">
-          <span class="font-bold text-base min-w-[80px]">{{ $t('gpu.cpu') }}:</span>
-          <span class="font-semibold text-sm text-[#717171]">{{ item.machineInfo.cpu_type }}</span>
-        </div> -->
+
         <div class="flex justify-between items-center">
           <span class="font-bold text-base">{{ $t('gpu.memory') }}:</span>
           <span class="font-semibold text-sm text-[#717171]">{{ item.machineInfo.total_mem }}G</span>
@@ -99,20 +96,17 @@
           <span class="font-bold text-base">{{ $t('gpu.rentalFee') }}:</span>
 
           <n-button text type="primary" class="rounded-lg font-semibold text-sm">{{
-            `${item.rent_hour_dlcprice}DLC ≈ ${price.useLocalizedCurrency(
-              convertDlcToUsd(item.rent_hour_dlcprice, dlc_price)
-            )}`
+            app.mode
+              ? `${price.dlc2usd(item.rent_hour_dlcprice).points}${price.currentUnit} ≈ ${
+                  price.dlc2usd(item.rent_hour_dlcprice).localPrice
+                }`
+              : `${item.rent_hour_dlcprice}${price.currentUnit} ≈ ${price.useLocalizedCurrency(
+                  convertDlcToUsd(item.rent_hour_dlcprice, dlc_price)
+                )}`
           }}</n-button>
         </div>
-        <!-- <div class="flex justify-between items-center">
-          <span class="font-bold text-base">{{ $t('gpu.downloadedGames') }}:</span>
-          <span class="font-semibold text-sm text-primary-500">{{ 0 }}</span>
-        </div> -->
 
         <div class="flex items-center gap-4 mt-3">
-          <!-- <n-button @click="testNet(item)" type="primary" secondary class="flex-1 rounded-lg min-h-[46px]">
-            {{ $t('gpu.testNetworkLatency') }}
-          </n-button> -->
           <n-button
             @click="rentH(item)"
             :loading="item.loading"

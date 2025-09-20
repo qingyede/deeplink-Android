@@ -96,3 +96,19 @@ export const extendNotify = (data) => {
     data,
   })
 }
+// 积分租用
+export const rentByPoint = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/point/PointPaymentRentMacInfo`,
+    data,
+  })
+}
+// 积分续租
+export const extendByPoint = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/point/PointPaymentRenewMacInfo`,
+    data,
+  })
+}

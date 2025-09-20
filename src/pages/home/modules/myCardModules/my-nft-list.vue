@@ -45,22 +45,24 @@
         <div class="flex-1 flex flex-col justify-between">
           <p class="text-base font-bold leading-5 text-black dark:text-white max-w-[180px]">
             <!-- {{ nft.name }} -->
-            {{ map1[nft.version_type] }} {{ map[nft.expire_type] }}{{ $t('home.months') }}
+            {{ app.mode ? '会员' : map1[nft.version_type] }}/{{ map[nft.expire_type] }}{{ $t('home.months') }}
+          </p>
+          <p v-if="nft.NFTStatus === 'activated' ? true : false" class="my-1.5 text-gray-500 text-xs">
+            {{ $t('home.time') }}：{{ nft.timeLeftText }}
           </p>
           <div class="mt-3 flex gap-3">
-            <n-button size="small" round type="primary" @click="transferH(nft)">{{ $t('home.transfer') }}</n-button>
+            <n-button size="small" class="rounded-xl" type="primary" @click="transferH(nft)">{{
+              $t('home.transfer')
+            }}</n-button>
             <n-button
               :disabled="nft.NFTStatus === 'activated' ? true : false"
               size="small"
-              round
+              class="rounded-xl"
               type="success"
               @click="buyNft.activeNFTFlow(nft.tokenId)"
               >{{ $t('home.activate') }}</n-button
             >
           </div>
-          <p v-if="nft.NFTStatus === 'activated' ? true : false" class="mt-2.5 text-gray-500 text-xs">
-            {{ $t('home.time') }}：{{ nft.timeLeftText }}
-          </p>
         </div>
       </div>
       <n-divider v-if="index !== buyNft.myNftList.length - 1" class="my-1" />
@@ -84,14 +86,14 @@
         :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >
-        {{ $t('home.buyNft') }}
+        {{ app.mode ? $t('home.buyNft2') : $t('home.buyNft') }}
       </n-button>
       <n-button
         :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
-        @click="openExternalLink('https://www.deeplink.cloud/nft')"
+        @click="openExternalLink('https://deeplinkgame.com')"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >
-        {{ $t('home.viewNftFeatures') }}
+        {{ app.mode ? $t('home.viewNftFeatures2') : $t('home.viewNftFeatures') }}
       </n-button>
     </div>
   </div>
@@ -112,6 +114,8 @@ const route = useRoute()
 const { openExternalLink } = useOpenExternalLink()
 const buyNft = useBuyNftStore()
 import { appStore } from '@/store/Modules/app/index'
+
+const app = appStore()
 let map = {
   0: 1,
   1: 3,
@@ -125,7 +129,6 @@ let map1 = computed(() => {
     1: `${t('Store.nft.enterpriseCrown')} /`,
   }
 })
-const app = appStore()
 // 初始化列表
 buyNft.getMyNftListH()
 

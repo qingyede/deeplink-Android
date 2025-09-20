@@ -3,8 +3,14 @@
     <!-- 顶部卡片 -->
     <n-card class="rounded-[24px] shadow-sm dark:bg-[#1e1e1e]">
       <div class="flex items-center justify-center flex-col gap-5">
-        <img class="max-w-[60px] max-h-[60px]" :src="currentIcon" alt="coin" />
-        <h1 class="text-lg font-bold flex items-center gap-3 text-[#262626] dark:text-white">
+        <img v-if="route.query.coin !== 'DLP'" class="max-w-[60px] max-h-[60px]" :src="currentIcon" alt="coin" />
+        <div
+          v-else
+          class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-800 font-bold text-sm"
+        >
+          DLP
+        </div>
+        <h1 class="text-lg font-bold flex items-center gap-1 text-[#262626] dark:text-white">
           <span>{{ isSent ? $t('transaction.send') : $t('transaction.receive') }} {{ detailData?.token?.symbol }}</span>
           <Icon class="text-primary-500" :icon="isSent ? 'mdi:send-circle' : 'mdi:call-received'" />
         </h1>

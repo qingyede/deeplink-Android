@@ -67,17 +67,23 @@
           :key="index"
           :loading="item.loading"
           color="#E1EBE7"
-          class="rounded-lg py-2 h-full w-full dark:bg-[#2c2c2c] transition-colors duration-300"
+          class="rounded-lg py-2.5 h-full w-full dark:bg-[#2c2c2c] transition-colors duration-300"
           @click="handleMyDeviceClick(item)"
         >
           <div class="flex justify-between w-full gap-8">
-            <div class="flex items-center gap-6 flex-1 justify-start">
+            <div class="flex items-center gap-2 flex-1 justify-start">
               <div class="rounded-lg bg-white dark:bg-[#444] w-8 h-8 p-1">
                 <Icon :icon="item.icon" class="text-[22px]" />
               </div>
-              <div class="flex flex-col gap-1 justify-start items-start">
-                <span class="text-sm text-left md:text-base font-bold text-black dark:text-white text-wrap">
-                  {{ item.name }}
+              <div class="w-full flex flex-col gap-1.5 justify-start items-start">
+                <span class="text-[15px] text-left md:text-base font-bold text-black dark:text-white text-wrap">
+                  {{ item.machine_info.gpu_type }}
+                </span>
+                <span class="text-gray-500 text-sm w-full flex justify-between">
+                  <span>{{ item.device_id }}</span>
+                  <span>
+                    <CountdownTimer @finished="onExpire" :start-time="item.rent_satrtime" :rent-seconds="item.rent_time" />
+                  </span>
                 </span>
               </div>
             </div>
@@ -211,13 +217,7 @@ const deviceList: any = ref([])
 let loading1 = ref(true)
 
 // 初始化用户机器列表
-const { pause, resume, isActive } = useIntervalFn(
-  async () => {
-    deviceListStore.getUserDeviceListH()
-  },
-  600000,
-  { immediateCallback: true }
-)
+deviceListStore.getUserDeviceListH()
 
 // 展示机器信息
 const showInfo = (item: any, n: number) => {
@@ -521,6 +521,21 @@ const showMyDeviceInfo = (item) => {
       }
     },
   })
+}
+// ✅ 拉取列表并控制骨架/空态
+const reload = async () => {
+  loading1.value = true
+
+  try {
+    await deviceListStore.getUserDeviceListH()
+  } catch (e) {
+    console.error('[device] load error', e)
+  } finally {
+    loading1.value = false
+  }
+}
+const onExpire = () => {
+  reload()
 }
 </script>
 

@@ -8,7 +8,7 @@
       :key="index"
     >
       <!-- 图片 -->
-      <img class="w-[80px] h-[80px] object-cover mb-2 rounded-md" src="@/assets/img/nfts.png" alt="" />
+      <img class="w-[66px] h-[66px] object-cover mb-2 rounded-md" src="@/assets/img/nfts.png" alt="" />
 
       <!-- 文案部分 -->
       <div class="flex flex-col items-center text-center">
@@ -57,36 +57,6 @@
       </div>
     </n-button>
   </div>
-  <!-- Get Discount campaign ends on July 5th -->
-  <!-- Crown NFT Discount Campaign -->
-  <!-- <div class="mt-[60px] bg-[#000] px-[15px] py-[36px] rounded-[21px] flex flex-col gap-6 relative">
-    <h1 class="font-bold sm:text-[18px] md:text-[20px] text-[#fff]">{{ $t('Store.crown_nft_discount_campaign') }}</h1>
-    <n-button
-      type="primary"
-      class="w-full h-[60px] rounded-[12px] text-[20px] text-white border-none *:"
-      style="background: linear-gradient(to right, #8000ff, #00ffd1)"
-    >
-      <div class="flex items-center gap-2 !w-[100%] justify-between">
-        <span class="text-[19.5px]">{{ $t('Store.get_discount') }}</span>
-      </div>
-    </n-button>
-    <h2 class="font-bold sm:text-[19px] md:text-[18px] text-[#fff] max-w-[200px]">
-      {{ $t('Store.campaign_ends_on') }} <br /><span class="text-[#00FFC3] font-bold text-[22px]">
-        {{ nftListEndTimeStr }}</span
-      >
-    </h2>
-    <div class="flex justify-center items-center relative z-[2]">
-      <img
-        class="w-[116px] h-[116px] border-[1.5px] border-[#00FFC3] rounded-full overflow-hidden"
-        src="@/assets/img/c.png"
-        alt=""
-      />
-    </div>
-    <div
-      class="absolute z-0 bottom-[-80px] left-1/2 w-[350px] h-[400px] translate-x-[-50%] rounded-full pointer-events-none blur-3xl opacity-50"
-      style="background: radial-gradient(circle at center, #00ffaa 0%, #960dff 100%)"
-    ></div>
-  </div> -->
 </template>
 
 <script lang="ts" setup>
@@ -102,9 +72,11 @@ import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { appStore } from '@/store/Modules/app'
 import { useHomeStore } from '@/store/Modules/home/index'
 import { useRouter, useRoute } from 'vue-router'
+import { useGetUserPoints } from '@/hooks/wallet/useGetUserPoint'
 import { useGetDbcAndDlcNumber } from '@/hooks/wallet/useGetDbcAndDlcNumber'
-const { dbcNumber, dlcNumber, homeCardLoading } = useGetDbcAndDlcNumber()
 
+const { dbcNumber, dlcNumber, homeCardLoading } = useGetDbcAndDlcNumber()
+const { points } = useGetUserPoints()
 const { openExternalLink } = useOpenExternalLink()
 const buyNft = useBuyNftStore()
 const { dlc_price } = useGetDlcPrice()
@@ -113,16 +85,10 @@ const route = useRoute()
 const home = useHomeStore()
 const app = appStore()
 
-// import { useSwipeBackBasic } from '@/hooks/common/useBackInterceptor'
-
-// // 页面顶部调用
-// useSwipeBackBasic()
 // 初始化购买列表
 buyNft.getNftListH()
 const { t, locale } = useI18n()
 let active = ref(0)
-
-// const dlcUsdValue = price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value))
 
 const actionButtons = computed(() => [
   {
@@ -140,6 +106,8 @@ const actionButtons = computed(() => [
     action: 'buy', // 可以用于绑定事件或区分按钮
     secondary: false,
     h: async (btn) => {
+      console.log(buyNft.nftList[active.value], 'btnbtnbtn')
+
       const NftsDialogRef = ref()
       const d = window.$dialog?.info({
         title: () => {
@@ -162,28 +130,58 @@ const actionButtons = computed(() => [
         negativeText: t('app.cancel'),
         onPositiveClick: async () => {
           if (d) {
-            console.log('888888888888888', NftsDialogRef.value?.number, dlcNumber.value)
-            // 先判断钱包余额够不够
-            if (Number(NftsDialogRef.value?.number) <= Number(dlcNumber.value)) {
-              const rs: any = await buyNft.purchaseNFTFlow({
-                dlcAmount: NftsDialogRef.value?.number,
-                saveData: {
-                  price: convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value),
-                  purchaser: app.address,
-                  version_type: 0,
-                  expire_type: NftsDialogRef.value?.endTime,
-                  collection: 0,
-                  purchase_path: 'Android',
-                  mintNFT: false,
-                },
-              })
+            console.log('888888888888888', buyNft.nftList[active.value].value)
+            // return false
+            if (app.mode) {
+              // 积分模式
 
-              if (rs) {
-                router.push({ name: 'home' })
-                home.activeTab = 'NFTs'
+              console.log(points.value, NftsDialogRef.value?.number)
+              // 检查余额
+              if (Number(NftsDialogRef.value?.number) <= Number(points.value)) {
+                console.log('开始积分购买nft')
+
+                const rs: any = await buyNft.purchaseNFTFlowByPoint({
+                  pointAmount: NftsDialogRef.value?.number,
+                  saveData: {
+                    price: buyNft.nftList[active.value].value,
+                    purchaser: app.address,
+                    version_type: 0,
+                    expire_type: NftsDialogRef.value?.endTime,
+                    collection: 0,
+                    purchase_path: 'Android_Point',
+                    mintNFT: false,
+                  },
+                })
+                if (rs) {
+                  router.push({ name: 'home' })
+                }
+              } else {
+                window.$message?.warning(t('remote.pointBalanceNotEnough'))
               }
             } else {
-              window.$message?.warning(t('remote.dlcBalanceNotEnough'))
+              // 代币模式
+              // 先判断钱包余额够不够
+              if (Number(NftsDialogRef.value?.number) <= Number(dlcNumber.value)) {
+                const rs: any = await buyNft.purchaseNFTFlow({
+                  dlcAmount: NftsDialogRef.value?.number,
+                  saveData: {
+                    price: convertDlcToUsd(Number(NftsDialogRef.value?.number), dlc_price.value),
+                    purchaser: app.address,
+                    version_type: 0,
+                    expire_type: NftsDialogRef.value?.endTime,
+                    collection: 0,
+                    purchase_path: 'Android',
+                    mintNFT: false,
+                  },
+                })
+
+                if (rs) {
+                  router.push({ name: 'home' })
+                  home.activeTab = 'NFTs'
+                }
+              } else {
+                window.$message?.warning(t('remote.dlcBalanceNotEnough'))
+              }
             }
           }
         },
@@ -191,23 +189,6 @@ const actionButtons = computed(() => [
     },
   },
 ])
-
-// 计算属性之活动结束日期
-const nftListEndTimeStr = computed(() => {
-  if (buyNft.nftListEndTime) {
-    if (locale.value === 'zh') {
-      return buyNft.nftListEndTime.end_time_zh
-    } else if (locale.value === 'ja') {
-      return buyNft.nftListEndTime.end_time_ja
-    } else if (locale.value === 'ko') {
-      return buyNft.nftListEndTime.end_time_ko
-    } else if (locale.value === 'vn') {
-      return buyNft.nftListEndTime.end_time_vn
-    } else {
-      return buyNft.nftListEndTime.end_time_en
-    }
-  }
-})
 </script>
 
 <style lang="scss" scoped>

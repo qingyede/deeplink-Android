@@ -1,7 +1,7 @@
 <template>
   <div class="px-[16px] rounded-lg">
     <!-- 顶部按钮 -->
-    <n-button
+    <!-- <n-button
       v-for="(item, index) in btnData"
       :key="index"
       @click="changeBtn(index)"
@@ -11,7 +11,7 @@
       round
     >
       <span class="text-lg w-full"> {{ item.title }}</span>
-    </n-button>
+    </n-button> -->
     <RouterView />
   </div>
 </template>

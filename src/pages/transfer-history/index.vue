@@ -1,24 +1,27 @@
 <template>
   <div class="px-4 w-full mx-auto flex flex-col items-center justify-center">
     <div class="flex flex-col gap-3 justify-center items-center">
-      <img class="w-[60px] h-[60px] object-fill" :src="currentIcon" alt="" />
+      <img v-if="route.query.coin !== 'DLP'" class="w-[60px] h-[60px] object-fill" :src="currentIcon" alt="" />
+      <div
+        v-else
+        class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-800 font-bold text-sm"
+      >
+        DLP
+      </div>
       <div class="text-center flex flex-col gap-1">
         <div class="text-lg font-bold">
           {{ route.query.coin }}
         </div>
         <div class="text-[14px] font-bold flex gap-1.5">
           <div v-if="route.query.coin !== 'NFT'">
-            <span class="text-[#7E7E7E]">
-              {{ route.query.coin === 'DBC' ? Number(dbcNumber).toFixed(3) : Number(dlcNumber).toFixed(3) }}</span
-            >
-            <!-- <span class="text-success-500"> +999%</span> -->
+            <span class="text-[#7E7E7E]"> {{ currentBalance }}</span>
           </div>
           <div class="text-success-500 w-full text-center" v-else>{{ route.query.length }}{{ $t('transaction.nft') }}</div>
         </div>
       </div>
 
       <!-- 功能按钮 -->
-      <div class="w-full flex items-center justify-center gap-9 mt-2">
+      <div v-if="route.query.coin !== 'DLP'" class="w-full flex items-center justify-center gap-9 mt-2">
         <div
           v-for="(item, index) in btnData"
           :key="index"
@@ -73,6 +76,19 @@ const home = useHomeStore()
 const { dbc_price } = useGetDbcPrice()
 const { dbcNumber, dlcNumber } = useGetDbcAndDlcNumber()
 const { dlc_price } = useGetDlcPrice()
+import { useGetUserPoints } from '@/hooks/wallet/useGetUserPoint'
+
+const { points } = useGetUserPoints()
+// 计算属性值当前代币的余额
+const currentBalance = computed(() => {
+  if (route.query.coin === 'DBC') {
+    return Number(dbcNumber).toFixed(3)
+  } else if (route.query.coin === 'DLC') {
+    return Number(dlcNumber).toFixed(3)
+  } else {
+    return Number(points.value).toFixed(3)
+  }
+})
 
 // 操作按钮数据
 const btnData = ref([

@@ -9,10 +9,11 @@ import {
   extendOrder,
   endOrder,
   extendNotify,
+  extendByPoint,
 } from '@/api/gpu/index'
 import { removeGeForceRTX } from '@/utils/common/removeGeForceRTX'
 import { NGradientText } from 'naive-ui'
-import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS } from '@/utils/common/contracts'
+import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS, DLCP_TOKEN_ADDRESS, DLCP_RECEIVER } from '@/utils/common/contracts'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { ethers } from 'ethers'
 import { useWalletSigner } from '@/hooks/wallet/useSignTransaction'
@@ -27,6 +28,8 @@ import { useI18n } from 'vue-i18n'
 import { useAppSocket } from '@/hooks/common/useAppSocket'
 import { handleTxError } from './err'
 import { ensureDbcForTx } from '@/utils/wallet/gas' // 你前面新建并导出的工具函数
+import { rentMachineFlowWithPoints } from './point'
+import { getErc20Contract, DLC_TOKEN_ADDRESS } from '@/utils/wallet/dbcProvider'
 
 export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const price = priceStore()
@@ -184,7 +187,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     const resPrice = price.useLocalizedCurrency(convertDlcToUsd(priceNumber, dlc_price.value))
     console.log(resPrice, '价格', dlc_price.value, priceNumber)
     rentMachineDialogBeforeForm.dLCNumber = Number(priceNumber.toFixed(5))
-    rentMachineDialogBeforeForm.price = resPrice
+    rentMachineDialogBeforeForm.price = resPrice as any
   }
   const rentMachineDialogBefore = async (item) => {
     item.loading = true
@@ -213,10 +216,27 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       positiveText: t('gpu.confirm'),
       negativeText: t('app.cancel'),
       onPositiveClick: async () => {
-        rentMachineFlow({
-          machineId: rentMachineDialogBeforeForm.rentinfo.machine_id,
-          rentSeconds: rentMachineDialogBeforeForm.duration as any,
-        })
+        // 先判断是不是积分租用
+        if (app.mode) {
+          // 积分
+          console.log('我是积分支付', item, rentMachineDialogBeforeForm.duration)
+          const rs = await rentMachineFlowWithPoints(
+            item,
+            item.machine_id,
+            rentMachineDialogBeforeForm.duration as any,
+            // 通知
+            notify
+          )
+
+          if (rs?.res) {
+            router.push({ name: 'DeviceList' })
+          }
+        } else {
+          rentMachineFlow({
+            machineId: rentMachineDialogBeforeForm.rentinfo.machine_id,
+            rentSeconds: rentMachineDialogBeforeForm.duration as any,
+          })
+        }
       },
     })
   }
@@ -447,10 +467,10 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
   }
 
-  // 发起续租流程
+  // 发起续租流程-代币模式
   // 续租loading
   let renewRentLoading = ref(false)
-  async function renewRentFlow(info: any) {
+  async function renewRentFlow() {
     renewRentLoading.value = true
 
     // 先获取机器信息
@@ -483,7 +503,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
         return
       } else {
         // 满足续租了可以续租
-        console.log(info, 'info')
         const NftsDialogRef = ref()
         console.log(rentMachineDialogBeforeForm, 'rentMachineDialogBeforeForm')
         await getRentPrice()
@@ -603,6 +622,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               window.$message?.success(t('app.renewSuccess'))
               dialog.destroy?.()
               device.getUserDeviceListH()
+              return true
             } catch (err: any) {
               console.error('[续租失败]', err)
               dialog.loading = false
@@ -612,6 +632,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               handleTxError(err, {
                 abiForCustomError: CONTRACT_ABIS.RENT,
               })
+              return false
             }
           },
         })
@@ -620,6 +641,185 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       window.$message?.error(t('app.fetchRentalDetailsFailed'))
     }
   }
+
+  /**
+   * 积分续租流程
+   * 返回 Promise<boolean>：
+   * - true：链上转账 +（续租接口）+ 通知 成功
+   * - false：失败/取消/异常
+   */
+  async function renewPointFlow(): Promise<boolean> {
+    const app = appStore()
+    const { dlc_price, waitReady } = useGetDlcPrice()
+
+    let settle!: (ok: boolean) => void
+    let settled = false
+    const done = (ok: boolean) => {
+      if (!settled) {
+        settled = true
+        settle(ok)
+      }
+    }
+    const finalPromise = new Promise<boolean>((resolve) => (settle = resolve))
+
+    try {
+      // 前置 Loading
+      renewRentLoading.value = true
+
+      // 打开确认弹窗
+      const d = window.$dialog?.info({
+        title: () =>
+          h(NGradientText, { size: 24, type: 'success', class: 'font-bold' }, { default: () => t('app.rent.renew') }),
+        content: () => h(rentMachineDialog, { ref: ref() }),
+        class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+        showIcon: false,
+        negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
+        positiveButtonProps: { color: '#03C188', size: 'medium' },
+        positiveText: t('app.confirm'),
+        negativeText: t('app.cancel'),
+
+        onPositiveClick: async () => {
+          const { ensureWallet } = useWalletSigner(t)
+          const result: any = await ensureWallet()
+          const { signer, dialog } = result
+          if (!dialog) return
+
+          try {
+            dialog.loading = true
+            dialog.positiveText = 'Loading...'
+
+            // ✅ 统一用 signer.provider，避免 RPC/nonce/feeData 差异
+            const provider = signer.provider!
+
+            // 合约实例（read 与 write 分离）
+            const rentContractRead = getContract('RENT', provider)
+            const dlcTokenRead = getContract('DLC_TOKEN', provider) // 只取 DLC 的 decimals
+            const dlcpRead = getErc20Contract(DLCP_TOKEN_ADDRESS, provider) // DLCP 读
+            const dlcpWrite = getErc20Contract(DLCP_TOKEN_ADDRESS, signer) // DLCP 写
+
+            // 从合约获取续租价格（单位：DLC 的最小单位）
+            const priceWei: bigint = await rentContractRead.getMachinePrice(
+              rentMachineDialogBeforeForm.rentinfo.machine_id,
+              rentMachineDialogBeforeForm.duration
+            )
+
+            // 读取 decimals
+            const dlcDecimals = Number((await dlcTokenRead.decimals?.()) ?? 18)
+            const dlcpDecimals = Number(await dlcpRead.decimals()) // 当前链上为 18
+
+            // DLC → USD → 积分（1 USD = 1000 积分），BigInt 定点
+            await waitReady()
+            const priceNum = Number(dlc_price.value)
+            if (!Number.isFinite(priceNum) || priceNum <= 0) {
+              throw new Error(t('app.rent.priceUnavailable') || '价格暂不可用')
+            }
+            const USD_SCALE = 1_000_000n
+            const priceUsdScaled = BigInt(Math.round(priceNum * Number(USD_SCALE)))
+
+            // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals
+            const pointsWei =
+              (priceWei * priceUsdScaled * 1000n * 10n ** BigInt(dlcpDecimals)) / 10n ** BigInt(dlcDecimals) / USD_SCALE
+
+            // DLCP 余额检查
+            const balanceWei: bigint = await dlcpRead.balanceOf(app.address)
+            if (balanceWei < pointsWei) {
+              throw new Error(t('app.rent.insufficientBalance') || 'DLCP 余额不足')
+            }
+
+            // ---- 小工具：转账前做 DBC 矿工费预检（避免重复广播 / already known / timeout）----
+            const ensureDbcFor = async (to: string, data: string, from: string) => {
+              const fee = await provider.getFeeData()
+              const maxFeePerGas = fee.maxFeePerGas ?? fee.gasPrice
+              if (!maxFeePerGas || maxFeePerGas === 0n) {
+                const e = new Error('fee data unavailable')
+                ;(e as any).code = 'FEE_DATA_UNAVAILABLE'
+                throw e
+              }
+              const estGas = await signer.estimateGas({ to, data, from })
+              const gasLimit = (estGas * 12n) / 10n // +20% buffer
+              const need = gasLimit * maxFeePerGas
+              const dbcBal = await provider.getBalance(from)
+              if (dbcBal < need) {
+                const e = new Error('insufficient funds for gas * price + value')
+                ;(e as any).code = 'INSUFFICIENT_FUNDS'
+                throw e
+              }
+            }
+
+            // 在 transfer 前做 DBC 预检（重点）
+            const from = app.address
+            const to = DLCP_RECEIVER
+            const data = dlcpWrite.interface.encodeFunctionData('transfer', [to, pointsWei])
+            await ensureDbcFor(DLCP_TOKEN_ADDRESS, data, from)
+
+            // 发起 DLCP 转账到固定地址
+            const tx = await dlcpWrite.transfer(DLCP_RECEIVER, pointsWei)
+            const receipt = await tx.wait()
+            if (!receipt || receipt.status !== 1) {
+              throw new Error(t('app.transferFailed') || '转账失败')
+            }
+            const txHash = receipt.hash
+            const blockNumber = receipt.blockNumber
+
+            // 展示/上报字段（与链上金额一致的字符串）
+            const rentPointStr = ethers.formatUnits(pointsWei, dlcpDecimals)
+
+            // 签名（rent_wallet 已小写）
+            const signature = await signer.signMessage(String(app.address))
+
+            // 调用【积分续租接口】（你已有的接口）
+            const { data: renewRes } = await extendByPoint({
+              wallet: app.address,
+              renew_time: rentMachineDialogBeforeForm.duration,
+              device_id: rentMachineDialogBeforeForm.rentinfo.device_id,
+              machine_id: rentMachineDialogBeforeForm.rentinfo.machine_id,
+              rent_dlc: rentMachineDialogBeforeForm.dLCNumber,
+              rent_usdt: Number(rentMachineDialogBeforeForm.dLCNumber * rentMachineDialogBeforeForm.dlcprice),
+              rent_hash: txHash,
+              rent_block_num: blockNumber,
+              rent_point: rentPointStr,
+              purchase_path: 'Client_Point',
+              signature,
+            })
+            if (!renewRes?.success) throw new Error(renewRes?.message || t('app.rent.renewStoreFailed'))
+
+            window.$message?.success(t('app.rent.renewSuccess') || '续租成功')
+
+            dialog.destroy?.()
+            device.getUserDeviceListH?.()
+
+            done(true)
+            return true
+          } catch (err: any) {
+            console.error('[积分续租失败]', err)
+            dialog.loading = false
+            dialog.positiveText = t('app.confirm')
+
+            handleTxError(err, {
+              abiForCustomError: CONTRACT_ABIS.RENT, // 统一入口；解析不到则走通用归一化
+            })
+
+            done(false)
+            return false
+          }
+        },
+
+        onNegativeClick: () => done(false),
+        onClose: () => done(false),
+      })
+
+      // 返回会在确认/取消/关闭时 resolve 的 Promise
+      return finalPromise
+    } catch (err) {
+      console.error('[renewPointFlow 异常]', err)
+      done(false)
+      return finalPromise
+    } finally {
+      // 兜底，确保不悬挂（弹窗打开后会在 onPositiveClick 内再次设置 loading）
+      renewRentLoading.value = false
+    }
+  }
+
   return {
     getGpsH,
     getGpuTypeH,
@@ -640,5 +840,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     endRentFlow,
     renewRentFlow,
     renewRentLoading,
+    renewPointFlow,
   }
 })

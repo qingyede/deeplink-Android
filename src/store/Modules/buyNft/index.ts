@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getNftList, buyNftSuccess } from '@/api/buyNft/index'
+import { getNftList, buyNftSuccess, buyNftByPoint } from '@/api/buyNft/index'
 import { priceStore } from '@/store/Modules/price/index'
 import { useI18n } from 'vue-i18n'
 import { getErc20Contract, DLC_TOKEN_ADDRESS } from '@/utils/wallet/dbcProvider'
@@ -7,15 +7,22 @@ import { useWalletSigner } from '@/hooks/wallet/useSignTransaction'
 import { ethers } from 'ethers'
 import { NFTTRANSFER_ADDRESS } from '@/utils/common/contracts'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'
-import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS } from '@/utils/common/contracts'
+import { getContract, DLCP_TOKEN_ADDRESS, DLCP_RECEIVER } from '@/utils/common/contracts'
 import { appStore } from '@/store/Modules/app/index'
 import nfts from '@/assets/img/nfts.png'
+import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
+import { useHomeStore } from '@/store/Modules/home/index'
+import { useRouter, useRoute } from 'vue-router'
 
 export const useBuyNftStore = defineStore('buyNft', () => {
   const price = priceStore()
   const { t } = useI18n()
   const app = appStore()
+  const { dlc_price } = useGetDlcPrice()
+  const home = useHomeStore()
 
+  const router = useRouter()
+  const route = useRoute()
   // nfts列表数据loading
   const nftListLoading = ref(true)
   // nfts列表活动结束日期
@@ -28,6 +35,8 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       vertion: '暂无数据',
       percent: `0%`,
       v: 0,
+      toDlcNumber: 0,
+      value: 0,
     },
   ])
   // 获取nfts列表数据
@@ -50,7 +59,7 @@ export const useBuyNftStore = defineStore('buyNft', () => {
         const nftName = t('Store.nft.name')
 
         const priceStr = t('Store.nft.price', {
-          price: price.useLocalizedCurrency(item.price_usdt, 2),
+          price: price.useLocalizedCurrency(item.price_usdt * item.discount, 2),
           month: map[index],
         })
 
@@ -59,20 +68,19 @@ export const useBuyNftStore = defineStore('buyNft', () => {
           month: map[index],
         })
         return {
-          // price: `${price.useLocalizedCurrency(item.price_usdt, 2)}/${map[index]}个月`,
-          // vertion: `专业版皇冠NFT ${map[index]}个月`,
-
           price: priceStr,
           vertion: vertionStr,
           percent: item.discount_test,
-          v: price.useLocalizedCurrency(item.price_usdt * item.discount, 2),
+          v: price.useLocalizedCurrency(item.price_usdt, 2),
           type: item.expire_time_type,
+          value: item.price_usdt * item.discount,
+          toDlcNumber: Number((item.price_usdt * item.discount) / dlc_price.value).toFixed(5),
         }
       })
     }
   }
 
-  // 购买nft
+  // 购买nft-代币模式
   async function purchaseNFTFlow({ dlcAmount, saveData }: { dlcAmount: number; saveData: any }) {
     console.log('购买nft购买nft购买nft购买nft')
     const { ensureWallet } = useWalletSigner(t)
@@ -124,6 +132,71 @@ export const useBuyNftStore = defineStore('buyNft', () => {
       dialog.positiveText = t('app.confirm')
       console.error('[NFT 购买出错]', err)
       dialog.destroy?.()
+    }
+  }
+
+  // 购买 NFT -- 积分模式
+  async function purchaseNFTFlowByPoint({
+    pointAmount, // 积分数量（人类可读，比如 1000.123）
+    saveData,
+  }: {
+    pointAmount: number
+    saveData: any
+  }) {
+    console.log('购买nft购买nft购买nft购买nft')
+    const { ensureWallet } = useWalletSigner(t)
+    const result = await ensureWallet()
+
+    console.log(result, 'resultresultresultresult')
+    if (!result) return
+
+    const { signer, address: purchaser, dialog } = result
+
+    // 1. 获取合约实例（DLCP）
+    const dlcpContract = getErc20Contract(DLCP_TOKEN_ADDRESS, signer)
+
+    try {
+      // ✅ 2. 处理金额：把积分数量转成最小单位（wei）
+      const decimals = await dlcpContract.decimals()
+      const amountWei = ethers.parseUnits(String(pointAmount), decimals)
+
+      // ✅ 3. 转账积分到固定地址
+      const tx = await dlcpContract.transfer(DLCP_RECEIVER, amountWei)
+      const receipt = await tx.wait()
+      if (receipt.status !== 1) throw new Error('积分转账失败')
+
+      // ✅ 4. 获取交易哈希和区块高度
+      const txHash = receipt.hash
+      const blockNumber = receipt.blockNumber
+
+      console.log('✅ [积分NFT] 交易哈希:', txHash)
+      console.log('✅ [积分NFT] 区块高度:', blockNumber)
+
+      // ✅ 5. 对购买地址（小写）签名
+      const signature = await signer.signMessage(saveData.purchaser)
+
+      // ✅ 6. 存储数据到数据库（模拟接口）
+      // ⚠️ 这里我模拟一个异步接口调用，和你代币模式的 buyNftSuccess 一样
+      const { data: res } = await buyNftByPoint({
+        point_num: pointAmount,
+        ...saveData,
+        blockNumber: blockNumber,
+        hash: txHash,
+        signature,
+        invite_code: '',
+        invite_wallet: '',
+      })
+
+      if (!res.success) throw new Error(res.message || '积分购买失败')
+      // router.push({ name: 'home' })
+      // home.activeTab = 'NFTs'
+      // 🎉 成功提示
+      window.$message?.success(t('app.purchaseSuccess'))
+      dialog.destroy?.()
+      getMyNftListH()
+    } catch (err: any) {
+      console.error('[NFT 积分购买出错]', err)
+      window.$message?.error(err.message || '积分购买失败')
     }
   }
 
@@ -297,5 +370,6 @@ export const useBuyNftStore = defineStore('buyNft', () => {
     transferNFTFlow,
     activeNFTFlow,
     hasNft,
+    purchaseNFTFlowByPoint,
   }
 })

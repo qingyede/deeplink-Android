@@ -17,3 +17,20 @@ export const buyNftSuccess = (data) => {
     data,
   })
 }
+// 获取积分购买链接
+export const getPointBuyLink = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/paypal/getBuyLink`,
+    data,
+  })
+}
+
+// 积分购买nft
+export const buyNftByPoint = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/point/saveBuyPointOrder`,
+    data,
+  })
+}

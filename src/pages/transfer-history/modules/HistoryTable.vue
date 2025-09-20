@@ -43,7 +43,14 @@
           :key="item.tx_hash"
           class="flex justify-between items-center gap-3 hover:bg-[#EFF1F0] px-1 py-2 rounded-md transition"
         >
-          <img class="max-w-[48px] max-h-[48px]" :src="currentIcon" alt="" />
+          <img v-if="route.query.coin !== 'DLP'" class="max-w-[48px] max-h-[48px]" :src="currentIcon" alt="" />
+          <!-- DLP 圆形图标 -->
+          <div
+            v-else
+            class="flex items-center justify-center w-12 h-12 rounded-full bg-gray-200 text-gray-800 font-bold text-sm"
+          >
+            DLP
+          </div>
           <div class="flex flex-col gap-1 justify-center">
             <span class="text-base font-bold">
               {{ item.direction === 'in' ? $t('transaction.receive') : $t('transaction.send') }}
@@ -117,12 +124,15 @@ const currentIcon = computed(() => {
 const currentHistory = computed(() => {
   const list = transferStore.displayTransferList
   if (!list || list.length === 0) return []
-
   const coin = route.query.coin
+  console.log(list, coin, 'coincoincoincoincoincoincoin')
+
   if (coin === 'DBC') {
     return list.filter((item) => item.token?.symbol === 'DBC')
   } else if (coin === 'DLC') {
     return list.filter((item) => item.token?.symbol === 'DLC')
+  } else if (coin === 'DLP') {
+    return list.filter((item) => item.token?.symbol === 'DLP')
   } else {
     return list.filter((item) => item.token?.symbol === 'DLCCNFT')
   }

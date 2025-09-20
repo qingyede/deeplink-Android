@@ -18,6 +18,7 @@ export const useCloudCafeStore = defineStore('cloud-cafe', () => {
       num: 0,
       canRentTrue: 0,
       maxCalcPoint: 0,
+      minRentHour: 0,
     },
   ])
 
@@ -50,6 +51,7 @@ export const useCloudCafeStore = defineStore('cloud-cafe', () => {
             canRentTrue: item.canRentTrue,
             maxCalcPoint: item.maxCalcPoint,
             type: item._id,
+            minRentHour: item.minRentHour,
           }
         })
       }

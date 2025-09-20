@@ -12,11 +12,19 @@
           <div class="flex items-center gap-3">
             <div class="rounded-full overflow-hidden bg-slate-600">
               <img
+                v-if="item.coin !== 'DLP'"
                 :class="item.coin === 'DBC' ? 'scale-125' : ''"
                 class="object-cover w-[52px] h-[52px]"
                 :src="item.icon"
                 alt=""
               />
+
+              <div
+                v-else
+                class="flex items-center justify-center w-[52px] h-[52px] rounded-full bg-gray-200 text-gray-800 font-bold text-base"
+              >
+                DLP
+              </div>
             </div>
             <span class="font-bold text-xl dark:text-white">{{ item.coin }}</span>
           </div>
@@ -25,21 +33,10 @@
             <span class="font-bold text-[12px] text-[#7E7E7E] dark:text-white/60">{{ item.price }}</span>
           </div>
         </div>
-
-        <!-- 邀请 -->
-        <!-- <div class="mt-[36px] flex flex-col gap-6">
-          <n-input
-            v-model:value="value"
-            type="text"
-            :placeholder="$t('home.inviteCodeInput')"
-            class="min-h-[52px] rounded-lg bg-[#E1EBE7] dark:bg-[#2c2c2c] text-[#737373] dark:text-white/80"
-          />
-          <n-button class="w-full rounded-lg min-h-[52px] text-[22px]" type="primary">{{ $t('home.submit') }}</n-button>
-        </div> -->
       </n-tab-pane>
 
       <!-- NFTs Tab -->
-      <n-tab-pane name="NFTs" :tab="$t('home.nfts')">
+      <n-tab-pane name="NFTs" :tab="app.mode ? $t('home.nfts2') : $t('home.nfts')">
         <MyNftList />
       </n-tab-pane>
     </n-tabs>
@@ -53,16 +50,17 @@ import { useOpenExternalLink } from '@/hooks/common/useExternalLinkOptions'
 import { useHomeStore } from '@/store/Modules/home/index'
 import MyNftList from './my-nft-list.vue'
 import { useBuyNftStore } from '@/store/Modules/buyNft/index'
+import { appStore } from '@/store/Modules/app/index'
+
+const app = appStore()
 const buyNft = useBuyNftStore()
 const { openExternalLink } = useOpenExternalLink()
 const home = useHomeStore()
 const router = useRouter()
+const route = useRoute()
 const props = defineProps<{
   cryptoData: any[]
 }>()
-
-// 邀请码的值
-const value = ref('')
 </script>
 
 <style lang="scss" scoped>

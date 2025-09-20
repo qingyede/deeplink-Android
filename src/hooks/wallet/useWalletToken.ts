@@ -16,6 +16,7 @@ import { useGetDbcPrice } from '@/hooks/store/useGetDbcPrice'
 import transferDialogDlcAndDbc from '@/pages/home/modules/myCardModules/transferDialogDlcAndDbc.vue'
 import { useTransfer } from '@/utils/wallet/dbcProvider'
 import { useRouter, useRoute } from 'vue-router'
+import { useGetUserPoints } from '@/hooks/wallet/useGetUserPoint'
 
 export const useWalletToken = () => {
   const { t, locale } = useI18n()
@@ -28,6 +29,8 @@ export const useWalletToken = () => {
   const { transfer } = useTransfer(t)
   const router = useRouter()
   const route = useRoute()
+  const { points } = useGetUserPoints()
+
   // Toggle balance
   // Balance visibility state
   const showBalance = ref(false)
@@ -45,20 +48,31 @@ export const useWalletToken = () => {
 
   // 个人加密货币数据
   const cryptoData = computed(() => {
-    return [
-      {
-        coin: 'DLC',
-        icon: DLC,
-        number: formatNumber(dlcNumber.value),
-        price: price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value)),
-      },
-      {
-        coin: 'DBC',
-        icon: DBC,
-        number: formatNumber(dbcNumber.value),
-        price: price.useLocalizedCurrency(convertDbcToUsd(Number(dbcNumber.value), dbc_price.value)),
-      },
-    ]
+    if (app.mode) {
+      return [
+        {
+          coin: 'DLP',
+          icon: DLC,
+          number: points.value,
+          price: price.useLocalizedCurrency(Number(points.value) / 1000),
+        },
+      ]
+    } else {
+      return [
+        {
+          coin: 'DLC',
+          icon: DLC,
+          number: formatNumber(dlcNumber.value),
+          price: price.useLocalizedCurrency(convertDlcToUsd(Number(dlcNumber.value), dlc_price.value)),
+        },
+        {
+          coin: 'DBC',
+          icon: DBC,
+          number: formatNumber(dbcNumber.value),
+          price: price.useLocalizedCurrency(convertDbcToUsd(Number(dbcNumber.value), dbc_price.value)),
+        },
+      ]
+    }
   })
 
   // 购买Dlc

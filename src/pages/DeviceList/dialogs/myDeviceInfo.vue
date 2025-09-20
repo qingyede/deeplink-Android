@@ -39,7 +39,7 @@
         <span>{{ formatSeconds(props.info.rent_time) }}</span>
       </n-descriptions-item>
 
-      <n-descriptions-item :label="$t('devices.rent_end')">
+      <n-descriptions-item v-if="!app.mode" :label="$t('devices.rent_end')">
         <n-button @click="endRentFlowH(props.info)" class="w-full rounded-lg" secondary type="primary">
           {{ $t('devices.rent_end') }}
         </n-button>
@@ -65,10 +65,11 @@ import { ref } from 'vue'
 import { useNow } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useCloudComputersStore } from '@/store/Modules/gpu/cloud-computers'
+import { appStore } from '@/store/Modules/app'
 const cloudComputersStore = useCloudComputersStore()
 const { t } = useI18n()
 const props = defineProps(['info', 'd'])
-
+const app = appStore()
 function formatSeconds(seconds) {
   console.log(seconds, 'secondssecondssecondssecondssecondsseconds')
   const hours = Math.floor(seconds / 3600)
@@ -82,16 +83,56 @@ function formatSeconds(seconds) {
 
   return result.join('') || '0秒'
 }
-onMounted(() => {
-  console.log(props, 'propspropsprops')
-})
+
+function getRemainingSeconds(startTime: number, rentSeconds: number): number {
+  const now = Date.now()
+  const endTime = startTime + rentSeconds * 1000
+  const remainingMs = endTime - now
+  return Math.max(Math.floor(remainingMs / 1000), 0)
+}
 // 开始续租
-const reRent = async (info) => {
-  console.log(info, '>>>>>>>>>>>>', props.d)
-  // if(info.rent_time)
-  cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = info
-  await cloudComputersStore.renewRentFlow(info)
-  props.d?.destroy?.()
+const reRent = async (item) => {
+  console.log(item, '>>>>>>>>>>>>', props.d)
+
+  cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = item
+
+  try {
+    // 先判断是否满足续租条件
+    console.log(item, 'item')
+    // 可使用时长（分钟）
+    const endMs = item.current_time + item.can_use_time * 60 * 60 * 1000 - Date.now()
+    const canUseTimeMinutes = Number((endMs / (1000 * 60)).toFixed(0))
+    // 剩余秒数（距离当前订单结束）
+    const remainingSeconds = getRemainingSeconds(item.rent_satrtime, item.rent_time)
+    console.log(remainingSeconds, 'remainingSeconds', item.rent_satrtime, item.rent_time)
+    if (canUseTimeMinutes < 60) {
+      window.$message?.warning(t('app.rent.lessThan60min'))
+      return false
+    }
+    if (remainingSeconds < 120) {
+      window.$message?.warning(t('app.rent.lessThan2minRenew'))
+      return false
+    }
+    // 先判断是积分还是代币
+    if (app.mode) {
+      const ok = await cloudComputersStore.renewPointFlow()
+      if (ok) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      const ok: any = await cloudComputersStore.renewRentFlow()
+      if (ok) {
+        return true
+      } else {
+        return false
+      }
+    }
+  } catch (error) {
+    console.log(error)
+    return false
+  }
 }
 
 // 退租
