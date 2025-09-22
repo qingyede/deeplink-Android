@@ -31,9 +31,6 @@ export default defineConfig({
     emptyOutDir: true, // 每次清空
     assetsDir: 'assets',
     modulePreload: false, // file:// 无意义
-    // 可选优化（包更整洁）
-    // cssCodeSplit: false,
-    // assetsInlineLimit: 4096,
     rollupOptions: {
       input: 'src/main.ts', // ✅ 用 JS 入口打 IIFE
       output: {

@@ -240,7 +240,7 @@ const showInfo = (item: any, n: number) => {
       },
       content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
       class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-      positiveText: '立即连接',
+      positiveText: 'Connect now',
       negativeText: t('devices.unbind'),
       positiveButtonProps: { color: '#03C188', size: 'medium' },
       negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },
@@ -273,7 +273,7 @@ const showInfo = (item: any, n: number) => {
     console.log(item)
   }
 }
-// 租用设备
+// 远程设备
 const rentDevice = async (item: any, n: number) => {
   if (n === 0) {
     console.log(item, 'PPPPPPP')
@@ -287,26 +287,48 @@ const rentDevice = async (item: any, n: number) => {
     console.log(rs, '签名签名签名签名')
     if (rs) {
       console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
+
+      console.log(
+        {
+          // 钱包地址 随机数 和签名，使用钱包签名远程时需要
+          wallet: app.address,
+          nonce: rs.nonce,
+          signature: rs.signature,
+          // 钱包类型，老的 DBC 钱包用 "subscan"
+          wallet_type: 'evm',
+          // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
+          wallet_role: 1,
+          nft_enabled: buyNft.hasNft,
+          // // 传到被控端创建虚拟显示器
+          display: {
+            width: 1920,
+            height: 1080,
+            fps: 60,
+          },
+        },
+        '具体数据'
+      )
       try {
+        const obj = {
+          // 钱包地址 随机数 和签名，使用钱包签名远程时需要
+          wallet: app.address,
+          nonce: rs.nonce,
+          signature: rs.signature,
+          // 钱包类型，老的 DBC 钱包用 "subscan"
+          wallet_type: 'evm',
+          // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
+          wallet_role: 1,
+          nft_enabled: buyNft.hasNft,
+          // // 传到被控端创建虚拟显示器
+          display: {
+            width: 1920,
+            height: 1080,
+            fps: 60,
+          },
+        }
         connectToRemoteDevice({
           id: item.device_id,
-          password: objectToBase64({
-            // 钱包地址 随机数 和签名，使用钱包签名远程时需要
-            wallet: app.address,
-            nonce: rs.nonce,
-            signature: rs.signature,
-            // 钱包类型，老的 DBC 钱包用 "subscan"
-            wallet_type: 'evm',
-            // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
-            wallet_role: 1,
-            nft_enabled: buyNft.hasNft,
-            // // 传到被控端创建虚拟显示器
-            display: {
-              width: 1920,
-              height: 1080,
-              fps: 60,
-            },
-          }),
+          password: JSON.stringify(obj) as any,
         })
       } catch (error) {
         return false

@@ -36,7 +36,6 @@ export default defineConfig({
     },
   },
   // 全局环境变量
-
   define: {
     BUILD_TIME: JSON.stringify(new Date().toLocaleString()), // 将 buildTime 作为全局变量注入
   },
