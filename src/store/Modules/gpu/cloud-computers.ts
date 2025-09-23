@@ -713,12 +713,20 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             if (!Number.isFinite(priceNum) || priceNum <= 0) {
               throw new Error(t('app.rent.priceUnavailable') || '价格暂不可用')
             }
-            const USD_SCALE = 1_000_000n
+
+            const USD_SCALE = BigInt('1000000') // 替换 1_000_000n
             const priceUsdScaled = BigInt(Math.round(priceNum * Number(USD_SCALE)))
+
+            const TEN = BigInt(10) // 替换 10n
 
             // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals
             const pointsWei =
-              (priceWei * priceUsdScaled * 1000n * 10n ** BigInt(dlcpDecimals)) / 10n ** BigInt(dlcDecimals) / USD_SCALE
+              (priceWei *
+                priceUsdScaled *
+                BigInt(1000) * // 替换 1000n
+                TEN ** BigInt(dlcpDecimals)) /
+              TEN ** BigInt(dlcDecimals) /
+              USD_SCALE
 
             // DLCP 余额检查
             const balanceWei: bigint = await dlcpRead.balanceOf(app.address)
@@ -726,17 +734,18 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               throw new Error(t('app.rent.insufficientBalance') || 'DLCP 余额不足')
             }
 
-            // ---- 小工具：转账前做 DBC 矿工费预检（避免重复广播 / already known / timeout）----
+            // ---- 小工具：转账前做 DBC 矿工费预检 ----
             const ensureDbcFor = async (to: string, data: string, from: string) => {
               const fee = await provider.getFeeData()
               const maxFeePerGas = fee.maxFeePerGas ?? fee.gasPrice
-              if (!maxFeePerGas || maxFeePerGas === 0n) {
+              if (!maxFeePerGas || maxFeePerGas === BigInt(0)) {
+                // 替换 0n
                 const e = new Error('fee data unavailable')
                 ;(e as any).code = 'FEE_DATA_UNAVAILABLE'
                 throw e
               }
               const estGas = await signer.estimateGas({ to, data, from })
-              const gasLimit = (estGas * 12n) / 10n // +20% buffer
+              const gasLimit = (estGas * BigInt(12)) / BigInt(10) // 替换 (estGas * 12n) / 10n
               const need = gasLimit * maxFeePerGas
               const dbcBal = await provider.getBalance(from)
               if (dbcBal < need) {
@@ -767,7 +776,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             // 签名（rent_wallet 已小写）
             const signature = await signer.signMessage(String(app.address))
 
-            // 调用【积分续租接口】（你已有的接口）
+            // 调用【积分续租接口】
             const { data: renewRes } = await extendByPoint({
               wallet: app.address,
               renew_time: rentMachineDialogBeforeForm.duration,

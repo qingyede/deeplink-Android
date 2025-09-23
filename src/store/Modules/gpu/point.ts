@@ -53,12 +53,14 @@ export const rentMachineFlowWithPoints = async (item: any, machine_id: string, r
     // 3) DLC → USD → 积分（1 USD = 1000 积分），全程 BigInt 定点
     const { dlc_price, waitReady } = useGetDlcPrice()
     await waitReady()
-    const USD_SCALE = 1_000_000n
+    const USD_SCALE = BigInt('1000000') // 替换 1_000_000n
     const priceUsdScaled = BigInt(Math.round(Number(dlc_price.value) * Number(USD_SCALE)))
+
+    const TEN = BigInt(10) // 替换 10n
 
     // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals
     const pointsWei =
-      (priceWei * priceUsdScaled * 1000n * 10n ** BigInt(dlcpDecimals)) / 10n ** BigInt(dlcDecimals) / USD_SCALE
+      (priceWei * priceUsdScaled * BigInt(1000) * TEN ** BigInt(dlcpDecimals)) / TEN ** BigInt(dlcDecimals) / USD_SCALE
 
     // 4) DLCP 余额校验
     const balanceWei: bigint = await dlcpTokenRead.balanceOf(userAddress)
@@ -68,13 +70,14 @@ export const rentMachineFlowWithPoints = async (item: any, machine_id: string, r
     const ensureDbcFor = async (to: string, data: string, from: string) => {
       const fee = await provider.getFeeData()
       const maxFeePerGas = fee.maxFeePerGas ?? fee.gasPrice
-      if (!maxFeePerGas || maxFeePerGas === 0n) {
+      if (!maxFeePerGas || maxFeePerGas === BigInt(0)) {
+        // 替换 0n
         const e = new Error('fee data unavailable')
         ;(e as any).code = 'FEE_DATA_UNAVAILABLE'
         throw e
       }
       const estGas = await signer.estimateGas({ to, data, from })
-      const gasLimit = (estGas * 12n) / 10n // +20% buffer
+      const gasLimit = (estGas * BigInt(12)) / BigInt(10) // 替换 (estGas * 12n) / 10n
       const need = gasLimit * maxFeePerGas
       const dbcBal = await provider.getBalance(from)
       if (dbcBal < need) {
