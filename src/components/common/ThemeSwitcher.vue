@@ -25,7 +25,6 @@ onMounted(() => {
   <n-switch
     :value="isDark"
     @update:value="(val) => (isDark = val)"
-    size="large"
     :rail-style="
       ({ checked }) => ({
         backgroundColor: checked ? '#03C188' : '#dcdcdc',

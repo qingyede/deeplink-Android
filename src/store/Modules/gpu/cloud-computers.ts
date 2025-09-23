@@ -778,7 +778,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               rent_hash: txHash,
               rent_block_num: blockNumber,
               rent_point: rentPointStr,
-              purchase_path: 'Client_Point',
+              purchase_path: 'Android_Point',
               signature,
             })
             if (!renewRes?.success) throw new Error(renewRes?.message || t('app.rent.renewStoreFailed'))
@@ -789,7 +789,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             device.getUserDeviceListH?.()
 
             done(true)
-            return true
           } catch (err: any) {
             console.error('[积分续租失败]', err)
             dialog.loading = false

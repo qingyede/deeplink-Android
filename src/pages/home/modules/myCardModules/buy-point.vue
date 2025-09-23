@@ -135,15 +135,19 @@ onMounted(async () => {
 // 外链跳转
 const onOpen = async (item) => {
   console.log(item)
-  // 获取跳转链接
-  const { data: res } = await getPointBuyLink({
-    id: login.walletId,
-    product_id: item.product_id,
-  })
-  if (res.success) {
-    window.open(res.data, '_blank', 'noopener,noreferrer')
-  } else {
-    window.$message?.error(res.msg)
+
+  try {
+    // 获取跳转链接
+    const { data: res } = await getPointBuyLink({
+      id: login.walletId,
+      product_id: item.product_id,
+    })
+    if (res.success) {
+      window.open(res.data, '_blank', 'noopener,noreferrer')
+    }
+  } catch (error: any) {
+    console.log(error, 'error')
+    window.$message?.error(error.response.data)
   }
 }
 </script>

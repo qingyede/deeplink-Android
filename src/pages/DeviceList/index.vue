@@ -240,7 +240,7 @@ const showInfo = (item: any, n: number) => {
       },
       content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
       class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-      positiveText: '立即连接',
+      positiveText: t('devices.connect'),
       negativeText: t('devices.unbind'),
       positiveButtonProps: { color: '#03C188', size: 'medium' },
       negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },

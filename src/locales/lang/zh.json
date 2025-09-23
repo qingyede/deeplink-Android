@@ -315,7 +315,8 @@
     "save": "保存",
     "cancel": "取消",
     "info": "设备信息",
-    "unbind": "解除绑定"
+    "unbind": "解除绑定",
+    "connect": "立即连接"
   },
   "IsWallet": {
     "walletUserManual": "钱包使用指南",

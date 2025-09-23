@@ -1,7 +1,9 @@
 <template>
   <div class="relative inline-block text-left">
     <n-dropdown trigger="click" :options="dropdownOptions" @select="changeLanguage">
-      <Icon icon="mdi:translate" class="text-[21px] text-primary-500" />
+      <div>
+        <Icon icon="mdi:translate" class="text-[21px] text-primary-500" />
+      </div>
     </n-dropdown>
   </div>
 </template>

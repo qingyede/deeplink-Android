@@ -116,7 +116,9 @@ const reRent = async (item) => {
     // 先判断是积分还是代币
     if (app.mode) {
       const ok = await cloudComputersStore.renewPointFlow()
+      console.log(ok, 'okokokokokokokokokokok')
       if (ok) {
+        props.d?.destroy?.()
         return true
       } else {
         return false
@@ -124,6 +126,7 @@ const reRent = async (item) => {
     } else {
       const ok: any = await cloudComputersStore.renewRentFlow()
       if (ok) {
+        props.d?.destroy?.()
         return true
       } else {
         return false
