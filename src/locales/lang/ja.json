@@ -255,7 +255,8 @@
     "walletBuyTokensTip": "ウォレットを接続すると、DBCおよびDLCトークンに関する情報を確認できます。",
     "walletPurchaseServicesTip": "ウォレットを接続すると、トークンを使ってクラウドゲームやその他の機能を有効化できます。",
     "walletClaimRewardsTip": "ウォレットを接続すると、プラットフォーム活動に関連するDLC特典を確認できます。",
-    "walletShareGpuTip": "ウォレットを接続すると、分散コンピューティングネットワークに参加し、GPUを共有できます。（NVIDIA 20シリーズ以降のGPUが必要です）"
+    "walletShareGpuTip": "ウォレットを接続すると、分散コンピューティングネットワークに参加し、GPUを共有できます。（NVIDIA 20シリーズ以降のGPUが必要です）",
+    "manage": "ウォレットにログインした後、同じウォレットに属するデバイスを管理および接続できます。"
   },
   "createWallet": {
     "newWallet": "新規ウォレット",

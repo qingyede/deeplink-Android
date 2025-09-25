@@ -272,7 +272,8 @@
     "walletBuyTokensTip": "지갑을 연결하면 DBC 및 DLC 토큰 관련 정보를 확인할 수 있습니다.",
     "walletPurchaseServicesTip": "지갑을 연결하면 토큰을 사용하여 클라우드 게임 및 기타 플랫폼 기능을 활성화할 수 있습니다.",
     "walletClaimRewardsTip": "지갑을 연결하면 플랫폼 활동과 관련된 DLC 혜택을 확인할 수 있습니다.",
-    "walletShareGpuTip": "지갑을 연결하면 분산 컴퓨팅 네트워크에 참여하고 GPU를 공유할 수 있습니다. (Nvidia 20 시리즈 이상 그래픽카드 필요)"
+    "walletShareGpuTip": "지갑을 연결하면 분산 컴퓨팅 네트워크에 참여하고 GPU를 공유할 수 있습니다. (Nvidia 20 시리즈 이상 그래픽카드 필요)",
+    "manage": "지갑에 로그인한 후, 동일한 지갑에 속한 기기를 관리하고 연결할 수 있습니다."
   },
   "createWallet": {
     "newWallet": "새 지갑 만들기",

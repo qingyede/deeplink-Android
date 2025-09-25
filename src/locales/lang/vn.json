@@ -254,7 +254,8 @@
     "walletBuyTokensTip": "Sau khi kết nối ví, bạn có thể xem thông tin liên quan đến DeepBrainChain Coin và DeepLink Coin.",
     "walletPurchaseServicesTip": "Sau khi kết nối ví, bạn có thể sử dụng token để kích hoạt trò chơi đám mây và các tính năng khác của nền tảng.",
     "walletClaimRewardsTip": "Sau khi kết nối ví, bạn có thể xem các quyền lợi liên quan đến DeepLink Coin từ hoạt động trên nền tảng.",
-    "walletShareGpuTip": "Sau khi kết nối ví, bạn có thể tham gia mạng tính toán phân tán và chia sẻ GPU (yêu cầu GPU Nvidia dòng 20 trở lên)."
+    "walletShareGpuTip": "Sau khi kết nối ví, bạn có thể tham gia mạng tính toán phân tán và chia sẻ GPU (yêu cầu GPU Nvidia dòng 20 trở lên).",
+    "manage": "Sau khi đăng nhập vào ví, bạn có thể quản lý và kết nối các thiết bị trong cùng một ví."
   },
   "createWallet": {
     "newWallet": "Tạo ví mới",

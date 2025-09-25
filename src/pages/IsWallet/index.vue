@@ -59,12 +59,14 @@ const route = useRoute()
 
 // ]
 
-const tipsData = [
-  {
-    number: '01',
-    text: 'After logging into the wallet, you can manage and connect devices under the same wallet.',
-  },
-]
+const tipsData = computed(() => {
+  return [
+    {
+      number: '01',
+      text: t('IsWallet.manage'),
+    },
+  ]
+})
 </script>
 
 <style lang="scss" scoped></style>

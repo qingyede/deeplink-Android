@@ -272,7 +272,8 @@
     "walletBuyTokensTip": "Once you connect your wallet, you can view information related to DeepBrainChain Coin and DeepLink Coin.",
     "walletPurchaseServicesTip": "Once you connect your wallet, you can use tokens to activate cloud gaming and other platform features.",
     "walletClaimRewardsTip": "Once you connect your wallet, you can access DeepLink Coin benefits related to platform activities.",
-    "walletShareGpuTip": "Once you connect your wallet, you can join the distributed computing network and share your GPU (Nvidia 20 series or higher is required)."
+    "walletShareGpuTip": "Once you connect your wallet, you can join the distributed computing network and share your GPU (Nvidia 20 series or higher is required).",
+    "manage": "After logging into the wallet, you can manage and connect devices under the same wallet."
   },
   "createWallet": {
     "newWallet": "New Wallet",
