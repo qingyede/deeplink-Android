@@ -30,12 +30,12 @@
         size="small"
         :type="nft.NFTStatus === 'activated' ? 'success' : 'error'"
         round
-        class="absolute top-3 right-3 z-10"
+        class="absolute top-0 right-0 z-10"
       >
         {{ $t(`home.${nft.NFTStatus}`) }}
       </n-tag>
       <!-- 内容主体 -->
-      <div class="flex items-start gap-4">
+      <div class="flex items-start gap-4 mt-5">
         <img
           @click="router.push({ name: 'transferHistory', query: { coin: 'DLP', length: buyNft.myNftList.length } })"
           class="w-14 h-14 rounded-md object-cover"
@@ -45,7 +45,7 @@
         <div class="flex-1 flex flex-col justify-between">
           <p class="text-base font-bold leading-5 text-black dark:text-white max-w-[180px]">
             <!-- {{ nft.name }} -->
-            {{ app.mode ? '会员' : map1[nft.version_type] }}/{{ map[nft.expire_type] }}{{ $t('home.months') }}
+            {{ $t('home.nfts') }}/{{ map[nft.expire_type] }}{{ $t('home.months') }}
           </p>
           <p v-if="nft.NFTStatus === 'activated' ? true : false" class="my-1.5 text-gray-500 text-xs">
             {{ $t('home.time') }}：{{ nft.timeLeftText }}
@@ -65,7 +65,7 @@
           </div>
         </div>
       </div>
-      <n-divider v-if="index !== buyNft.myNftList.length - 1" class="my-1" />
+      <n-divider v-if="index !== buyNft.myNftList.length - 1" class="!mb-2" />
     </div>
 
     <!-- 空状态提示 -->
@@ -80,7 +80,7 @@
 
   <!-- 底部操作区 -->
   <div class="flex flex-col mt-[36px]">
-    <div class="flex gap-4">
+    <div class="flex gap-4 flex-wrap">
       <n-button
         @click="router.push({ name: 'Store' })"
         :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
