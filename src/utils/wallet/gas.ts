@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import i18n from '@/plugins/lang'
 
 type EnsureParams = {
   provider: ethers.Provider
@@ -22,6 +23,8 @@ export async function ensureDbcForTx({ provider, signerOrFrom, to, data, bufferP
   estCost: bigint
   balance: bigint
 }> {
+  const { t } = i18n.global
+
   // 1) 解析 from
   const from = typeof signerOrFrom === 'string' ? signerOrFrom : await (signerOrFrom as ethers.Signer).getAddress()
 
@@ -49,7 +52,7 @@ export async function ensureDbcForTx({ provider, signerOrFrom, to, data, bufferP
   const balance = await provider.getBalance(from)
 
   if (balance < estCost) {
-    const err: any = new Error('insufficient funds for gas * price + value')
+    const err: any = new Error(t('errors.insufficientDbc'))
     err.code = 'INSUFFICIENT_FUNDS'
     err.txMeta = {
       to,

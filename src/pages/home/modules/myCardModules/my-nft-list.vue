@@ -37,7 +37,7 @@
       <!-- 内容主体 -->
       <div class="flex items-start gap-4">
         <img
-          @click="router.push({ name: 'transferHistory', query: { coin: 'NFT', length: buyNft.myNftList.length } })"
+          @click="router.push({ name: 'transferHistory', query: { coin: 'DLP', length: buyNft.myNftList.length } })"
           class="w-14 h-14 rounded-md object-cover"
           :src="nft.image"
           alt="NFT 图标"

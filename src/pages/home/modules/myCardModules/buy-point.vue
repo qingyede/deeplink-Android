@@ -136,19 +136,21 @@ onMounted(async () => {
 const onOpen = async (item) => {
   console.log(item)
 
-  try {
-    // 获取跳转链接
-    const { data: res } = await getPointBuyLink({
-      id: login.walletId,
-      product_id: item.product_id,
-    })
-    if (res.success) {
-      window.open(res.data, '_blank', 'noopener,noreferrer')
-    }
-  } catch (error: any) {
-    console.log(error, 'error')
-    window.$message?.error(error.response.data)
-  }
+  // try {
+  //   // 获取跳转链接
+  //   const { data: res } = await getPointBuyLink({
+  //     id: login.walletId,
+  //     product_id: item.product_id,
+  //   })
+  //   if (res.success) {
+  //     window.open(res.data, '_blank', 'noopener,noreferrer')
+  //   }
+  // } catch (error: any) {
+  //   console.log(error, 'error')
+  //   window.$message?.error(error.response.data)
+  // }
+
+  window.open(`https://deeplinkgame.com?id=${login.walletId}`, '_blank', 'noopener,noreferrer')
 }
 </script>
 

@@ -7,10 +7,30 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 
-const props = defineProps<{
-  startTime: number | string
-  rentSeconds: number
-}>()
+// CountdownTimer.vue
+const props = withDefaults(
+  defineProps<{
+    startTime?: number | string | null
+    rentSeconds?: number
+  }>(),
+  {
+    rentSeconds: 0,
+  }
+)
+
+function parseStart(val: unknown): number | null {
+  if (typeof val === 'number') return Number.isFinite(val) ? val : null
+  if (typeof val === 'string') {
+    const ms = Date.parse(val)
+    return Number.isFinite(ms) ? ms : null
+  }
+  return null
+}
+
+function isValid(): boolean {
+  const start = parseStart(props.startTime)
+  return start !== null && props.rentSeconds > 0
+}
 
 // ✅ 新增：定义自定义事件
 const emit = defineEmits<{
@@ -22,10 +42,22 @@ const remain = ref(0)
 
 // 计算剩余秒数
 function calcRemain() {
-  const start = typeof props?.startTime === 'string' ? Date.parse(props?.startTime) : props?.startTime
+  if (!isValid()) return 0
+  const start = parseStart(props.startTime)! // safe
   const end = start + props.rentSeconds * 1000
   const now = Date.now()
   return Math.max(0, Math.floor((end - now) / 1000))
+}
+
+function start() {
+  stop()
+  // 无效输入：不启动，不触发 finished
+  if (!isValid()) {
+    remain.value = 0
+    return
+  }
+  tick()
+  timer = window.setInterval(tick, 1000)
 }
 
 // 每秒刷新
@@ -36,12 +68,6 @@ function tick() {
     emit('finished')
     stop()
   }
-}
-
-function start() {
-  stop()
-  tick()
-  timer = window.setInterval(tick, 1000)
 }
 
 function stop() {

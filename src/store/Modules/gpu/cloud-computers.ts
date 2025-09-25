@@ -295,8 +295,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       router.push({ name: 'DeviceList' })
     }
   }
-  // 真正的租用
-  // 顶部新增
 
   // 真正的租用
   async function rentMachineFlow({
@@ -401,8 +399,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
       // ✅ 统一错误处理（优先解析合约自定义错误）
       handleTxError(err, {
         abiForCustomError: CONTRACT_ABIS.RENT,
-        // 如需自定义特定错误名的人性化提示，再传 nameToMessage
-        // nameToMessage: (name) => mapCustomErrorToMessage(name as any),
       })
     }
   }
@@ -662,6 +658,14 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
     const finalPromise = new Promise<boolean>((resolve) => (settle = resolve))
 
+    // ---- 辅助函数：避免在 WebView 中使用 BigInt 的 ** 运算符 ----
+    const powBI10 = (decimals: number): bigint => {
+      let r = BigInt(1) // 不用 1n，避免 BigInt 字面量
+      const TEN = BigInt(10)
+      for (let i = 0; i < decimals; i++) r *= TEN
+      return r
+    }
+
     try {
       // 前置 Loading
       renewRentLoading.value = true
@@ -714,19 +718,18 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               throw new Error(t('app.rent.priceUnavailable') || '价格暂不可用')
             }
 
-            const USD_SCALE = BigInt('1000000') // 替换 1_000_000n
-            const priceUsdScaled = BigInt(Math.round(priceNum * Number(USD_SCALE)))
+            // ---- 关键：避免 Number(BigInt) & 避免 BigInt 字面量 ----
+            const USD_SCALE_NUM = 1000000 // 用于 Math.round 的 number 标度
+            const USD_SCALE_BI = BigInt('1000000') // 后续 BigInt 计算的标度
+            const priceUsdScaled = BigInt(Math.round(priceNum * USD_SCALE_NUM))
 
-            const TEN = BigInt(10) // 替换 10n
+            // 10^decimals：用循环乘法，避免 BigInt 的 ** 运算符（WebView 里可能被转成 Math.pow）
+            const pow10_dlcp = powBI10(dlcpDecimals)
+            const pow10_dlc = powBI10(dlcDecimals)
 
             // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals
-            const pointsWei =
-              (priceWei *
-                priceUsdScaled *
-                BigInt(1000) * // 替换 1000n
-                TEN ** BigInt(dlcpDecimals)) /
-              TEN ** BigInt(dlcDecimals) /
-              USD_SCALE
+            const pointsWei = (priceWei * priceUsdScaled * BigInt(1000) * pow10_dlcp) / pow10_dlc / USD_SCALE_BI
+            // ---- 关键结束 ----
 
             // DLCP 余额检查
             const balanceWei: bigint = await dlcpRead.balanceOf(app.address)
@@ -734,32 +737,18 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
               throw new Error(t('app.rent.insufficientBalance') || 'DLCP 余额不足')
             }
 
-            // ---- 小工具：转账前做 DBC 矿工费预检 ----
-            const ensureDbcFor = async (to: string, data: string, from: string) => {
-              const fee = await provider.getFeeData()
-              const maxFeePerGas = fee.maxFeePerGas ?? fee.gasPrice
-              if (!maxFeePerGas || maxFeePerGas === BigInt(0)) {
-                // 替换 0n
-                const e = new Error('fee data unavailable')
-                ;(e as any).code = 'FEE_DATA_UNAVAILABLE'
-                throw e
-              }
-              const estGas = await signer.estimateGas({ to, data, from })
-              const gasLimit = (estGas * BigInt(12)) / BigInt(10) // 替换 (estGas * 12n) / 10n
-              const need = gasLimit * maxFeePerGas
-              const dbcBal = await provider.getBalance(from)
-              if (dbcBal < need) {
-                const e = new Error('insufficient funds for gas * price + value')
-                ;(e as any).code = 'INSUFFICIENT_FUNDS'
-                throw e
-              }
-            }
+            const from = app.address // 或 await signer.getAddress()
+            const receiver = DLCP_RECEIVER
+            const data = dlcpWrite.interface.encodeFunctionData('transfer', [receiver, pointsWei])
 
-            // 在 transfer 前做 DBC 预检（重点）
-            const from = app.address
-            const to = DLCP_RECEIVER
-            const data = dlcpWrite.interface.encodeFunctionData('transfer', [to, pointsWei])
-            await ensureDbcFor(DLCP_TOKEN_ADDRESS, data, from)
+            await ensureDbcForTx({
+              provider,
+              signerOrFrom: from, // 也可传 from 地址：'0x...'
+              to: DLCP_TOKEN_ADDRESS, // ✅ ERC20 合约地址（tx.to）
+              data, // ✅ transfer 编码
+              bufferPct: 20, // 与你原先 +20% buffer 等价
+              // value: 0n,               // 可选：明确无原生币 value
+            })
 
             // 发起 DLCP 转账到固定地址
             const tx = await dlcpWrite.transfer(DLCP_RECEIVER, pointsWei)
@@ -776,7 +765,7 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
             // 签名（rent_wallet 已小写）
             const signature = await signer.signMessage(String(app.address))
 
-            // 调用【积分续租接口】
+            // 调用【积分续租接口】（你已有的接口）
             const { data: renewRes } = await extendByPoint({
               wallet: app.address,
               renew_time: rentMachineDialogBeforeForm.duration,

@@ -60,6 +60,14 @@ export function handleTxError(
     } catch {}
   }
 
+  // ✅ A. 业务侧错误优先（带 isAppError 或 APP_* code）
+  if (err?.isAppError || (typeof err?.code === 'string' && err.code.startsWith('APP_'))) {
+    window.$message?.error(String(err.message || ''))
+    console.warn('[detail]', JSON.stringify(err, null, 2))
+    return
+  }
+
+  // ✅ B. 合约自定义错误（revert 自定义错误）
   if (options?.abiForCustomError) {
     const name = parseCustomRevert(err, options.abiForCustomError)
     if (options?.nameToMessage) {
@@ -76,6 +84,15 @@ export function handleTxError(
     }
   }
 
+  // ✅ C. 普通业务 Error（无链上 data），直接透传 message
+  // 避免把“余额不足”等业务提示误判为 RPC 错误
+  if (err && err.message && !err?.data && !err?.error?.data) {
+    window.$message?.error(String(err.message))
+    console.warn('[detail]', JSON.stringify(err, null, 2))
+    return
+  }
+
+  // ✅ D. 最后再走 RPC 归一化
   const ui = normalizeRpcError(err)
   window.$message?.error(ui.message)
   console.warn('[detail]', ui.detail)

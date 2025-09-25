@@ -4,12 +4,11 @@ import { appStore } from '@/store/Modules/app/index'
 import { getErc20Contract } from '@/utils/wallet/token'
 import { ethers } from 'ethers'
 import { getContract, DLCP_TOKEN_ADDRESS, DLCP_RECEIVER, CONTRACT_ABIS } from '@/utils/common/contracts'
-
 import { handleTxError } from './err'
 import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
 import { priceStore } from '@/store/Modules/price/index'
-import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { useWalletSigner } from '@/hooks/wallet/useSignTransaction'
+import { ensureDbcForTx } from '@/utils/wallet/gas' // 你前面新建并导出的工具函数
 
 export const rentMachineFlowWithPoints = async (item: any, machine_id: string, rent_time: number, notify: any) => {
   const { t } = i18n.global
@@ -28,6 +27,14 @@ export const rentMachineFlowWithPoints = async (item: any, machine_id: string, r
     try {
       await price.getExchangeRateH()
     } catch {}
+  }
+
+  // —— 辅助：BigInt 版 10 的幂（避免在 WebView 中用 BigInt 的 ** 运算）——
+  const powBI10 = (decimals: number): bigint => {
+    let r = BigInt(1)
+    const TEN = BigInt(10)
+    for (let i = 0; i < decimals; i++) r *= TEN
+    return r
   }
 
   try {
@@ -53,45 +60,34 @@ export const rentMachineFlowWithPoints = async (item: any, machine_id: string, r
     // 3) DLC → USD → 积分（1 USD = 1000 积分），全程 BigInt 定点
     const { dlc_price, waitReady } = useGetDlcPrice()
     await waitReady()
-    const USD_SCALE = BigInt('1000000') // 替换 1_000_000n
-    const priceUsdScaled = BigInt(Math.round(Number(dlc_price.value) * Number(USD_SCALE)))
 
-    const TEN = BigInt(10) // 替换 10n
+    // 分离 number/bigint 的标度，避免 Number(BigInt) 抛错
+    const USD_SCALE_NUM = 1000000 // 用于 Math.round
+    const USD_SCALE_BI = BigInt('1000000') // 用于后续 BigInt 计算
 
-    // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals
-    const pointsWei =
-      (priceWei * priceUsdScaled * BigInt(1000) * TEN ** BigInt(dlcpDecimals)) / TEN ** BigInt(dlcDecimals) / USD_SCALE
+    const priceUsdScaled = BigInt(Math.round(Number(dlc_price.value) * USD_SCALE_NUM))
+
+    // 10^decimals：用循环乘法，避免 BigInt 的 ** 运算
+    const pow10_dlcp = powBI10(dlcpDecimals)
+    const pow10_dlc = powBI10(dlcDecimals)
+
+    // pointsWei = priceWei * priceUsd * 1000 * 10^dlcpDecimals / 10^dlcDecimals / USD_SCALE
+    const pointsWei = (priceWei * priceUsdScaled * BigInt(1000) * pow10_dlcp) / pow10_dlc / USD_SCALE_BI
 
     // 4) DLCP 余额校验
     const balanceWei: bigint = await dlcpTokenRead.balanceOf(userAddress)
     if (balanceWei < pointsWei) throw new Error(t('app.rent.insufficientBalance') || 'DLCP 余额不足')
 
-    // ---- 小工具：DLCP transfer 前做 DBC 矿工费预检 ----
-    const ensureDbcFor = async (to: string, data: string, from: string) => {
-      const fee = await provider.getFeeData()
-      const maxFeePerGas = fee.maxFeePerGas ?? fee.gasPrice
-      if (!maxFeePerGas || maxFeePerGas === BigInt(0)) {
-        // 替换 0n
-        const e = new Error('fee data unavailable')
-        ;(e as any).code = 'FEE_DATA_UNAVAILABLE'
-        throw e
-      }
-      const estGas = await signer.estimateGas({ to, data, from })
-      const gasLimit = (estGas * BigInt(12)) / BigInt(10) // 替换 (estGas * 12n) / 10n
-      const need = gasLimit * maxFeePerGas
-      const dbcBal = await provider.getBalance(from)
-      if (dbcBal < need) {
-        const e = new Error('insufficient funds for gas * price + value')
-        ;(e as any).code = 'INSUFFICIENT_FUNDS'
-        throw e
-      }
-    }
-
-    // 5) 在 transfer 前做 DBC 预检（重点，避免重复广播/timeout/already known）
-    const from = userAddress
-    const to = DLCP_RECEIVER
-    const data = dlcpTokenWrite.interface.encodeFunctionData('transfer', [to, pointsWei])
-    await ensureDbcFor(DLCP_TOKEN_ADDRESS, data, from)
+    // 5) 预检矿工费（统一工具）
+    const receiver = DLCP_RECEIVER
+    const data = dlcpTokenWrite.interface.encodeFunctionData('transfer', [receiver, pointsWei])
+    await ensureDbcForTx({
+      provider,
+      signerOrFrom: signer, // ✅ 传 signer 更稳（也兼容传地址）
+      to: DLCP_TOKEN_ADDRESS, // ✅ ERC20 合约地址（tx.to）
+      data, // ✅ transfer 编码
+      bufferPct: 20,
+    })
 
     // 6) 转账 DLCP 到固定地址
     const tx = await dlcpTokenWrite.transfer(DLCP_RECEIVER, pointsWei)
