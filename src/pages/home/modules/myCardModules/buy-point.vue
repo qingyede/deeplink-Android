@@ -44,9 +44,10 @@ import point4 from '@/assets/img/point4.png'
 import point5 from '@/assets/img/point5.png'
 import point6 from '@/assets/img/point6.png'
 import point7 from '@/assets/img/point7.png'
-import { getPointBuyLink } from '@/api/buyNft/index'
+import { useOpenExternalLink } from '@/hooks/common/useExternalLinkOptions'
 import { loginStore } from '@/store/Modules/login/login'
 
+const { openExternalLink } = useOpenExternalLink()
 const app = appStore()
 const login = loginStore()
 const loading = ref(true)
@@ -150,7 +151,7 @@ const onOpen = async (item) => {
   //   window.$message?.error(error.response.data)
   // }
 
-  window.open(`https://deeplinkgame.com?id=${login.walletId}`, '_blank', 'noopener,noreferrer')
+  openExternalLink(`https://deeplinkgame.com?id=${login.walletId}`)
 }
 </script>
 

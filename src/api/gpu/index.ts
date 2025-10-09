@@ -112,3 +112,12 @@ export const extendByPoint = (data) => {
     data,
   })
 }
+
+// 积分支付提前租用
+export const PointendRentMacInfo = (data) => {
+  return axios({
+    method: 'post',
+    url: `${baseUrl}/api/point/PointendRentMacInfo`,
+    data,
+  })
+}

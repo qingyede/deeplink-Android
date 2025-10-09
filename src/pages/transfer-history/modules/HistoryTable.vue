@@ -69,16 +69,11 @@
             </span>
           </div>
 
-          <div
-            :class="[
-              'flex-1 flex justify-end text-base font-semibold',
-              item.direction === 'in' ? 'text-success-500' : 'text-error-500',
-            ]"
-          >
-            {{ item.direction === 'in' ? '+' : '-'
-            }}<span v-if="item.token?.symbol !== 'DLCCNFT'">{{
-              item.total?.value ? Number(formatUnits(item.total.value)).toFixed(5) : '0.0'
-            }}</span>
+          <div :class="['flex-1 flex justify-end text-base font-semibold', getColor(item)]">
+            {{ item.direction === 'in' ? '+' : '-' }}
+            <span v-if="item.token?.symbol !== 'DLCCNFT'">
+              {{ item.total?.value ? Number(formatUnits(item.total.value)).toFixed(5) : '0.0' }}
+            </span>
             {{ item.token?.symbol === 'DLCCNFT' ? 'NFT' : item.token?.symbol }}
           </div>
         </li>
@@ -100,7 +95,15 @@ import { ethers, formatUnits, formatEther } from 'ethers'
 import { useIntervalFn } from '@vueuse/core'
 
 const transferStore = useTransferStore()
+function getColor(item: any) {
+  const isIn = item.direction === 'in'
+  const special = '0xE0A4D4faDc092A7E27c48E954524dC51db0d37C9'
 
+  if (item.from?.hash === special) {
+    return isIn ? 'text-[#FFBC2C]' : 'text-error-500'
+  }
+  return isIn ? 'text-success-500' : 'text-error-500'
+}
 // 初始化历史记录数据
 const { pause, resume, isActive } = useIntervalFn(
   async () => {

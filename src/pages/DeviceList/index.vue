@@ -38,7 +38,7 @@
               <Icon
                 icon="mdi:circle-slice-8"
                 class="text-[28px] mr-1 animate-pulse"
-                :style="{ color: item.statusValue === 'Online' ? 'green' : 'red' }"
+                :class="item.statusValue === 'Online' ? 'text-secondary-500' : 'text-gray-400'"
               />
               <span class="text-base text-[#615F63] dark:text-white/70 text-wrap"> {{ item.status }} </span>
             </div>
@@ -108,7 +108,7 @@ import deviceInfoDIalog from './dialogs/deviceInfoDIalog.vue'
 import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
 import { useDeviceListStore } from '@/store/Modules/deviceList/index'
 import MyDeviceInfo from './dialogs/myDeviceInfo.vue'
-import { useIntervalFn } from '@vueuse/core'
+import { useDebounceFn } from '@vueuse/core'
 import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
 import { useGetEvmSignature } from '@/hooks/wallet/useGetEvmSignature'
 import { useCloudComputersStore } from '@/store/Modules/gpu/cloud-computers'
@@ -223,51 +223,53 @@ deviceListStore.getUserDeviceListH()
 const showInfo = (item: any, n: number) => {
   if (n === 0) {
     // 展示机器信息
-    console.log(item)
+    console.log(item.online)
 
-    let negativeButtonPropsLoading = ref(false)
-    const d = window.$dialog?.info({
-      title: () => {
-        return h(
-          NGradientText,
-          {
-            size: 24,
-            type: 'success',
-            class: 'font-bold',
-          },
-          { default: () => t('devices.info') }
-        )
-      },
-      content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
-      class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-      positiveText: t('devices.connect'),
-      negativeText: t('devices.unbind'),
-      positiveButtonProps: { color: '#03C188', size: 'medium' },
-      negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },
-      onPositiveClick: async () => {
-        if (d) {
-          try {
-            d.loading = true
-            await rentDevice(item, 0)
-          } catch (error) {
-          } finally {
-            d.loading = false
+    if (item.online) {
+      let negativeButtonPropsLoading = ref(false)
+      const d = window.$dialog?.info({
+        title: () => {
+          return h(
+            NGradientText,
+            {
+              size: 24,
+              type: 'success',
+              class: 'font-bold',
+            },
+            { default: () => t('devices.info') }
+          )
+        },
+        content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
+        class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
+        positiveText: t('devices.connect'),
+        negativeText: t('devices.unbind'),
+        positiveButtonProps: { color: '#03C188', size: 'medium' },
+        negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },
+        onPositiveClick: async () => {
+          if (d) {
+            try {
+              d.loading = true
+              await rentDevice(item, 0)
+            } catch (error) {
+            } finally {
+              d.loading = false
+            }
           }
-        }
-      },
-      onNegativeClick: async () => {
-        console.log(item, '8888888888')
-        await send({
-          id: 1,
-          method: 'unbindDevice',
-          token: app.token,
-          params: { device_id: item.deviceCode },
-        })
+        },
+        onNegativeClick: async () => {
+          console.log(item, '8888888888')
+          await send({
+            id: 1,
+            method: 'unbindDevice',
+            token: app.token,
+            params: { device_id: item.deviceCode },
+          })
 
-        return false
-      },
-      showIcon: false,
-    })
+          return false
+        },
+        showIcon: false,
+      })
+    }
   } else {
     // 展示我的机器信息
     console.log(item)
@@ -276,43 +278,45 @@ const showInfo = (item: any, n: number) => {
 // 租用设备
 const rentDevice = async (item: any, n: number) => {
   if (n === 0) {
-    console.log(item, 'PPPPPPP')
+    console.log(item.online, 'PPPPPPP')
     // 租用设备
 
-    // 先获取nft
-    await buyNft.getMyNftListH()
-    console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
+    if (item.online) {
+      // 先获取nft
+      await buyNft.getMyNftListH()
+      console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
 
-    const rs: any = await getEvmSignature()
-    console.log(rs, '签名签名签名签名')
-    if (rs) {
-      console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
-      try {
-        connectToRemoteDevice({
-          id: item.device_id,
-          password: objectToBase64({
-            // 钱包地址 随机数 和签名，使用钱包签名远程时需要
-            wallet: app.address,
-            nonce: rs.nonce,
-            signature: rs.signature,
-            // 钱包类型，老的 DBC 钱包用 "subscan"
-            wallet_type: 'evm',
-            // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
-            wallet_role: 1,
-            nft_enabled: buyNft.hasNft,
-            // // 传到被控端创建虚拟显示器
-            display: {
-              width: 1920,
-              height: 1080,
-              fps: 60,
-            },
-          }),
-        })
-      } catch (error) {
+      const rs: any = await getEvmSignature()
+      console.log(rs, '签名签名签名签名')
+      if (rs) {
+        console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
+        try {
+          connectToRemoteDevice({
+            id: item.device_id,
+            password: objectToBase64({
+              // 钱包地址 随机数 和签名，使用钱包签名远程时需要
+              wallet: app.address,
+              nonce: rs.nonce,
+              signature: rs.signature,
+              // 钱包类型，老的 DBC 钱包用 "subscan"
+              wallet_type: 'evm',
+              // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
+              wallet_role: 1,
+              nft_enabled: buyNft.hasNft,
+              // // 传到被控端创建虚拟显示器
+              display: {
+                width: 1920,
+                height: 1080,
+                fps: 60,
+              },
+            }),
+          })
+        } catch (error) {
+          return false
+        }
+      } else {
         return false
       }
-    } else {
-      return false
     }
   } else {
     // 远程租用的设备
@@ -534,9 +538,11 @@ const reload = async () => {
     loading1.value = false
   }
 }
-const onExpire = () => {
+
+// ✅ 用 VueUse 的防抖函数包装
+const onExpire = useDebounceFn(() => {
   reload()
-}
+}, 800) // 300ms 内多次触发只会执行一次
 </script>
 
 <style lang="scss" scoped>

@@ -39,7 +39,7 @@
         <span>{{ formatSeconds(props.info.rent_time) }}</span>
       </n-descriptions-item>
 
-      <n-descriptions-item v-if="!app.mode" :label="$t('devices.rent_end')">
+      <n-descriptions-item :label="$t('devices.rent_end')">
         <n-button @click="endRentFlowH(props.info)" class="w-full rounded-lg" secondary type="primary">
           {{ $t('devices.rent_end') }}
         </n-button>
@@ -142,7 +142,12 @@ const reRent = async (item) => {
 const endRentFlowH = async (info) => {
   console.log(info)
   cloudComputersStore.rentMachineDialogBeforeForm.rentinfo = info
-  await cloudComputersStore.endRentFlow(info?.machine_id)
+  if (app.mode) {
+    await cloudComputersStore.endPointFlow(info?.device_id, info?.machine_id)
+  } else {
+    await cloudComputersStore.endRentFlow(info?.machine_id)
+  }
+
   props.d?.destroy?.()
 }
 </script>

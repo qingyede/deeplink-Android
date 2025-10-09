@@ -10,6 +10,7 @@ import {
   endOrder,
   extendNotify,
   extendByPoint,
+  PointendRentMacInfo,
 } from '@/api/gpu/index'
 import { removeGeForceRTX } from '@/utils/common/removeGeForceRTX'
 import { NGradientText } from 'naive-ui'
@@ -452,14 +453,58 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     } catch (err: any) {
       console.error('[退租失败]', err)
 
+      // ✅ 统一错误处理（优先解析合约自定义错误）
+      handleTxError(err, {
+        abiForCustomError: CONTRACT_ABIS.RENT,
+        // 如需覆盖默认中文，可传 nameToMessage: (name) => mapCustomErrorToMessage(name as any),
+      })
+    } finally {
+      dialog.destroy()
       dialog.loading = false
-      dialog.positiveText = t('app.confirm') || '确认'
+      dialog.positiveText = t('app.confirm')
+    }
+  }
+
+  // 积分退租
+  async function endPointFlow(device_id: string, machine_id: string) {
+    const { ensureWallet } = useWalletSigner(t)
+
+    const result = await ensureWallet()
+    if (!result) return
+
+    const { signer, dialog } = result
+
+    try {
+      dialog.loading = true
+      dialog.positiveText = t('app.rentingOut')
+      // 👉 对小写钱包地址签名
+      const signature = await signer.signMessage(app.address)
+      // 调用后端 API
+      const { data: res } = await PointendRentMacInfo({
+        wallet: app.address,
+        device_id,
+        machine_id,
+        signature,
+      })
+      if (!res.success) {
+        window.$message?.error(res.msg)
+        return false
+      } else {
+        window.$message?.success(t('app.releaseSuccess'))
+        device.getUserDeviceListH()
+      }
+    } catch (err: any) {
+      console.error('[退租失败]', err)
 
       // ✅ 统一错误处理（优先解析合约自定义错误）
       handleTxError(err, {
         abiForCustomError: CONTRACT_ABIS.RENT,
         // 如需覆盖默认中文，可传 nameToMessage: (name) => mapCustomErrorToMessage(name as any),
       })
+    } finally {
+      dialog.destroy()
+      dialog.loading = false
+      dialog.positiveText = t('app.confirm')
     }
   }
 
@@ -838,5 +883,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     renewRentFlow,
     renewRentLoading,
     renewPointFlow,
+    endPointFlow,
   }
 })

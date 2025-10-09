@@ -39,7 +39,9 @@ body {
 .n-message-container.n-message-container--top {
   top: 80px !important;
 }
-
+.n-message-container.n-message-container--top {
+  top: 80px !important;
+}
 .n-form-item .n-form-item-label {
   font-size: 14.5px;
   color: #939393;
