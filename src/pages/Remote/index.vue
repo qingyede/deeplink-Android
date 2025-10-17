@@ -40,23 +40,11 @@
               >
                 <span class="text-lg"> {{ $t('remote.Connect') }} </span>
               </n-button>
-              <!-- <div class="text-[#333] dark:text-white/70 !text-xs">
-                {{ $t('remote.connectAndActivateFlow') }}
-              </div> -->
             </div>
           </n-form-item-gi>
         </n-grid>
       </n-form>
     </div>
-
-    <!-- 商店 -->
-    <!-- <div class="mt-[20px] flex flex-col gap-3">
-      <div class="flex items-center gap-4">
-        <n-button type="primary" @click="router.push({ name: 'Store' })" class="flex-[1] rounded-lg min-h-[48px] text-lg">
-          {{ $t('home.buyNft') }}
-        </n-button>
-      </div>
-    </div> -->
 
     <div class="sm:mt-[42px] md:mt-[100px] text-center flex flex-col gap-3">
       <h1 class="text-[#615F63] dark:text-white/70 text-[21.6px]">{{ $t('remote.community') }}</h1>
@@ -95,7 +83,7 @@ import { useBuyNftStore } from '@/store/Modules/buyNft/index'
 import type { SelectOption } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 
-const buyNft = useBuyNftStore()
+const nftStore = useBuyNftStore()
 const app = appStore()
 const router = useRouter()
 const formRef = ref<FormInst | null>(null)
@@ -240,15 +228,15 @@ const handleValidateButtonClick = async (e: MouseEvent) => {
   try {
     await formRef.value?.validate()
     // 先获取nft
-    await buyNft.getMyNftListH()
+    await nftStore.getMyNftListH()
     // connectToRemoteDevice({ id: model.id, password: model.password })
-    console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
+    console.log(nftStore.hasNft, 'nftStore.hasNftnftStore.hasNftnftStore.hasNftnftStore.hasNftnftStore.hasNft')
 
     connectToRemoteDevice({
       id: model.id,
       password: objectToBase64({
         password: model.password,
-        nft_enabled: buyNft.hasNft,
+        nft_enabled: nftStore.hasNft,
       }),
     })
 

@@ -182,10 +182,6 @@ let CallBack_data = {
   section: '',
   success: false,
 }
-let CallBack_data1 = {
-  msg: '',
-  success: false,
-}
 
 export const inputToBn = (input, siPower, basePower) => {
   const isDecimalValue = input.match(/^(\d+)\.(\d+)$/)
@@ -202,35 +198,6 @@ export const inputToBn = (input, siPower, basePower) => {
   }
 
   return result
-}
-
-// 定义回调函数
-const returnFun = (status, events, callback) => {
-  if (status.isInBlock) {
-    events.forEach(
-      ({
-        event: {
-          method,
-          data: [error],
-        },
-      }) => {
-        if (method == 'ExtrinsicFailed') {
-          let returnError = error
-          const decoded = api.registry.findMetaError(returnError.asModule)
-          CallBack_data.msg = decoded.method
-          CallBack_data.success = false
-          CallBack_data.index = decoded.index
-          CallBack_data.section = decoded.section
-        } else if (method == 'ExtrinsicSuccess') {
-          CallBack_data.msg = method
-          CallBack_data.success = true
-        }
-      }
-    )
-    if (callback) {
-      callback(CallBack_data)
-    }
-  }
 }
 
 const getFloat = (number) => {

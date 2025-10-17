@@ -1,7 +1,6 @@
 <template>
   <div class="flex items-center gap-12 px-[16px] my-4">
     <Icon v-if="isShow" @click="router.go(-1)" icon="mdi:arrow-left" class="text-[26px]" />
-    <!-- <img src="@/assets/img/deeplinklogo.png" class="w-[196px] h-[25px] object-cover" alt="" /> -->
   </div>
 </template>
 

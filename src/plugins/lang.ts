@@ -1,5 +1,3 @@
-// src/plugins/lang/i18nOptions.ts
-
 import en from '@/locales/lang/en.json'
 import zh from '@/locales/lang/zh.json'
 import ko from '@/locales/lang/ko.json'

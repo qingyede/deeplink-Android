@@ -51,44 +51,6 @@
         <n-empty :description="$t('app.noData')" />
       </div>
     </n-card>
-
-    <!-- 我的设备 -->
-    <!-- <n-card :title="titleH2" class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
-      <div v-if="deviceListStore.loading" class="flex flex-col gap-3">
-        <n-skeleton class="rounded-lg" size="large" />
-        <n-skeleton class="rounded-lg" size="large" />
-        <n-skeleton class="rounded-lg" size="large" />
-        <n-skeleton class="rounded-lg" size="large" />
-      </div>
-
-      <div v-else-if="deviceListStore.deviceList.length > 0" class="flex flex-col gap-2">
-        <n-button
-          v-for="(item, index) in deviceListStore.deviceList"
-          :key="index"
-          :loading="item.loading"
-          color="#E1EBE7"
-          class="rounded-lg py-2 h-full w-full dark:bg-[#2c2c2c] transition-colors duration-300"
-          @click="handleMyDeviceClick(item)"
-        >
-          <div class="flex justify-between w-full gap-8">
-            <div class="flex items-center gap-6 flex-1 justify-start">
-              <div class="rounded-lg bg-white dark:bg-[#444] w-8 h-8 p-1">
-                <Icon :icon="item.icon" class="text-[22px]" />
-              </div>
-              <div class="flex flex-col gap-1 justify-start items-start">
-                <span class="text-sm text-left md:text-base font-bold text-black dark:text-white text-wrap">
-                  {{ item.name }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </n-button>
-      </div>
-
-      <div class="my-6" v-else>
-        <n-empty :description="$t('app.noData')"> </n-empty>
-      </div>
-    </n-card> -->
   </div>
 </template>
 
@@ -101,20 +63,16 @@ import { appStore } from '@/store/Modules/app'
 import deviceInfoDIalog from './dialogs/deviceInfoDIalog.vue'
 import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
 import { useDeviceListStore } from '@/store/Modules/deviceList/index'
-import MyDeviceInfo from './dialogs/myDeviceInfo.vue'
-import { useIntervalFn } from '@vueuse/core'
 import { useRemoteStream } from '@/hooks/remote/useRemoteStream'
 import { useGetEvmSignature } from '@/hooks/wallet/useGetEvmSignature'
-import { useCloudComputersStore } from '@/store/Modules/gpu/cloud-computers'
 import { useBuyNftStore } from '@/store/Modules/buyNft/index'
 import { objectToBase64 } from '@/utils/common/objToBase64'
 import { useI18n } from 'vue-i18n'
 import { parseNotes, parseName } from '@/utils/common/parseNotes'
 
 const { t } = useI18n()
-const cloudComputersStore = useCloudComputersStore()
 const { getEvmSignature } = useGetEvmSignature(t)
-const buyNft = useBuyNftStore()
+const nftStore = useBuyNftStore()
 const { connectToRemoteDevice, connectToAndroidRemoteDevice } = useRemoteStream()
 const app = appStore()
 const { connect, send, onMessage, waitForReady, onOpen, offMessage } = useAppSocket()
@@ -154,10 +112,6 @@ const handleMergedClick = useMergedClickHandler(
   (item, type) => rentDevice(item, type) // 双击逻辑
 )
 
-const handleMyDeviceClick = useMergedClickHandler(
-  (item: any) => showMyDeviceInfo(item),
-  (item: any) => rentDevice(item, 1)
-)
 // 卡片标题组件
 const titleH1 = () => {
   return h('div', { class: 'flex items-center gap-3' }, [
@@ -171,28 +125,6 @@ const titleH1 = () => {
           'div',
           { class: 'text-[#000] dark:text-white text-[14px] font-bold' },
           t('devices.deviceList') // ✅ 保留国际化
-        ),
-        h(
-          'div',
-          { class: 'text-[#737373] dark:text-white/60 text-[10px]  ml-1' },
-          t('devices.deviceStartTip') // ✅ 保留国际化
-        ),
-      ]),
-    ]),
-  ])
-}
-const titleH2 = () => {
-  return h('div', { class: 'flex items-center gap-3' }, [
-    h(Icon, {
-      icon: 'mdi:devices',
-      class: '!text-[24px] min-w-[30px] min-h-[30px] text-[#000] dark:text-white',
-    }),
-    h('div', { class: 'flex flex-wrap' }, [
-      h('div', { class: 'flex items-center flex-wrap' }, [
-        h(
-          'div',
-          { class: 'text-[#000] dark:text-white text-[14px] font-bold' },
-          t('devices.myRentalList') // ✅ 保留国际化
         ),
         h(
           'div',
@@ -238,7 +170,7 @@ const showInfo = (item: any, n: number) => {
         },
         content: () => h(deviceInfoDIalog, { item, d, fetchDeviceList }),
         class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-        positiveText: 'Connect now',
+        positiveText: t('devices.connectNow'),
         negativeText: t('devices.unbind'),
         positiveButtonProps: { color: '#03C188', size: 'medium' },
         negativeButtonProps: { color: '#EF4444', loading: negativeButtonPropsLoading.value, size: 'medium' },
@@ -279,8 +211,8 @@ const rentDevice = async (item: any, n: number) => {
     // 先判断是否在线
     if (item.online) {
       // 先获取nft
-      await buyNft.getMyNftListH()
-      console.log(buyNft.hasNft, 'buyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNftbuyNft.hasNft')
+      await nftStore.getMyNftListH()
+      console.log(nftStore.hasNft, 'nftStore.hasNftnftStore.hasNftnftStore.hasNftnftStore.hasNftnftStore.hasNft')
 
       const rs: any = await getEvmSignature()
       console.log(rs, '签名签名签名签名')
@@ -297,7 +229,7 @@ const rentDevice = async (item: any, n: number) => {
             wallet_type: 'evm',
             // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
             wallet_role: 1,
-            nft_enabled: buyNft.hasNft,
+            nft_enabled: nftStore.hasNft,
             // // 传到被控端创建虚拟显示器
             display: {
               width: 1920,
@@ -317,7 +249,7 @@ const rentDevice = async (item: any, n: number) => {
             wallet_type: 'evm',
             // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
             wallet_role: 1,
-            nft_enabled: buyNft.hasNft,
+            nft_enabled: nftStore.hasNft,
             // // 传到被控端创建虚拟显示器
             display: {
               width: 1920,
@@ -450,98 +382,6 @@ const fetchDeviceList = async () => {
     id: 1,
     token: app.token,
     params: {},
-  })
-}
-
-// 展示我的租用机器信息
-const showMyDeviceInfo = (item) => {
-  console.log(item, 'item')
-  const MyDeviceInfoDialogRef = ref()
-  const d = window.$dialog?.info({
-    title: () => {
-      return h(
-        NGradientText,
-        {
-          size: 24,
-          type: 'success',
-          class: 'font-bold',
-        },
-        { default: () => t('devices.deviceDetails') }
-      )
-    },
-    content: () => h(MyDeviceInfo, { ref: MyDeviceInfoDialogRef, info: item, d }),
-    class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-
-    showIcon: false,
-    negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-    positiveButtonProps: { color: '#03C188', size: 'medium' },
-    positiveText: t('devices.connectDevice'),
-    negativeText: t('app.cancel'),
-    onPositiveClick: async () => {
-      if (d) {
-        d.loading = true
-        d.positiveText = 'loading...'
-
-        const rs: any = await getEvmSignature()
-        console.log(rs, '签名签名签名签名')
-        d.loading = false
-        d.positiveText = t('devices.connectDevice')
-        if (rs) {
-          console.log({ id: item.device_id, password: `evm.renter.${app.address}.${rs.nonce}.${rs.signature}` }, '关键信息')
-          try {
-            connectToRemoteDevice({
-              id: item.device_id,
-              password: objectToBase64({
-                // 租用开始时间，毫秒级时间戳，没租用传 0 或者不传
-                rent_start_time: Math.floor(Date.now() / 1000),
-                // 租用时长，单位秒，没租用传 0 或者不传
-                rent_time: item.rent_time * 60,
-                // 钱包地址 随机数 和签名，使用钱包签名远程时需要
-                wallet: app.address,
-                nonce: rs.nonce,
-                signature: rs.signature,
-                // 钱包类型，老的 DBC 钱包用 "subscan"
-                wallet_type: 'evm',
-                // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
-                wallet_role: 2,
-                // // 传到被控端创建虚拟显示器
-                display: {
-                  width: 1920,
-                  height: 1080,
-                  fps: 60,
-                },
-              }),
-            })
-            d.destroy?.()
-          } catch (error) {
-            return false
-          }
-          // // return false
-          // connectToAndroidRemoteDevice({
-          //   // 租用开始时间，毫秒级时间戳，没租用传 0 或者不传
-          //   rent_start_time: Math.floor(Date.now() / 1000),
-          //   // 租用时长，单位秒，没租用传 0 或者不传
-          //   rent_time: item.rent_time * 60,
-          //   // 钱包地址 随机数 和签名，使用钱包签名远程时需要
-          //   wallet: app.address,
-          //   nonce: rs.nonce,
-          //   signature: rs.signature,
-          //   // 钱包类型，老的 DBC 钱包用 "subscan"
-          //   wallet_type: 'evm',
-          //   // 钱包角色，0 是默认值，没有意义，1 是自己的钱包，2 是租用人
-          //   wallet_role: 2,
-          //   // // 传到被控端创建虚拟显示器
-          //   display: {
-          //     width: 1920,
-          //     height: 1080,
-          //     fps: 60,
-          //   },
-          // })
-        } else {
-          return false
-        }
-      }
-    },
   })
 }
 </script>

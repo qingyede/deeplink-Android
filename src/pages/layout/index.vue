@@ -1,5 +1,8 @@
 <template>
-  <div :style="{ position: 'fixed', top: safeAreaInsetTop, left: 0 }" class="w-full overflow-y-scroll h-full pb-[110px]">
+  <div
+    :style="{ position: 'fixed', top: safeAreaInsetTop, left: 0 }"
+    class="bg-background-light text-text-light-primary dark:text-text-dark-primary dark:bg-background-dark min-h-[100vh] transition-colors duration-500 w-full overflow-y-scroll h-full pb-[110px]"
+  >
     <!-- 顶部logo -->
     <MyHeader />
     <div class="pb-[80px]">

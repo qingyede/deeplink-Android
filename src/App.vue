@@ -1,5 +1,5 @@
 <template>
-  <n-config-provider :theme="app.theme === 'light' ? lightTheme : darkTheme" :theme-overrides="APP.lightThemeOverrides">
+  <n-config-provider :theme="currentTheme" :theme-overrides="currentOverrides">
     <AppProvider>
       <Layout />
     </AppProvider>
@@ -7,43 +7,24 @@
 </template>
 
 <script lang="ts" setup>
-import { watch, onMounted, watchEffect } from 'vue'
-import { storeToRefs } from 'pinia'
 import Layout from '@/pages/layout/index.vue'
-import { NConfigProvider, darkTheme, lightTheme } from 'naive-ui'
+import { NConfigProvider } from 'naive-ui'
 import { APP } from '@/constant/APP'
-import { appStore } from '@/store/Modules/app/index'
-import { useI18n } from 'vue-i18n'
 import { priceStore } from '@/store/Modules/price/index'
+import { useTheme } from '@/hooks/app/useTheme'
+import { useLang } from '@/hooks/app/useLang'
 
 const price = priceStore()
-const app = appStore()
-const { locale, t } = useI18n()
-const store = appStore()
-const { theme } = storeToRefs(store)
-
 // 初始化汇率
 price.getExchangeRateH()
-const isDark = computed({
-  get: () => theme.value === 'dark',
-  set: (val: boolean) => {
-    theme.value = val ? 'dark' : 'light'
-  },
-})
-// ✅ 实时监听变化，更新 data-theme 属性
-watch(
-  isDark,
-  (val) => {
-    const html = document.documentElement
-    html.setAttribute('data-theme', val ? 'dark' : 'light')
-  },
-  { immediate: true }
-)
 
-watchEffect(() => {
-  locale.value = localStorage.getItem('lang') || 'en'
-  app.lang = localStorage.getItem('lang') || 'en'
+// 主题（与你现有 useTheme 一样）
+const { currentTheme, currentOverrides } = useTheme({
+  lightOverrides: APP.lightThemeOverrides,
+  darkOverrides: APP.darkThemeOverrides ?? {},
 })
+// 语言（根部做一次初始化）
+useLang({ fallback: 'en' })
 </script>
 
 <style lang="scss" scoped></style>

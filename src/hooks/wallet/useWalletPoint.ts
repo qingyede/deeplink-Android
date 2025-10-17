@@ -2,7 +2,6 @@ import { NGradientText } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 import { appStore } from '@/store/Modules/app'
 import { useRouter, useRoute } from 'vue-router'
-import BuyPoint from '@/pages/home/modules/myCardModules/buy-point.vue'
 import { useClipboard } from '@vueuse/core'
 import { loginStore } from '@/store/Modules/login/login'
 
@@ -22,21 +21,6 @@ export const useWalletPoint = () => {
 
   // 卡片操作按钮
   const PointcardAction = ref([
-    {
-      icon: 'mdi:medal-outline',
-      t: 'p.home.purchase',
-      h: () => {
-        const d = window.$dialog?.info({
-          title: () =>
-            h(NGradientText, { size: 24, type: 'success', class: 'font-bold' }, { default: () => t('p.home.buyPoints') }),
-          content: () => h(BuyPoint),
-          class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-          negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-          positiveButtonProps: { color: '#03C188', size: 'medium' },
-          showIcon: false,
-        })
-      },
-    },
     {
       icon: null,
       t: 'p.home.closeaccount',

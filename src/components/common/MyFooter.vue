@@ -94,7 +94,7 @@ const tabClick = (index: number) => {
   //   router.push({ name: tabs.value[index].path })
   // }
   if (!app.isWalletRegistered) {
-    if (index === 0 || index === 3) {
+    if (index === 0) {
       window.$message?.warning(t('app.pleaseCreateWalletFirst'))
       router.push({ name: 'IsWallet' })
     } else {

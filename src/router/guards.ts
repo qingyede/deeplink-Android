@@ -38,7 +38,6 @@ export const beforeEachH: NavigationGuard = (
       'shareGpuReward',
       'Settings',
       'nfts',
-      'PartnerProduct',
       'CloudComputers',
       'CloudCafe',
       'CloudComputersList',

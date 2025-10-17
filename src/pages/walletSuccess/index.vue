@@ -1,9 +1,9 @@
 <template>
   <div class="px-[16px]">
     <!-- 创建钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">{{ $t('walletSuccess.newWallet') }}</h1>
+    <h1 class="text-[24px] font-bold mb-2">{{ $t('walletSuccess.newWallet') }}</h1>
     <div class="flex flex-col flex-wrap gap-3">
-      <span class="text-[14px] text-[#000]/60 leading-[22px]">
+      <span class="text-[14px] leading-[22px]">
         {{ $t('walletSuccess.privateKeyStorageTip') }}
       </span>
     </div>
@@ -18,17 +18,17 @@
           </n-form-item-gi>
 
           <n-form-item-gi :span="24">
-            <div class="text-[14px] text-[#000]/60 leading-[26px]">
-              <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span>
+            <div class="text-[14px] leading-[26px]">
+              <span class="font-bold">{{ $t('walletSuccess.doNot') }}</span>
               {{ $t('walletSuccess.doNotLoseIt') }} <br />
-              <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span>
+              <span class="font-bold">{{ $t('walletSuccess.doNot') }}</span>
               {{ $t('walletSuccess.doNotShareIt') }}
-              <!-- <span class="font-bold text-[#000]">{{ $t('walletSuccess.doNot') }}</span -->
-              >{{ $t('walletSuccess.doNotSendIt') }}
-              <span class="font-bold text-[#000]">{{ $t('walletSuccess.willBeStolen') }}</span> <br />
+              <!-- <span class="font-bold ">{{ $t('walletSuccess.doNot') }}</span -->
+              {{ $t('walletSuccess.doNotSendIt') }}
+              <br />
 
               {{ $t('walletSuccess.backupReminder') }}
-              <!-- <span class="font-bold text-[#000]"> USD</span> -->
+              <!-- <span class="font-bold "> USD</span> -->
             </div>
           </n-form-item-gi>
 

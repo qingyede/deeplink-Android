@@ -6,15 +6,12 @@ import { decryptKeystore } from '@/utils/decryptKeystore'
 import exportWallet from '@/pages/home/modules/dialogs/exportWallet.vue'
 import DBC from '@/assets/img/dbc.png'
 import DLC from '@/assets/img/dlc.png'
-import BuyDlc from '@/pages/home/modules/dialogs/BuyDlc.vue'
 import { formatNumber } from '@/utils/common/formatNumber'
 import { useGetDbcAndDlcNumber } from '@/hooks/wallet/useGetDbcAndDlcNumber'
 import { priceStore } from '@/store/Modules/price/index'
 import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
 import { useGetDbcPrice } from '@/hooks/store/useGetDbcPrice'
-import transferDialogDlcAndDbc from '@/pages/home/modules/myCardModules/transferDialogDlcAndDbc.vue'
-import { useTransfer } from '@/utils/wallet/dbcProvider'
 import { useRouter, useRoute } from 'vue-router'
 
 export const useWalletToken = () => {
@@ -25,7 +22,6 @@ export const useWalletToken = () => {
   const price = priceStore()
   const { dlc_price } = useGetDlcPrice()
   const { dbc_price } = useGetDbcPrice()
-  const { transfer } = useTransfer(t)
   const router = useRouter()
   const route = useRoute()
   // Toggle balance
@@ -61,97 +57,8 @@ export const useWalletToken = () => {
     ]
   })
 
-  // 购买Dlc
-  const buyDlc = () => {
-    window.$dialog?.info({
-      title: () => {
-        return h(
-          NGradientText,
-          {
-            size: 24,
-            type: 'success',
-            class: 'font-bold',
-          },
-          { default: () => 'Buy DLC' }
-        )
-      },
-      content: () => h(BuyDlc),
-      class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-      showIcon: false,
-      negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-      positiveButtonProps: { color: '#03C188', size: 'medium' },
-
-      onPositiveClick: () => {
-        console.log('Confirm')
-      },
-    })
-  }
-
   // 卡片操作按钮
   const cardAction = ref([
-    // {
-    //   t: 'home.transfer',
-    //   icon: 'mdi:wallet',
-    //   h: () => {
-    //     const transferDialogDlcAndDbcDialogRef: any = ref(null)
-    //     const d = window.$dialog?.info({
-    //       title: () => {
-    //         return h(
-    //           NGradientText,
-    //           {
-    //             size: 24,
-    //             type: 'success',
-    //             class: 'font-bold',
-    //           },
-    //           { default: () => t('home.transfer') }
-    //         )
-    //       },
-    //       content: () => h(transferDialogDlcAndDbc, { ref: transferDialogDlcAndDbcDialogRef }),
-    //       class: 'rounded-2xl dark:bg-[#1a1a1a] dark:text-white',
-    //       showIcon: false,
-    //       negativeButtonProps: { color: '#3CD8A6', size: 'medium' },
-    //       positiveButtonProps: { color: '#03C188', size: 'medium' },
-    //       positiveText: t('app.confirm'),
-    //       negativeText: t('app.cancel'),
-    //       onPositiveClick: async () => {
-    //         if (d) {
-    //           console.log(transferDialogDlcAndDbcDialogRef.value.activeTab)
-    //           const comp = transferDialogDlcAndDbcDialogRef.value
-    //           if (!comp) return false
-
-    //           const valid = await comp.validateForm().catch(() => false)
-    //           if (!valid) {
-    //             window.$message?.error(t('home.formInvalid'))
-    //             return false
-    //           }
-
-    //           d.loading = true
-    //           d.positiveText = 'loading...'
-
-    //           const coinType = transferDialogDlcAndDbcDialogRef.value.activeTab // 'DLC' or 'DBC'
-    //           const to = transferDialogDlcAndDbcDialogRef.value.model[coinType].address
-    //           const amount = transferDialogDlcAndDbcDialogRef.value.model[coinType].amount
-    //           // const pwd = transferDialogDlcAndDbcDialogRef.value.model[coinType].password
-    //           try {
-    //             // 从用户钱包系统中解密私钥（你应该有自己的方法）
-    //             const { privateKey, address } = await decryptKeystore(
-    //               appStore().keystore,
-    //               transferDialogDlcAndDbcDialogRef.value.model[coinType].password,
-    //               t
-    //             )
-    //             const tx = await transfer(coinType, to, amount, privateKey, t)
-
-    //             window.$message?.success(t('home.transferSuccess'))
-    //           } catch (error) {
-    //             d.loading = false
-    //             d.positiveText = t('app.confirm')
-    //             return false
-    //           }
-    //         }
-    //       },
-    //     })
-    //   },
-    // },
     {
       t: 'home.exportWallet',
       icon: null,
@@ -258,7 +165,6 @@ export const useWalletToken = () => {
     toggleBalance,
     copyH,
     cryptoData,
-    buyDlc,
     cardAction,
   }
 }

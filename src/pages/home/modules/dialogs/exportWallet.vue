@@ -36,10 +36,7 @@ const rules: FormRules = {
     {
       validator: (_, value) => {
         if (!value) return new Error(t('home.passwordRequired'))
-        // if (value.length < 8) return new Error('密码长度至少为8个字符')
-        // if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-        //   return new Error('密码必须包含字母和数字')
-        // }
+
         return true
       },
       trigger: ['blur', 'input'],

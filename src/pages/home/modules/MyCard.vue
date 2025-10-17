@@ -3,7 +3,6 @@
     class="flex flex-col gap-5 w-full rounded-lg text-white px-[17px] py-[27px] relative"
     style="background: linear-gradient(to right, #017543 0%, #017543 26%, #03ff91 100%)"
   >
-    <!-- <h1 class="text-[20px] font-bold">{{ app.mode ? $t('p.home.pointsBalance') : $t('home.walletBalance') }}</h1> -->
     <div class="flex gap-6 items-start flex-wrap gap-y-2 text-white">
       <!-- 左侧余额显示区-代币模式 -->
       <div v-if="!app.mode" class="flex flex-wrap items-start gap-x-2 text-base font-bold tabular-nums">
@@ -78,24 +77,7 @@
         {{ $t(item.t) }}
       </n-button>
     </h1>
-
-    <!-- 购买 DLC 按钮 -->
-    <!-- <div class="absolute top-3 right-3" v-if="!app.mode">
-      <n-button
-        @click="buyDlc"
-        size="small"
-        type="primary"
-        class="rounded-full min-h-[36px] px-3 py-1 text-white bg-gradient-to-r from-[#02C38A] to-[#007548] border-none shadow"
-      >
-        <template #icon>
-          <Icon icon="mdi:cart-outline" class="text-[16px]" />
-        </template>
-        <span class="text-xs font-bold">{{ $t('home.buyDLC') }}</span>
-      </n-button>
-    </div> -->
   </div>
-  <!-- tabs -->
-  <!-- <MyTabs :cryptoData="cryptoData" /> -->
 </template>
 
 <script lang="ts" setup>
@@ -106,7 +88,6 @@ import { convertDbcToUsd, convertDlcToUsd } from '@/utils/common/transferToUsd'
 import { useGetDbcPrice } from '@/hooks/store/useGetDbcPrice'
 import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
 import { priceStore } from '@/store/Modules/price/index'
-import MyTabs from './myCardModules/myTabs.vue'
 import { useI18n } from 'vue-i18n'
 import { useWalletToken } from '@/hooks/wallet/useWalletToken'
 import { useWalletPoint } from '@/hooks/wallet/useWalletPoint'
@@ -122,7 +103,7 @@ const price = priceStore()
 const { dbcNumber, dlcNumber } = useGetDbcAndDlcNumber()
 const app = appStore()
 const { maskAddress } = useMaskAddress()
-const { showBalance, toggleBalance, copyH, cryptoData, buyDlc, cardAction } = useWalletToken()
+const { showBalance, toggleBalance, copyH, cryptoData, cardAction } = useWalletToken()
 const { PointcardAction, copyHPoint } = useWalletPoint()
 </script>
 
