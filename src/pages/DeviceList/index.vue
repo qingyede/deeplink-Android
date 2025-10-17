@@ -53,7 +53,7 @@
     </n-card>
 
     <!-- 我的设备 -->
-    <n-card :title="titleH2" class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
+    <!-- <n-card :title="titleH2" class="rounded-lg dark:bg-[#1e1e1e] transition-colors duration-300" content-class="!px-4">
       <div v-if="deviceListStore.loading" class="flex flex-col gap-3">
         <n-skeleton class="rounded-lg" size="large" />
         <n-skeleton class="rounded-lg" size="large" />
@@ -88,7 +88,7 @@
       <div class="my-6" v-else>
         <n-empty :description="$t('app.noData')"> </n-empty>
       </div>
-    </n-card>
+    </n-card> -->
   </div>
 </template>
 
