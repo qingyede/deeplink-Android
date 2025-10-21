@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia'
 import { getUserDeviceList } from '@/api/deviceList/index'
 import { appStore } from '@/store/Modules/app/index'
-import { iconMap } from '@/constant/APP'
 import { getDeviceIcon } from '@/utils/common/getDeviceIcon'
-import { getGpuDetail } from '@/api/gpu/index'
 import { useI18n } from 'vue-i18n'
 
 export const useDeviceListStore = defineStore('deviceList', () => {

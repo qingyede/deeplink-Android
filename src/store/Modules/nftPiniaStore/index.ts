@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia'
-import { getNftList } from '@/api/buyNft/index'
 import { priceStore } from '@/store/Modules/price/index'
 import { useI18n } from 'vue-i18n'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'

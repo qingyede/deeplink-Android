@@ -40,7 +40,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/IsWallet/index.vue'),
     name: 'IsWallet',
     meta: {
-      title: '创建钱包',
+      title: '创建账号',
     },
   },
   {
@@ -48,7 +48,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/creatWallet/index.vue'),
     name: 'creatWallet',
     meta: {
-      title: '创建新钱包',
+      title: '创建新账号',
     },
   },
   {
@@ -56,7 +56,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/walletSuccess/index.vue'),
     name: 'walletSuccess',
     meta: {
-      title: '创建新钱包',
+      title: '创建新账号',
     },
   },
   {
@@ -64,7 +64,7 @@ export const routes: RouteRecordRaw[] = [
     component: () => import('@/pages/openWallet/index.vue'),
     name: 'openWallet',
     meta: {
-      title: '导入钱包',
+      title: '导入账号',
     },
   },
 ]

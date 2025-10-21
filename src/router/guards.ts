@@ -24,25 +24,7 @@ export const beforeEachH: NavigationGuard = (
 
   if (!app.isWalletRegistered) {
     // 未注册钱包：只有不在 IsWallet 页面时才强制跳转
-    const whiteList = [
-      'IsWallet',
-      'creatWallet',
-      'walletSuccess',
-      'openWallet',
-      'Remote',
-      'palyIndex',
-      'newsList',
-      'Partner',
-      'shareIndex',
-      'miningNft',
-      'shareGpuReward',
-      'Settings',
-      'nfts',
-      'CloudComputers',
-      'CloudCafe',
-      'CloudComputersList',
-      'CloudCafeList',
-    ]
+    const whiteList = ['IsWallet', 'creatWallet', 'walletSuccess', 'openWallet', 'Remote', 'Settings']
     if (!app.isWalletRegistered) {
       if (!whiteList.includes(to.name as string)) {
         next({ name: 'IsWallet' })

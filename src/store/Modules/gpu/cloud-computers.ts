@@ -1,21 +1,9 @@
 import { defineStore } from 'pinia'
-import {
-  getGps,
-  getGpuType,
-  getGpuList,
-  rentSuccess,
-  getGpuStatus,
-  getGpuDetail,
-  extendOrder,
-  endOrder,
-  extendNotify,
-} from '@/api/gpu/index'
+import { getGps, getGpuType, getGpuList } from '@/api/gpu/index'
 import { removeGeForceRTX } from '@/utils/common/removeGeForceRTX'
-import { NGradientText } from 'naive-ui'
-import { getContract, CONTRACT_ADDRESSES, CONTRACT_ABIS } from '@/utils/common/contracts'
+import { getContract } from '@/utils/common/contracts'
 import { getDbcProvider } from '@/utils/wallet/dbcProvider'
 import { ethers } from 'ethers'
-import { useWalletSigner } from '@/hooks/wallet/useSignTransaction'
 import { useGetDlcPrice } from '@/hooks/store/useGetDlcPrice'
 import { priceStore } from '@/store/Modules/price/index'
 import { convertDlcToUsd } from '@/utils/common/transferToUsd'
@@ -24,17 +12,10 @@ import { useDeviceListStore } from '@/store/Modules/deviceList/index'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAppSocket } from '@/hooks/common/useAppSocket'
-import { handleTxError } from './err'
-import { ensureDbcForTx } from '@/utils/wallet/gas' // 你前面新建并导出的工具函数
 
 export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const price = priceStore()
-  const app = appStore()
-  const device = useDeviceListStore()
-  const router = useRouter()
-  const route = useRoute()
   const { t } = useI18n()
-  const { connect, send, onMessage, waitForReady, onOpen, offMessage } = useAppSocket()
 
   // 强制重新加载组件
   let RouterViewKey = ref(0)
@@ -95,7 +76,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
   const gpuList = ref<any[]>([])
   // 根据 GPU 类型获取 GPU 列表loading
   const gpuListLoading = ref(true)
-
   // 根据 GPU 类型获取 GPU 列表
   const getGpuListH = async (data) => {
     gpuListLoading.value = true
@@ -134,7 +114,6 @@ export const useCloudComputersStore = defineStore('cloud-computers', () => {
     }
   }
 
-  // 租用前置弹窗
   // 表单数据
   const rentMachineDialogBeforeForm = reactive({
     duration: 600 as number | null,

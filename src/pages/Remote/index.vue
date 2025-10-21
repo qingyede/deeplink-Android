@@ -79,7 +79,7 @@ import LinkDialog from './modules/linkDialog.vue'
 const { t, locale } = useI18n()
 const { connectToRemoteDevice } = useRemoteStream()
 import { objectToBase64 } from '@/utils/common/objToBase64'
-import { useBuyNftStore } from '@/store/Modules/buyNft/index'
+import { useBuyNftStore } from '@/store/Modules/nftPiniaStore/index'
 import type { SelectOption } from 'naive-ui'
 import type { VNodeChild } from 'vue'
 

@@ -40,8 +40,7 @@ import { defineProps } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useOpenExternalLink } from '@/hooks/common/useExternalLinkOptions'
 import { useHomeStore } from '@/store/Modules/home/index'
-import MyNftList from './my-nft-list.vue'
-import { useBuyNftStore } from '@/store/Modules/buyNft/index'
+import { useBuyNftStore } from '@/store/Modules/nftPiniaStore/index'
 const nftStore = useBuyNftStore()
 const { openExternalLink } = useOpenExternalLink()
 const home = useHomeStore()
