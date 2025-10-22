@@ -1,9 +1,9 @@
 <template>
   <div class="px-[16px]">
     <!-- 导入钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">{{ $t('openWallet.importWallet') }}</h1>
+    <h1 class="text-[24px] font-bold mb-2">{{ $t('openWallet.importWallet') }}</h1>
     <div class="flex flex-col flex-wrap gap-3">
-      <span class="text-[14px] text-[#000]/60 leading-[22px]">
+      <span class="text-[14px] leading-[22px]">
         {{ $t('openWallet.walletPasswordReminder') }}
       </span>
     </div>
@@ -15,7 +15,7 @@
             <n-input
               type="password"
               show-password-on="click"
-              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              class="min-h-[44px] rounded-lg"
               v-model:value="model.privateKey"
               :placeholder="$t('openWallet.enterPrivateKey')"
             />
@@ -24,7 +24,7 @@
             <n-input
               type="password"
               show-password-on="click"
-              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              class="min-h-[44px] rounded-lg"
               v-model:value="model.password"
               :placeholder="$t('openWallet.enterWalletPassword')"
             />
@@ -101,12 +101,6 @@ const rules: FormRules = {
           return Promise.reject(new Error(t('openWallet.privateKeyRequired')))
         }
 
-        // const isValid = /^0x[0-9a-fA-F]{64}$/.test(normalized)
-
-        // if (!isValid) {
-        //   return Promise.reject(new Error(t('openWallet.invalidPrivateKey')))
-        // }
-
         return Promise.resolve()
       },
       trigger: ['blur', 'input'],
@@ -118,73 +112,13 @@ const rules: FormRules = {
         if (!value) {
           return Promise.reject(new Error(t('openWallet.passwordRequired')))
         }
-        // if (value.length < 8) {
-        //   return Promise.reject(new Error(t('openWallet.passwordMinLength')))
-        // }
-        // if (!/[a-zA-Z]/.test(value) || !/[0-9]/.test(value)) {
-        //   return Promise.reject(new Error(t('openWallet.passwordAlphaNumeric')))
-        // }
+
         return Promise.resolve()
       },
       trigger: ['blur', 'input'],
     },
   ],
 }
-
-// 导入钱包
-
-// const importWallet = async () => {
-//   const result = await importFromPrivateKey(model.privateKey, model.password)
-//   if (result) {
-//     console.log('地址:', result.address)
-//     console.log('私钥:', result.privateKey)
-
-//     console.log('keystore:', result.keystore)
-//     window.$message?.success(t('openWallet.walletImportSuccess'))
-//     app.isWalletRegistered = true
-//     router.push({ name: 'home' })
-//     app.address = result.address.toLowerCase()
-//     app.keystore = result.keystore
-
-//     // 先注册设备
-//     // 获取nonce
-//     const { data: res } = await getNonce(app.address)
-//     const nonce = res.result ? res.result.nonce + 1 : 0
-//     console.log(nonce, 'noncenoncenonce')
-
-//     // 开始签名
-//     const { nonce: nonce1, signature } = await CreateSignature(
-//       nonce,
-//       app.keystore, // 传递 keystore JSON 字符串
-//       model.password,
-//       'json',
-//       'EVM'
-//     )
-//     console.log('签名结果:', nonce1, signature)
-
-//     // 注册设备
-//     const device_id = await registerDevice()
-
-//     console.log(device_id, 'device_iddevice_id')
-//     if (device_id) {
-//       const { data: tokenRes } = await getToken({
-//         // device_id: app.deviceInfo.device_id, // 从 localStorage 或 appStore 获取
-//         device_id: device_id, // 从 localStorage 或 appStore 获取
-//         user_id: app.address,
-//         nonce,
-//         signature,
-//       })
-//       if (tokenRes.result) {
-//         app.token = tokenRes.result.token
-//         const tokenPayload = JSON.parse(atob(tokenRes.result.token.split('.')[1]))
-//         console.log(tokenPayload, '解密')
-//         console.log(tokenRes, 'tokentokenRestokenRestokenResRes')
-//       }
-//     }
-//   } else {
-//     window.$message?.error(t('app.importFailed'))
-//   }
-// }
 
 const importWallet = async () => {
   const result = await importFromPrivateKey(model.privateKey, model.password)

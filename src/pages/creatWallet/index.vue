@@ -1,9 +1,9 @@
 <template>
   <div class="px-[16px]">
     <!-- 创建钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">{{ $t('createWallet.newWallet') }}</h1>
+    <h1 class="text-[24px] font-bold mb-2">{{ $t('createWallet.newWallet') }}</h1>
     <div class="flex flex-col flex-wrap gap-3">
-      <span class="text-[14px] text-[#000]/60 leading-[22px]">
+      <span class="text-[14px] leading-[22px]">
         {{ $t('createWallet.walletPasswordReminder') }}
       </span>
     </div>
@@ -15,15 +15,15 @@
             <n-input
               type="password"
               show-password-on="click"
-              class="min-h-[44px] rounded-lg bg-[#E1EBE7] text-[#737373]"
+              class="min-h-[44px] rounded-lg"
               v-model:value="model.password"
               :placeholder="$t('createWallet.walletPasswordRule')"
             />
           </n-form-item-gi>
           <n-form-item-gi :span="24">
             <n-button
+              type="primary"
               class="w-full rounded-lg min-h-[48px] text-lg"
-              :color="!model.password ? '#D7EDEB' : '#03C188'"
               round
               :loading="loading"
               @click="handleValidateButtonClick"

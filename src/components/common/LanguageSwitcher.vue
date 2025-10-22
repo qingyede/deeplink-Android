@@ -1,9 +1,9 @@
 <template>
-  <div class="relative inline-block text-left">
+  <div class="relative text-left flex items-center">
     <n-dropdown trigger="click" :options="dropdownOptions" @select="changeLanguage">
-      <div>
-        <Icon icon="mdi:translate" class="text-[21px] text-primary-500" />
-      </div>
+      <n-button type="primary" text>
+        <Icon icon="mdi:translate" class="text-[20px] text-primary-500" aria-hidden="false" />
+      </n-button>
     </n-dropdown>
   </div>
 </template>

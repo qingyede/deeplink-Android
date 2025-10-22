@@ -13,7 +13,10 @@
     "updateTip": "检测到系统有新版本发布，是否立即刷新页面？",
     "later": "稍后再说",
     "refreshNow": "立即刷新",
-    "updateTitle": "系统版本更新通知"
+    "updateTitle": "系统版本更新通知",
+    "light": "浅色",
+    "dark": "深色",
+    "auto": "跟随系统"
   },
   "app": {
     "wallet": "账号",

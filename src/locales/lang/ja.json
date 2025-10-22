@@ -1,4 +1,23 @@
 {
+  "common": {
+    "time": {
+      "mmss": "{m} 分 {s} 秒"
+    },
+    "password_required": "パスワードは必須項目です",
+    "keystore_content_required": "Keystore の内容を入力してください",
+    "keystore_decrypt_failed": "Keystore の復号に失敗しました。パスワードまたはファイル内容を確認してください",
+    "password_incorrect": "パスワードが間違っています。もう一度お試しください",
+    "keystore_format_invalid": "Keystore の形式が不正です。ウォレットを再インポートまたは再登録してください",
+    "keystore_format_invalid2": "Keystore の形式が不正です。アカウントを再インポートまたは再登録してください",
+    "decrypt_failed_retry": "復号に失敗しました。しばらくしてから再試行してください",
+    "updateTip": "新しいバージョンが検出されました。ページをすぐに更新しますか？",
+    "later": "後で",
+    "refreshNow": "今すぐ更新",
+    "updateTitle": "システムバージョン更新のお知らせ",
+    "light": "ライト",
+    "dark": "ダーク",
+    "auto": "システムに従う"
+  },
   "app": {
     "wallet": "ウォレット",
     "remote": "リモート",

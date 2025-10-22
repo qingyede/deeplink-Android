@@ -83,13 +83,13 @@
     <div class="flex gap-4 flex-wrap">
       <n-button
         @click="router.push({ name: 'Store' })"
-        :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
+        type="primary"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >
         {{ app.mode ? $t('home.buyNft2') : $t('home.buyNft') }}
       </n-button>
       <n-button
-        :color="app.theme === 'light' ? '#E5F9F3' : '#02946A'"
+        type="primary"
         @click="openExternalLink('https://deeplinkgame.com')"
         class="flex-1 rounded-lg min-h-[46px] text-black dark:text-white"
       >

@@ -8,15 +8,15 @@ import { appStore } from '@/store/Modules/app/index'
 import { useAppVersion } from '@/hooks/common/useAppVersion'
 import { useStreamConfig } from '@/hooks/setting/useStreamConfig'
 import { useI18n } from 'vue-i18n'
+import { useTheme } from '@/hooks/app/useTheme'
+import { useLang } from '@/hooks/app/useLang'
 
+const { mode, setMode } = useTheme()
+const { locale } = useLang()
 const app = appStore()
 const { t } = useI18n()
 const { version } = useAppVersion(t)
-// 切换模式
-const toggleMode = (val: boolean) => {
-  console.log('切换模式:', val)
-  app.mode = val
-}
+
 // ✅ 切换方法（模拟业务逻辑）
 const toggleDisableMouse = (val: boolean) => {
   console.log('当使用虚拟摇杆时禁用鼠标:', val)
@@ -43,35 +43,28 @@ watch(() => app.useAutoVirtualJoystick, sendCurrentConfig)
 
 // ✅ 页面初始化也可发送一次（可选）
 sendCurrentConfig()
+
+// 计算当前主题
+const currentThemeStr = computed(() => {
+  if (mode.value === 'auto') {
+    return t('common.auto')
+  } else if (mode.value === 'light') {
+    return t('common.light')
+  } else {
+    return t('common.dark')
+  }
+})
 </script>
 
 <template>
   <div class="px-4 pb-6 w-full mx-auto">
     <div class="space-y-5">
-      <!-- ✅ 切换模式 -->
-      <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <Icon icon="mdi:medal-outline" class="text-[20px] text-primary-600" />
-            {{ $t('setting.title') }} ({{ app.mode ? $t('setting.point') : $t('setting.token') }})
-          </div>
-          <n-switch
-            :rail-style="
-              ({ checked }) => ({
-                backgroundColor: checked ? '#03C188' : '#dcdcdc',
-              })
-            "
-            v-model:value="app.mode"
-            @update:value="toggleMode"
-          />
-        </div>
-      </n-card>
       <!-- 主题设置 -->
       <n-card content-class="!px-3" class="rounded-xl bg-surface dark:bg-surface-dark">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Icon icon="mdi:theme-light-dark" class="text-[20px] text-primary-600" />
-            <span class="font-medium text-[15px] text-black dark:text-white">{{ $t('setting.darkMode') }}</span>
+            <span class="font-medium text-[15px] text-black dark:text-white">{{ currentThemeStr }}</span>
           </div>
           <ThemeSwitcher />
         </div>
@@ -83,7 +76,7 @@ sendCurrentConfig()
           <div class="flex items-center gap-2">
             <Icon icon="mdi:translate" class="text-[20px] text-primary-600" />
             <span class="font-medium text-[15px] text-black dark:text-white">
-              {{ LANG_MAP[app.lang]?.label }}
+              {{ LANG_MAP[locale]?.label }}
             </span>
           </div>
           <LanguageSwitcher />

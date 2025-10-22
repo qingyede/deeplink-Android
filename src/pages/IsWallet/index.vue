@@ -1,13 +1,13 @@
 <template>
   <div class="px-[16px]">
     <!-- 创建钱包 -->
-    <h1 class="text-black text-[24px] font-bold mb-2">
+    <h1 class="text-[24px] font-bold mb-2">
       {{ app.mode ? $t('IsWallet.walletUserManual2') : $t('IsWallet.walletUserManual') }}
     </h1>
     <div class="flex flex-col flex-wrap gap-3">
       <div class="item" v-for="(item, index) in tipsData" :key="index">
         <span class="text-primary-500 font-bold text-[21px] mr-[2px]">{{ item.number }}</span>
-        <span class="text-[14px] text-[#000]/60 leading-6"> {{ item.text }}</span>
+        <span class="text-[14px] leading-6"> {{ item.text }}</span>
       </div>
     </div>
     <!-- 创建按钮 -->
@@ -20,7 +20,7 @@
       >
       <n-button
         @click="router.push({ name: 'openWallet' })"
-        class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 text-black text-[20px]"
+        class="flex-[1] rounded-lg min-h-[52px] bg-[#03C188]/10 text-[20px]"
         >{{ $t('IsWallet.openWallet') }}</n-button
       >
     </div>

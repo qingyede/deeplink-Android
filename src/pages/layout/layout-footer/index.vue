@@ -1,7 +1,5 @@
 <template>
-  <div :class="`fixed bottom-0 left-0  w-full min-h-[100px] !z-[9999]  `">
-    <!-- {{ safeAreaBottom }} -->
-    <!-- <n-button type="primary" @click="app.isWalletRegistered = !app.isWalletRegistered">切换</n-button> -->
+  <div :class="`fixed bottom-0 left-0  w-full min-h-[100px] !z-[9999] bg-white  dark:bg-background-dark`">
     <MyFooterX class="min-h-[100px]" />
   </div>
 </template>

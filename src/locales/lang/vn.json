@@ -1,4 +1,23 @@
 {
+  "common": {
+    "time": {
+      "mmss": "{m} phút {s} giây"
+    },
+    "password_required": "Mật khẩu là bắt buộc",
+    "keystore_content_required": "Vui lòng cung cấp nội dung Keystore",
+    "keystore_decrypt_failed": "Giải mã Keystore thất bại. Vui lòng kiểm tra mật khẩu hoặc nội dung tệp",
+    "password_incorrect": "Mật khẩu không chính xác. Vui lòng thử lại",
+    "keystore_format_invalid": "Định dạng Keystore không hợp lệ. Vui lòng nhập lại hoặc đăng ký ví mới",
+    "keystore_format_invalid2": "Định dạng Keystore không hợp lệ. Vui lòng nhập lại hoặc đăng ký tài khoản mới",
+    "decrypt_failed_retry": "Giải mã thất bại. Vui lòng thử lại sau",
+    "updateTip": "Phát hiện phiên bản mới của hệ thống. Làm mới trang ngay bây giờ?",
+    "later": "Để sau",
+    "refreshNow": "Làm mới ngay",
+    "updateTitle": "Thông báo cập nhật hệ thống",
+    "light": "Sáng",
+    "dark": "Tối",
+    "auto": "Theo hệ thống"
+  },
   "app": {
     "wallet": "Ví",
     "remote": "Từ xa",

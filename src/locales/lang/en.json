@@ -13,7 +13,10 @@
     "updateTip": "A new version of the system has been detected, refresh the page now?",
     "later": "Later",
     "refreshNow": "Refresh now",
-    "updateTitle": "System update notification"
+    "updateTitle": "System update notification",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Follow System"
   },
   "app": {
     "wallet": "Account",

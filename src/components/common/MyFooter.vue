@@ -2,7 +2,6 @@
   <div
     :style="{ paddingBottom: safeAreaBottom }"
     class="w-full !h-full flex items-center justify-between px-[22px] pt-5 rounded-t-lg shadow-top transition-colors duration-300"
-    :class="['bg-[var(--bgc1)] text-[var(--text-color1)]']"
   >
     <div
       v-for="(item, index) in tabs"

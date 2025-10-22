@@ -1,45 +1,42 @@
-<script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { appStore } from '@/store/Modules/app'
-import { onMounted, watch } from 'vue'
-import { NSwitch } from 'naive-ui'
-
-const store = appStore()
-const { theme } = storeToRefs(store)
-
-const isDark = computed({
-  get: () => theme.value === 'dark',
-  set: (val: boolean) => {
-    theme.value = val ? 'dark' : 'light'
-  },
-})
-
-// ✅ 正确初始化 data-theme 属性
-onMounted(() => {
-  const html = document.documentElement
-  html.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
-})
-</script>
-
+<!-- ThemeDropdown.vue -->
 <template>
-  <n-switch
-    :value="isDark"
-    @update:value="(val) => (isDark = val)"
-    :rail-style="
-      ({ checked }) => ({
-        backgroundColor: checked ? '#03C188' : '#dcdcdc',
-      })
-    "
-  >
-    <template #checked-icon>
-      <n-icon>
-        <Icon icon="solar:cloudy-moon-bold-duotone" class="text-yellow-500" />
-      </n-icon>
-    </template>
-    <template #unchecked-icon>
-      <n-icon>
-        <Icon icon="solar:sun-2-linear" class="text-amber-500" />
-      </n-icon>
-    </template>
-  </n-switch>
+  <n-dropdown v-model:value="mode" :options="options" trigger="click" @select="onSelect">
+    <n-button text aria-label="主题">
+      <Icon :icon="iconOf(mode)" class="text-[21px] text-primary-light dark:text-primary-dark" />
+    </n-button>
+  </n-dropdown>
 </template>
+
+<script setup lang="ts">
+import { h, computed } from 'vue'
+import { NDropdown, NButton } from 'naive-ui'
+import { Icon } from '@iconify/vue'
+import { useTheme } from '@/hooks/app/useTheme'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+
+const { mode, setMode } = useTheme()
+
+const onSelect = (k: string | number) => setMode(k as any)
+
+const options = computed<any[]>(() => [
+  {
+    key: 'auto',
+    label: t('common.auto'),
+    icon: () => h(Icon, { icon: 'material-symbols-light:wand-stars', class: 'text-[16px]' }),
+  },
+  {
+    key: 'light',
+    label: t('common.light'),
+    icon: () => h(Icon, { icon: 'ph:sun-duotone', class: 'text-[16px]' }),
+  },
+  {
+    key: 'dark',
+    label: t('common.dark'),
+    icon: () => h(Icon, { icon: 'solar:moon-stars-bold-duotone', class: 'text-[16px]' }),
+  },
+])
+
+const iconOf = (m: any) =>
+  m === 'auto' ? 'material-symbols-light:wand-stars' : m === 'light' ? 'ph:sun-duotone' : 'solar:moon-stars-bold-duotone'
+</script>
